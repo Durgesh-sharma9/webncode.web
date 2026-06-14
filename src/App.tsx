@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { ThemeProvider } from './contexts/ThemeContext'
 import Layout from './components/layout/Layout'
 import Home from './pages/Home'
 import Products from './pages/Products'
@@ -12,18 +13,20 @@ import Contact from './pages/Contact'
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="products" element={<Products />} />
-          <Route path="products/:slug" element={<ProductDetail />} />
-          <Route path="solutions" element={<Solutions />} />
-          <Route path="about" element={<About />} />
-          <Route path="careers" element={<Careers />} />
-          <Route path="updates" element={<Updates />} />
-          <Route path="contact" element={<Contact />} />
-        </Route>
-      </Routes>
+      <ThemeProvider>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="products" element={<Products />} />
+            <Route path="products/:slug" element={<ProductDetail />} />
+            <Route path="solutions" element={<Solutions />} />
+            <Route path="about" element={<About />} />
+            <Route path="careers" element={<Careers />} />
+            <Route path="updates" element={<Updates />} />
+            <Route path="contact" element={<Contact />} />
+          </Route>
+        </Routes>
+      </ThemeProvider>
     </BrowserRouter>
   )
 }

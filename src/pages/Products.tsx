@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
-import { motion } from 'framer-motion'
-import ProductCard from '../components/ui/ProductCard'
+import { motion, AnimatePresence } from 'framer-motion'
 import { SearchIcon } from '../components/ui/Icons'
+import ProductCard from '../components/ui/ProductCard'
 import { products, productCategories } from '../data/products'
 
 export default function Products() {
@@ -21,48 +21,55 @@ export default function Products() {
 
   return (
     <>
-      <section className="border-b border-border bg-surface">
-        <div className="container-wide section-padding !pb-16">
+      <section className="relative overflow-hidden gradient-bg pt-8">
+        <div className="orb orb-primary w-96 h-96 -top-48 -right-48" />
+        <div className="orb orb-accent w-80 h-80 bottom-0 -left-40" />
+        
+        <div className="container-wide relative px-5 pt-16 pb-12 md:px-8 lg:px-12 lg:pt-20 lg:pb-16">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.6 }}
+            className="max-w-3xl"
           >
-            <span className="text-sm font-semibold uppercase tracking-widest text-primary">
-              Products
+            <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-primary">
+              Web n Code Suite
             </span>
-            <h1 className="mt-3 text-4xl font-bold tracking-tight text-navy md:text-5xl">
-              Our SaaS Product Suite
+            <h1 className="mt-5 display-lg gradient-text">
+              Our SaaS Products
             </h1>
-            <p className="mt-4 max-w-2xl text-lg text-muted">
-              Explore our portfolio of software products designed to simplify operations for schools, colleges, and organizations.
+            <p className="mt-5 text-lg leading-relaxed text-text-secondary md:text-xl">
+              Explore our native product suite built from the ground up to solve operation management, automation, and data complexities.
             </p>
           </motion.div>
         </div>
       </section>
 
-      <section className="section-padding">
+      <section className="section-padding section-surface">
         <div className="container-wide">
-          <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mb-12 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="relative max-w-md flex-1">
-              <SearchIcon className="absolute top-1/2 left-4 -translate-y-1/2 text-muted" />
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                <SearchIcon className="h-5 w-5 text-muted" />
+              </div>
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder="Search products (e.g., HireHub, Attendance...)"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-xl border border-border bg-white py-3 pr-4 pl-12 text-sm text-navy outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="w-full rounded-2xl border border-border bg-card py-3.5 pr-4 pl-12 text-sm text-text-primary shadow-sm outline-none transition-all duration-200 placeholder:text-muted focus:border-primary focus:ring-4 focus:ring-primary/20"
               />
             </div>
-            <div className="flex flex-wrap gap-2">
+
+            <div className="flex flex-wrap gap-2.5">
               {productCategories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setCategory(cat)}
-                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                  className={`rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
                     category === cat
-                      ? 'bg-primary text-white'
-                      : 'border border-border bg-white text-muted hover:text-navy'
+                      ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                      : 'border border-border bg-card text-text-secondary hover:border-primary hover:text-primary'
                   }`}
                 >
                   {cat}
@@ -71,17 +78,41 @@ export default function Products() {
             </div>
           </div>
 
-          {filtered.length > 0 ? (
-            <div className="grid gap-8 md:grid-cols-2">
-              {filtered.map((product, i) => (
-                <ProductCard key={product.id} product={product} index={i} />
-              ))}
-            </div>
-          ) : (
-            <div className="py-20 text-center">
-              <p className="text-lg text-muted">No products match your search.</p>
-            </div>
-          )}
+          <div className="relative">
+            <AnimatePresence mode="popLayout">
+              {filtered.length > 0 ? (
+                <motion.div layout className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {filtered.map((product, i) => (
+                    <motion.div
+                      layout
+                      key={product.id}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.3, delay: i * 0.05 }}
+                    >
+                      <ProductCard product={product} index={i} />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="mx-auto max-w-md py-20 text-center"
+                >
+                  <h3 className="heading-lg text-text-primary">No products found</h3>
+                  <p className="mt-2 text-sm text-text-secondary">We couldn't find anything matching your keywords.</p>
+                  <button
+                    onClick={() => { setSearch(''); setCategory('All'); }}
+                    className="mt-4 text-sm font-semibold text-primary hover:underline"
+                  >
+                    Clear Search
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </section>
     </>

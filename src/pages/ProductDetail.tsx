@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useParams, Link, Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Button from '../components/ui/Button'
+import ScreenshotGallery from '../components/ui/ScreenshotGallery'
 import { CheckIcon, ArrowRightIcon } from '../components/ui/Icons'
 import { getProductBySlug, products } from '../data/products'
 
@@ -16,51 +17,58 @@ export default function ProductDetail() {
 
   return (
     <>
-      {/* Hero */}
-      <section className="border-b border-border bg-surface">
+      <section className="border-b border-border/60 section-surface">
         <div className="container-wide section-padding">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.6 }}
             className="grid items-center gap-12 lg:grid-cols-2"
           >
             <div>
-              <Link to="/products" className="text-sm font-medium text-primary hover:text-primary-light">
+              <Link to="/products" className="text-sm font-semibold text-primary hover:text-primary-light">
                 ← Back to Products
               </Link>
-              <span className="mt-4 mb-2 block text-sm font-semibold uppercase tracking-wider text-primary">
+              <span className="mt-4 mb-2 block text-sm font-bold uppercase tracking-wider text-primary">
                 {product.category}
               </span>
-              <h1 className="text-4xl font-bold tracking-tight text-navy md:text-5xl">
+              <h1 className="display-md text-text-primary">
                 {product.title}
               </h1>
-              <p className="mt-4 text-lg leading-relaxed text-muted">
+              <p className="mt-4 text-lg leading-relaxed text-text-secondary">
                 {product.shortDescription}
               </p>
               <div className="mt-8 flex flex-wrap gap-4">
-                <Button to="/contact" size="lg">
+                <Button to="/contact" size="lg" className="shadow-xl shadow-primary/30">
                   Request a Demo
                 </Button>
-                <Button to="/contact" variant="outline" size="lg">
-                  Contact Sales
+                <Button
+                  onClick={() => window.open(product.demoUrl, '_blank')}
+                  variant="outline"
+                  size="lg"
+                  className="border-2"
+                >
+                  Live Demo
                 </Button>
               </div>
             </div>
-            <div
-              className="card-shadow-hover overflow-hidden rounded-2xl border border-border"
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="card-premium overflow-hidden"
               style={{ backgroundColor: product.accentColor }}
             >
               <div className="p-6">
-                <div className="overflow-hidden rounded-xl border border-white/60 bg-white">
-                  <div className="flex items-center gap-2 border-b border-border px-4 py-3">
+                <div className="overflow-hidden rounded-xl border border-white/60 bg-card">
+                  <div className="flex items-center gap-2 border-b border-border/60 px-4 py-3">
                     <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: product.color }} />
-                    <div className="text-xs text-muted">{product.title} Dashboard</div>
+                    <div className="text-xs text-text-secondary">{product.title} Dashboard</div>
                   </div>
                   <div className="p-5">
                     <div className="grid grid-cols-3 gap-3 mb-4">
                       {[1, 2, 3].map((n) => (
-                        <div key={n} className="rounded-lg border border-border p-3">
+                        <div key={n} className="rounded-lg border border-border/60 p-3">
                           <div className="h-1.5 w-8 rounded mb-2" style={{ backgroundColor: product.color, opacity: 0.5 }} />
                           <div className="h-4 w-12 rounded" style={{ backgroundColor: product.color, opacity: 0.2 }} />
                         </div>
@@ -78,92 +86,85 @@ export default function ProductDetail() {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>
 
-      {/* Overview */}
-      <section className="section-padding">
-        <div className="container-wide max-w-3xl">
-          <h2 className="text-2xl font-bold text-navy">Overview</h2>
-          <p className="mt-4 text-lg leading-relaxed text-muted">{product.description}</p>
+      <section className="section-padding section-light">
+        <div className="container-wide container-narrow">
+          <h2 className="display-sm text-text-primary">Overview</h2>
+          <p className="mt-5 text-lg leading-relaxed text-text-secondary">{product.description}</p>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="section-padding bg-surface">
+      <section className="section-padding section-surface">
         <div className="container-wide">
-          <h2 className="mb-10 text-center text-2xl font-bold text-navy">Key Features</h2>
+          <h2 className="mb-10 text-center display-sm text-text-primary">Key Features</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {product.features.map((feature, i) => (
               <motion.div
                 key={feature}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-                className="flex items-start gap-3 rounded-xl border border-border bg-white p-5"
+                transition={{ delay: i * 0.08 }}
+                whileHover={{ y: -4 }}
+                className="card-premium flex items-start gap-3 p-5"
               >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent/10">
-                  <CheckIcon className="h-4 w-4 text-accent" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                  <CheckIcon className="h-5 w-5" />
                 </div>
-                <span className="font-medium text-navy">{feature}</span>
+                <span className="font-semibold text-text-primary">{feature}</span>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Benefits */}
-      <section className="section-padding">
+      <section className="section-padding section-light">
         <div className="container-wide">
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
             <div>
-              <h2 className="text-2xl font-bold text-navy">Benefits</h2>
-              <p className="mt-3 text-muted">
+              <h2 className="display-sm text-text-primary">Benefits</h2>
+              <p className="mt-4 text-text-secondary">
                 Organizations using {product.title} experience measurable improvements in efficiency and outcomes.
               </p>
               <ul className="mt-8 space-y-4">
                 {product.benefits.map((benefit) => (
                   <li key={benefit} className="flex items-start gap-3">
-                    <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-white">
-                      <CheckIcon className="h-3.5 w-3.5" />
+                    <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-light text-white shadow-lg shadow-primary/30">
+                      <CheckIcon className="h-4 w-4" />
                     </div>
-                    <span className="text-navy/80">{benefit}</span>
+                    <span className="text-text-primary/80">{benefit}</span>
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="card-shadow rounded-2xl border border-border bg-white p-8">
-              <h3 className="font-bold text-navy">Screenshots</h3>
-              <div className="mt-4 space-y-4">
-                {['Dashboard View', 'Reports Panel', 'Settings'].map((screen) => (
-                  <div key={screen} className="overflow-hidden rounded-xl border border-border">
-                    <div className="flex items-center gap-2 border-b border-border bg-surface px-4 py-2">
-                      <div className="h-2 w-2 rounded-full" style={{ backgroundColor: product.color }} />
-                      <span className="text-xs text-muted">{screen}</span>
-                    </div>
-                    <div className="p-4" style={{ backgroundColor: product.accentColor }}>
-                      <div className="h-24 rounded-lg bg-white/80" />
-                    </div>
-                  </div>
-                ))}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="card-premium p-8"
+            >
+              <h3 className="heading-xl text-text-primary">Screenshots</h3>
+              <div className="mt-4">
+                <ScreenshotGallery screenshots={product.screenshots} productName={product.title} />
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* FAQs */}
-      <section className="section-padding bg-surface">
-        <div className="container-wide max-w-3xl">
-          <h2 className="mb-8 text-center text-2xl font-bold text-navy">Frequently Asked Questions</h2>
+      <section className="section-padding section-surface">
+        <div className="container-wide container-narrow">
+          <h2 className="mb-8 text-center display-sm text-text-primary">Frequently Asked Questions</h2>
           <div className="space-y-3">
             {product.faqs.map((faq, i) => (
-              <div key={faq.question} className="overflow-hidden rounded-xl border border-border bg-white">
+              <div key={faq.question} className="card-premium overflow-hidden">
                 <button
-                  className="flex w-full items-center justify-between px-6 py-4 text-left font-semibold text-navy"
+                  className="flex w-full items-center justify-between px-6 py-4 text-left font-semibold text-text-primary"
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 >
                   {faq.question}
@@ -173,7 +174,7 @@ export default function ProductDetail() {
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
-                    className="px-6 pb-4 text-muted leading-relaxed"
+                    className="px-6 pb-4 text-text-secondary leading-relaxed"
                   >
                     {faq.answer}
                   </motion.div>
@@ -184,33 +185,40 @@ export default function ProductDetail() {
         </div>
       </section>
 
-      {/* Related + CTA */}
-      <section className="section-padding">
+      <section className="section-padding section-light">
         <div className="container-wide">
           {related.length > 0 && (
             <div className="mb-16">
-              <h2 className="mb-6 text-xl font-bold text-navy">Related Products</h2>
+              <h2 className="mb-6 heading-xl text-text-primary">Related Products</h2>
               <div className="flex flex-wrap gap-4">
                 {related.map((p) => (
                   <Link
                     key={p.id}
                     to={`/products/${p.slug}`}
-                    className="group flex items-center gap-2 rounded-xl border border-border px-5 py-3 transition-colors hover:border-primary hover:bg-primary/5"
+                    className="group card-premium flex items-center gap-2 px-5 py-3 transition-all hover:border-primary hover:bg-primary/5"
                   >
-                    <span className="font-semibold text-navy">{p.title}</span>
+                    <span className="font-semibold text-text-primary">{p.title}</span>
                     <ArrowRightIcon className="transition-transform group-hover:translate-x-1" />
                   </Link>
                 ))}
               </div>
             </div>
           )}
-          <div className="rounded-2xl bg-navy px-8 py-12 text-center">
-            <h2 className="text-2xl font-bold text-white">Interested in {product.title}?</h2>
-            <p className="mt-3 text-white/60">Get in touch with our team to schedule a demo or learn more.</p>
-            <div className="mt-6">
-              <Button to="/contact" size="lg">Contact Us</Button>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="rounded-3xl bg-gradient-to-br from-navy via-navy-light to-primary px-8 py-16 text-center"
+          >
+            <h2 className="display-md text-white">Interested in {product.title}?</h2>
+            <p className="mt-4 text-lg text-white/70">Get in touch with our team to schedule a demo or learn more.</p>
+            <div className="mt-8">
+              <Button to="/contact" size="lg" className="bg-white text-navy hover:bg-surface hover:text-primary shadow-xl shadow-white/20">
+                Contact Us
+              </Button>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
     </>

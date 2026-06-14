@@ -19,15 +19,15 @@ export default function SectionHeading({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.5 }}
-      className={`mb-14 max-w-2xl ${alignClass}`}
+      transition={{ duration: 0.6 }}
+      className={`mb-12 max-w-3xl ${alignClass}`}
     >
       {label && (
         <span
-          className={`mb-3 inline-block text-sm font-semibold uppercase tracking-widest ${
+          className={`mb-4 inline-block text-xs font-bold uppercase tracking-widest ${
             light ? 'text-primary-light' : 'text-primary'
           }`}
         >
@@ -35,16 +35,16 @@ export default function SectionHeading({
         </span>
       )}
       <h2
-        className={`text-3xl font-bold tracking-tight md:text-4xl ${
-          light ? 'text-white' : 'text-navy'
+        className={`display-sm ${
+          light ? 'text-white' : 'text-text-primary'
         }`}
       >
         {title}
       </h2>
       {description && (
         <p
-          className={`mt-4 text-lg leading-relaxed ${
-            light ? 'text-white/70' : 'text-muted'
+          className={`mt-5 text-lg leading-relaxed ${
+            light ? 'text-white/70' : 'text-text-secondary'
           }`}
         >
           {description}

@@ -17,19 +17,19 @@ interface ButtonProps {
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    'bg-primary text-white hover:bg-primary-light shadow-sm hover:shadow-md',
+    'bg-primary text-white hover:bg-primary-dark shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30',
   secondary:
-    'bg-navy text-white hover:bg-navy/90 shadow-sm hover:shadow-md',
+    'bg-navy text-white hover:bg-navy-light shadow-lg shadow-navy/25 hover:shadow-xl hover:shadow-navy/30',
   outline:
-    'border-2 border-primary text-primary hover:bg-primary hover:text-white',
+    'border-2 border-primary text-primary hover:bg-primary hover:text-white hover:border-primary',
   ghost:
-    'text-navy hover:bg-surface border border-border',
+    'text-text-primary hover:bg-surface border border-border hover:border-primary/30',
 }
 
 const sizes: Record<ButtonSize, string> = {
-  sm: 'px-4 py-2 text-sm',
-  md: 'px-6 py-3 text-sm',
-  lg: 'px-8 py-3.5 text-base',
+  sm: 'px-5 py-2.5 text-sm rounded-xl',
+  md: 'px-6 py-3 text-sm rounded-xl',
+  lg: 'px-8 py-4 text-base rounded-xl',
 }
 
 export default function Button({
@@ -42,7 +42,7 @@ export default function Button({
   className = '',
   onClick,
 }: ButtonProps) {
-  const classes = `inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-all duration-200 ${variants[variant]} ${sizes[size]} ${className}`
+  const classes = `inline-flex items-center justify-center gap-2 font-semibold transition-all duration-300 ${variants[variant]} ${sizes[size]} ${className}`
 
   if (to) {
     return (

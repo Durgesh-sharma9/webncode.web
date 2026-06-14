@@ -1,8 +1,8 @@
 export const company = {
   name: 'Web n Code Technologies',
-  tagline: 'Code • Innovate • Growth',
+  tagline: 'Code. Innovate. Grow.',
   description:
-    'Web n Code Technologies builds modern SaaS products and software solutions that help organizations manage operations efficiently.',
+    'Web n Code Technologies builds SaaS products and custom software that help schools, colleges, and growing organizations run daily operations with clarity, speed, and control.',
   email: 'hello@webncode.com',
   phone: '+91 98765 43210',
   address: 'Tech Park, Sector 62, Noida, Uttar Pradesh 201309, India',
@@ -18,31 +18,31 @@ export const whyChoose = [
   {
     title: 'Modern Technology',
     description:
-      'Built with cutting-edge frameworks and cloud-native architecture for performance and longevity.',
+      'Built with current frameworks and cloud-native architecture for performance, reliability, and long-term product health.',
     icon: 'cpu',
   },
   {
     title: 'Scalable Solutions',
     description:
-      'Products designed to grow with your organization—from single campus to multi-branch operations.',
+      'Products designed to grow with your organization, from a single campus to multi-branch operations.',
     icon: 'scale',
   },
   {
     title: 'Secure Systems',
     description:
-      'Enterprise-grade security with role-based access, encrypted data, and regular compliance audits.',
+      'Enterprise-grade security with role-based access, encrypted data, and regular compliance reviews.',
     icon: 'shield',
   },
   {
     title: 'User-Friendly Design',
     description:
-      'Intuitive interfaces that reduce training time and help teams adopt new tools faster.',
+      'Clear interfaces that reduce training time and help teams adopt new workflows faster.',
     icon: 'design',
   },
   {
     title: 'Reliable Support',
     description:
-      'Dedicated support team with structured SLAs and continuous product improvements.',
+      'Dedicated support with structured handover, product guidance, and continuous improvements after launch.',
     icon: 'support',
   },
 ]
@@ -112,6 +112,33 @@ export const stats = [
   { label: 'Projects Delivered', value: 85, suffix: '+' },
   { label: 'Organizations Served', value: 150, suffix: '+' },
   { label: 'Support Availability', value: 24, suffix: '/7' },
+]
+
+export const deliveryHighlights = [
+  {
+    title: 'Discovery workshops',
+    description:
+      'We map teams, approval flows, reports, and existing tools before writing a product plan.',
+    metric: '2-4 days',
+  },
+  {
+    title: 'Role-based dashboards',
+    description:
+      'Admins, teachers, finance teams, parents, and leadership each get the view they need.',
+    metric: '6+ roles',
+  },
+  {
+    title: 'Migration support',
+    description:
+      'Structured imports, validation sheets, and rollout checklists keep old data useful.',
+    metric: 'Zero chaos',
+  },
+  {
+    title: 'Training and rollout',
+    description:
+      'Guided onboarding, documentation, and support help teams adopt the platform quickly.',
+    metric: 'Live assist',
+  },
 ]
 
 export const coreValues = [

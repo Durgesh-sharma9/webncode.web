@@ -9,7 +9,6 @@ export default function DashboardShowcase() {
       className="relative"
     >
       <div className="card-shadow-hover overflow-hidden rounded-2xl border border-border bg-white">
-        {/* Browser chrome */}
         <div className="flex items-center gap-2 border-b border-border bg-surface px-4 py-3">
           <div className="flex gap-1.5">
             <div className="h-3 w-3 rounded-full bg-red-400/80" />
@@ -22,7 +21,6 @@ export default function DashboardShowcase() {
         </div>
 
         <div className="flex">
-          {/* Sidebar */}
           <div className="hidden w-48 shrink-0 border-r border-border bg-navy p-4 sm:block">
             <div className="mb-6 flex items-center gap-2">
               <div className="h-7 w-7 rounded-lg bg-primary" />
@@ -43,7 +41,6 @@ export default function DashboardShowcase() {
             </div>
           </div>
 
-          {/* Main content */}
           <div className="flex-1 p-5">
             <div className="mb-5 flex items-center justify-between">
               <div>
@@ -53,12 +50,11 @@ export default function DashboardShowcase() {
               <div className="h-8 w-24 rounded-lg bg-primary" />
             </div>
 
-            {/* Stats row */}
             <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
               {[
                 { label: 'Students', value: '2,847', color: 'bg-primary' },
                 { label: 'Attendance', value: '94.2%', color: 'bg-accent' },
-                { label: 'Revenue', value: '₹12.4L', color: 'bg-primary-light' },
+                { label: 'Fees', value: 'Rs 12.4L', color: 'bg-primary-light' },
                 { label: 'Pending', value: '23', color: 'bg-navy' },
               ].map((stat) => (
                 <div key={stat.label} className="rounded-xl border border-border p-3">
@@ -69,7 +65,6 @@ export default function DashboardShowcase() {
               ))}
             </div>
 
-            {/* Chart area */}
             <div className="grid gap-3 lg:grid-cols-5">
               <div className="rounded-xl border border-border p-4 lg:col-span-3">
                 <div className="mb-3 h-2.5 w-28 rounded bg-navy/60" />
@@ -104,7 +99,6 @@ export default function DashboardShowcase() {
         </div>
       </div>
 
-      {/* Floating card */}
       <motion.div
         animate={{ y: [0, -6, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
@@ -116,7 +110,7 @@ export default function DashboardShowcase() {
           </div>
           <div>
             <div className="text-sm font-semibold text-navy">Attendance Recorded</div>
-            <div className="text-xs text-muted">2,814 students · Just now</div>
+            <div className="text-xs text-muted">2,814 students - Just now</div>
           </div>
         </div>
       </motion.div>

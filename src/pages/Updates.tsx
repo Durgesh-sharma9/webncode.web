@@ -20,21 +20,21 @@ function UpdateModal({ update, onClose }: { update: Update; onClose: () => void 
       onClick={onClose}
     >
       <motion.article
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0, scale: 0.95, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-8"
+        exit={{ opacity: 0, scale: 0.95, y: 30 }}
+        className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-card p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${categoryColors[update.category]}`}>
+          <span className={`rounded-full px-3 py-1 text-xs font-bold ${categoryColors[update.category]}`}>
             {update.category}
           </span>
-          <button onClick={onClose} className="text-muted hover:text-navy text-xl">×</button>
+          <button onClick={onClose} className="text-text-secondary hover:text-text-primary text-xl">×</button>
         </div>
-        <time className="text-sm text-muted">{formatDate(update.date)}</time>
-        <h2 className="mt-2 text-2xl font-bold text-navy">{update.title}</h2>
-        <p className="mt-4 leading-relaxed text-muted">{update.content}</p>
+        <time className="text-sm text-text-secondary">{formatDate(update.date)}</time>
+        <h2 className="mt-2 display-sm text-text-primary">{update.title}</h2>
+        <p className="mt-4 leading-relaxed text-text-secondary">{update.content}</p>
       </motion.article>
     </motion.div>
   )
@@ -50,35 +50,35 @@ export default function UpdatesPage() {
 
   return (
     <>
-      <section className="border-b border-border bg-surface">
+      <section className="border-b border-border/60 section-surface">
         <div className="container-wide section-padding !pb-16">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.6 }}
           >
-            <span className="text-sm font-semibold uppercase tracking-widest text-primary">Updates</span>
-            <h1 className="mt-3 text-4xl font-bold tracking-tight text-navy md:text-5xl">
+            <span className="text-xs font-bold uppercase tracking-widest text-primary">Updates</span>
+            <h1 className="mt-4 display-md text-text-primary">
               News & Announcements
             </h1>
-            <p className="mt-4 max-w-2xl text-lg text-muted">
+            <p className="mt-5 max-w-2xl text-lg text-text-secondary">
               Product releases, company milestones, and career opportunities from Web n Code Technologies.
             </p>
           </motion.div>
         </div>
       </section>
 
-      <section className="section-padding">
+      <section className="section-padding section-light">
         <div className="container-wide">
-          <div className="mb-10 flex flex-wrap gap-2">
+          <div className="mb-10 flex flex-wrap gap-2.5">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setFilter(cat)}
-                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                className={`rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all ${
                   filter === cat
-                    ? 'bg-primary text-white'
-                    : 'border border-border text-muted hover:text-navy'
+                    ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                    : 'border border-border bg-card text-text-secondary hover:border-primary hover:text-primary'
                 }`}
               >
                 {cat}
@@ -90,23 +90,24 @@ export default function UpdatesPage() {
             {filtered.map((update, i) => (
               <motion.article
                 key={update.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-                className="group card-shadow flex cursor-pointer flex-col rounded-2xl border border-border bg-white p-6 transition-all hover:card-shadow-hover hover:-translate-y-1"
+                transition={{ delay: i * 0.08 }}
+                whileHover={{ y: -4 }}
+                className="group card-premium flex cursor-pointer flex-col p-6"
                 onClick={() => setSelected(update)}
               >
                 <div className="mb-4 flex items-center justify-between">
-                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${categoryColors[update.category]}`}>
+                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${categoryColors[update.category]}`}>
                     {update.category}
                   </span>
-                  <time className="text-xs text-muted">{formatDate(update.date)}</time>
+                  <time className="text-xs text-text-secondary">{formatDate(update.date)}</time>
                 </div>
-                <h2 className="text-lg font-bold text-navy group-hover:text-primary transition-colors">
+                <h2 className="heading-lg text-text-primary group-hover:text-primary transition-colors">
                   {update.title}
                 </h2>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted line-clamp-3">
+                <p className="mt-3 flex-1 text-sm leading-relaxed text-text-secondary line-clamp-3">
                   {update.excerpt}
                 </p>
                 <span className="mt-4 text-sm font-semibold text-primary">Read more →</span>
