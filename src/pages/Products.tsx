@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { SearchIcon } from '../components/ui/Icons'
 import ProductCard from '../components/ui/ProductCard'
 import { products, productCategories } from '../data/products'
+import dailytestdb from '../assets/projects/daily-test-pro/dtp_db.png'
 
 export default function Products() {
   const [search, setSearch] = useState('')
