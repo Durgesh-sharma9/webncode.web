@@ -18,7 +18,7 @@ export default function ProductDetail() {
   return (
     <>
       <section className="border-b border-border/60 section-surface">
-        <div className="container-wide section-padding">
+        <div className="container-wide section-padding-compact">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -32,13 +32,13 @@ export default function ProductDetail() {
               <span className="mt-4 mb-2 block text-sm font-bold uppercase tracking-wider text-primary">
                 {product.category}
               </span>
-              <h1 className="display-md text-text-primary">
+              <h1 className="display-md gradient-text">
                 {product.title}
               </h1>
-              <p className="mt-4 text-lg leading-relaxed text-text-secondary">
+              <p className="mt-3 text-base leading-relaxed text-text-secondary">
                 {product.shortDescription}
               </p>
-              <div className="mt-8 flex flex-wrap gap-4">
+              <div className="mt-6 flex flex-wrap gap-4">
                 <Button to="/contact" size="lg" className="shadow-xl shadow-primary/30">
                   Request a Demo
                 </Button>
@@ -91,16 +91,16 @@ export default function ProductDetail() {
         </div>
       </section>
 
-      <section className="section-padding section-light">
+      <section className="section-padding-compact section-light">
         <div className="container-wide container-narrow">
           <h2 className="display-sm text-text-primary">Overview</h2>
-          <p className="mt-5 text-lg leading-relaxed text-text-secondary">{product.description}</p>
+          <p className="mt-4 text-base leading-relaxed text-text-secondary">{product.description}</p>
         </div>
       </section>
 
-      <section className="section-padding section-surface">
+      <section className="section-padding-compact section-surface">
         <div className="container-wide">
-          <h2 className="mb-10 text-center display-sm text-text-primary">Key Features</h2>
+          <h2 className="mb-8 text-center display-sm text-text-primary">Key Features</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {product.features.map((feature, i) => (
               <motion.div
@@ -157,9 +157,9 @@ export default function ProductDetail() {
         </div>
       </section>
 
-      <section className="section-padding section-surface">
+      <section className="section-padding-compact section-surface">
         <div className="container-wide container-narrow">
-          <h2 className="mb-8 text-center display-sm text-text-primary">Frequently Asked Questions</h2>
+          <h2 className="mb-6 text-center display-sm text-text-primary">Frequently Asked Questions</h2>
           <div className="space-y-3">
             {product.faqs.map((faq, i) => (
               <div key={faq.question} className="card-premium overflow-hidden">
@@ -185,11 +185,11 @@ export default function ProductDetail() {
         </div>
       </section>
 
-      <section className="section-padding section-light">
+      <section className="section-padding-compact section-light">
         <div className="container-wide">
           {related.length > 0 && (
-            <div className="mb-16">
-              <h2 className="mb-6 heading-xl text-text-primary">Related Products</h2>
+            <div className="mb-12">
+              <h2 className="mb-4 heading-xl text-text-primary">Related Products</h2>
               <div className="flex flex-wrap gap-4">
                 {related.map((p) => (
                   <Link

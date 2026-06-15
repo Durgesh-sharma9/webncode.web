@@ -5,11 +5,11 @@ import { company, coreValues, techStack, roadmap } from '../data/company'
 export default function About() {
   return (
     <>
-      <section className="relative overflow-hidden gradient-bg pt-8">
+      <section className="relative overflow-hidden gradient-bg">
         <div className="orb orb-primary w-96 h-96 -top-48 -right-48" />
         <div className="orb orb-accent w-80 h-80 bottom-0 -left-40" />
         
-        <div className="container-wide relative px-5 pt-16 pb-12 md:px-8 lg:px-12 lg:pt-20 lg:pb-16">
+        <div className="container-wide relative px-5 pt-10 pb-10 md:px-8 lg:px-12 lg:pt-12 lg:pb-12">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -32,7 +32,7 @@ export default function About() {
       <section className="section-padding section-light">
         <div className="container-wide grid gap-12 lg:grid-cols-12 lg:items-center">
           <div className="lg:col-span-7">
-            <h2 className="display-md text-text-primary">Our Story</h2>
+            <h2 className="display-md gradient-text">Our Story</h2>
             <div className="mt-6 space-y-6 text-base leading-relaxed text-text-secondary">
               <p>
                 <strong className="text-text-primary">Web n Code Technologies</strong> was founded with a clear mission: build world-class software products that solve real operational problems for schools, colleges, and organizations across India.
@@ -68,7 +68,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="section-padding section-surface">
+      <section className="section-padding-compact section-surface">
         <div className="container-wide grid gap-6 md:grid-cols-2">
           <motion.div
             initial={{ opacity: 0, y: 30 }}

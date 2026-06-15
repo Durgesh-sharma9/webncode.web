@@ -1,10 +1,19 @@
+export const productCategories = [
+  'All',
+  'Education',
+  'Operations',
+  'Analytics',
+  'HR',
+  'Sports Management',
+] as const
+
 export interface Product {
   id: string
   slug: string
   title: string
   shortDescription: string
   description: string
-  category: string
+  category: typeof productCategories[number]
   features: string[]
   benefits: string[]
   faqs: { question: string; answer: string }[]
@@ -14,266 +23,248 @@ export interface Product {
   demoUrl: string
 }
 
-export const productCategories = [
-  'All',
-  'Education',
-  'Operations',
-  'Analytics',
-  'HR',
-] as const
-
 export const products: Product[] = [
   {
     id: '1',
-    slug: 'timetable-pro',
-    title: 'Timetable Pro',
+    slug: 'web-builder-pro',
+    title: 'Web Builder Pro',
     shortDescription:
-      'AI-powered smart scheduling engine that eliminates clashes and optimizes teacher workloads automatically.',
+      'Professional school website builder with customizable templates and instant publishing.',
     description:
-      'Timetable Pro transforms the complex puzzle of scheduling into a streamlined process. Our AI-powered engine automatically detects conflicts, balances teacher workloads, and publishes schedules to all stakeholders. Perfect for institutions managing hundreds of classes across multiple sections and campuses.',
-    category: 'Operations',
+      'Web Builder Pro enables schools to create, customize, and launch professional websites without coding. Schools can select templates, manage pages, galleries, notices, faculty information, admissions content, and publish their website with ease. The platform also provides secure hosting and a user-friendly content management experience.',
+    category: 'Education',
     features: [
-      'AI-powered schedule generation',
-      'Intelligent conflict detection & resolution',
-      'Teacher workload balancing',
-      'Room & resource allocation',
-      'Substitute teacher management',
-      'Mobile schedule access',
-      'Multi-campus support',
+      'Multiple website templates',
+      'Drag and drop customization',
+      'School profile management',
+      'Notice board management',
+      'Gallery management',
+      'Faculty profiles',
+      'Admission pages',
+      'News and announcements',
+      'Mobile responsive design',
+      'SEO optimization',
+      'Custom domain support',
+      'Cloud hosting'
     ],
     benefits: [
-      'Generate timetables in hours, not weeks',
-      'Reduce scheduling conflicts to near zero',
-      'Improve teacher satisfaction with fair workloads',
-      'Instant updates when changes occur',
-      'Save 80% of administrative time on scheduling',
+      'No coding required',
+      'Professional school websites',
+      'Easy customization',
+      'Instant publishing',
+      'Mobile-friendly design',
+      'Improved online presence',
+      'Secure cloud hosting'
     ],
     faqs: [
       {
-        question: 'Can we handle lab and practical sessions?',
+        question: 'Do I need coding skills to use Web Builder Pro?',
         answer:
-          'Yes. The system supports room types, equipment requirements, and consecutive period blocks.',
+          'No. Web Builder Pro is designed for non-technical users. Our drag-and-drop interface makes website creation simple and intuitive.',
       },
       {
-        question: 'What happens when a teacher is absent?',
+        question: 'Can I use my own domain name?',
         answer:
-          'Substitute management workflows help assign replacements and notify affected classes automatically.',
+          'Yes. Web Builder Pro supports custom domain integration. You can connect your existing domain or purchase a new one through our platform.',
       },
       {
-        question: 'Can students view their timetable?',
+        question: 'Are the templates mobile-responsive?',
         answer:
-          'Students and parents can access personalized timetables through the portal or mobile app.',
+          'All our templates are fully responsive and optimized for mobile devices, ensuring your website looks great on any screen size.',
+      },
+      {
+        question: 'Can I update content after publishing?',
+        answer:
+          'Yes. You can update content, add new pages, manage galleries, and publish changes instantly at any time.',
+      },
+      {
+        question: 'Is hosting included?',
+        answer:
+          'Yes. Web Builder Pro includes secure cloud hosting with SSL certificates, automatic backups, and 99.9% uptime guarantee.',
       },
     ],
-    color: '#0F5ED7',
-    accentColor: '#E3F2FD',
+    color: '#7C3AED',
+    accentColor: '#EDE9FE',
     screenshots: [
-      'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop',
+    ],
+    demoUrl: 'https://demo.webncode.com/web-builder-pro',
+  },
+  {
+    id: '2',
+    slug: 'timetable-pro',
+    title: 'Timetable Pro',
+    shortDescription:
+      'Smart timetable and academic management platform for schools and educational institutions.',
+    description:
+      'Timetable Pro helps schools manage faculty schedules, class timetables, homework assignments, and teaching activities. Teachers can view schedules, submit daily reports, assign homework, track completed topics, and stay organized through a centralized dashboard. The system reduces scheduling conflicts and improves academic coordination across the institution.',
+    category: 'Education',
+    features: [
+      'Faculty timetable management',
+      'Class timetable scheduling',
+      'Teacher dashboard',
+      'Homework assignment',
+      'Daily teaching reports',
+      'Period management',
+      'Class-wise schedules',
+      'Academic planning',
+      'Teacher activity tracking',
+      'Notifications and updates'
+    ],
+    benefits: [
+      'Reduce timetable conflicts',
+      'Improve academic planning',
+      'Assign homework digitally',
+      'Track teacher activities',
+      'Centralized timetable management',
+      'Save administrative time'
+    ],
+    faqs: [],
+    color: '#2563EB',
+    accentColor: '#DBEAFE',
+    screenshots: [
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop',
     ],
     demoUrl: 'https://demo.webncode.com/timetable-pro',
   },
   {
-    id: '2',
-    slug: 'syllabus-tracker-pro',
-    title: 'Syllabus Tracker Pro',
-    shortDescription:
-      'Track syllabus completion in real-time with automated progress reports and teacher accountability.',
-    description:
-      'Syllabus Tracker Pro gives institutions complete visibility into curriculum progress. Track chapter completion, identify gaps, and ensure syllabus is completed on time. Perfect for coaching centers and schools that need to maintain consistent teaching standards across multiple batches.',
-    category: 'Education',
-    features: [
-      'Real-time syllabus tracking',
-      'Chapter-wise progress monitoring',
-      'Teacher accountability reports',
-      'Automated progress alerts',
-      'Batch comparison analytics',
-      'Parent progress visibility',
-    ],
-    benefits: [
-      'Ensure 100% syllabus completion',
-      'Identify underperforming batches early',
-      'Improve teaching consistency',
-      'Reduce administrative monitoring time',
-      'Data-driven parent communication',
-    ],
-    faqs: [
-      {
-        question: 'Can we customize the syllabus structure?',
-        answer:
-          'Yes. You can define custom chapters, topics, and weightage for each subject and batch.',
-      },
-      {
-        question: 'How do teachers update progress?',
-        answer:
-          'Teachers can update progress via mobile app or web portal in under 30 seconds per class.',
-      },
-      {
-        question: 'Can parents see syllabus progress?',
-        answer:
-          'Yes, parents receive weekly progress reports and can view real-time completion status.',
-      },
-    ],
-    color: '#1E88E5',
-    accentColor: '#E1F5FE',
-    screenshots: [
-      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1507925921958-8a62f3d1a50d?q=80&w=1200&auto=format&fit=crop',
-    ],
-    demoUrl: 'https://demo.webncode.com/syllabus-tracker-pro',
-  },
-  {
     id: '3',
-    slug: 'test-master-pro',
-    title: 'Test Master Pro',
+    slug: 'star-sports',
+    title: 'Star Sports',
     shortDescription:
-      'Comprehensive online & offline assessment platform with instant analytical reports for students.',
+      'Sports ground booking and management platform for sports facility owners.',
     description:
-      'Test Master Pro is a complete examination management system for online and offline assessments. Create tests, conduct exams, auto-grade answers, and generate detailed performance analytics. Ideal for coaching institutes, schools, and colleges conducting regular assessments and competitive exam preparation.',
-    category: 'Education',
+      'Star Sports helps sports ground owners manage bookings, schedules, customer records, and accounts from a single platform. Owners can track upcoming bookings, prevent booking clashes, manage payments, monitor ground utilization, and maintain complete operational control. The platform simplifies sports facility management and improves the booking experience for customers.',
+    category: 'Sports Management',
     features: [
-      'Online & offline test modes',
-      'Question bank management',
-      'Auto-grading with answer keys',
-      'Detailed performance analytics',
-      'Comparative ranking reports',
-      'Mobile test-taking interface',
+      'Ground booking management',
+      'Booking calendar',
+      'Clash-free scheduling',
+      'Customer management',
+      'Payment tracking',
+      'Account management',
+      'Booking history',
+      'Ground availability tracking',
+      'Daily revenue reports',
+      'Dashboard analytics'
     ],
     benefits: [
-      'Conduct tests 10x faster',
-      'Eliminate manual grading errors',
-      'Provide instant results to students',
-      'Identify weak areas with analytics',
-      'Reduce paper usage by 90%',
+      'Prevent double bookings',
+      'Manage bookings efficiently',
+      'Track customer history',
+      'Monitor revenue and accounts',
+      'Improve ground utilization',
+      'Simplify daily operations',
+      'Save administrative time'
     ],
-    faqs: [
-      {
-        question: 'Does it support different question types?',
-        answer:
-          'Yes. Supports MCQs, true/false, fill-in-the-blanks, and descriptive questions with manual grading.',
-      },
-      {
-        question: 'Can we conduct offline tests?',
-        answer:
-          'Yes. OMR sheet scanning and manual entry modes are available for pen-and-paper tests.',
-      },
-      {
-        question: 'How are results shared?',
-        answer:
-          'Results are instantly available on student portals with detailed performance breakdowns.',
-      },
-    ],
-    color: '#071A52',
-    accentColor: '#E8EAF6',
+    faqs: [],
+    color: '#F97316',
+    accentColor: '#FFEDD5',
     screenshots: [
-      'https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-151749763962-0c623066013b?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1547347298-4074fc3086f0?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1200&auto=format&fit=crop',
     ],
-    demoUrl: 'https://demo.webncode.com/test-master-pro',
+    demoUrl: 'https://demo.webncode.com/star-sports',
   },
   {
     id: '4',
-    slug: 'hirehub',
-    title: 'HireHub',
+    slug: 'daily-test-manager-pro',
+    title: 'Daily Test Manager Pro',
     shortDescription:
-      'SaaS ATS (Applicant Tracking System) for universities and corporations to manage college placements and recruitment smoothly.',
+      'Complete daily test, assessment, ranking, and student performance tracking platform for schools.',
     description:
-      'HireHub is a modern Applicant Tracking System designed for university placement cells and corporate HR teams. Streamline job postings, applications, interview scheduling, and offer management in one unified platform. Built to handle high-volume recruitment with ease.',
-    category: 'HR',
+      'Daily Test Manager Pro helps schools conduct and manage daily tests, periodic assessments, and student performance tracking. Teachers can assign subjects, enter marks, generate rankings, monitor class performance, and analyze academic progress. Parents can view their child’s results, rankings, attendance, and performance reports in real time through a dedicated parent portal.',
+    category: 'Education',
     features: [
-      'Resume parsing & screening',
-      'Interview scheduling automation',
-      'Candidate pipeline management',
-      'Offer letter generation',
-      'Placement drive analytics',
-      'Company-student matching',
+      'Daily test management',
+      'Periodic assessment management',
+      'Subject-wise marks entry',
+      'Automatic rank calculation',
+      'Class and section rankings',
+      'Teacher subject assignment',
+      'Student performance analytics',
+      'Parent portal access',
+      'Result publishing',
+      'Progress reports',
+      'Performance comparison',
+      'Academic dashboards'
     ],
     benefits: [
-      'Reduce placement cycle time by 60%',
-      'Improve candidate screening accuracy',
-      'Centralize all recruitment data',
-      'Better candidate experience',
-      'Data-driven placement decisions',
+      'Automated ranking system',
+      'Track student performance easily',
+      'Reduce manual result preparation',
+      'Real-time parent engagement',
+      'Better academic monitoring',
+      'Detailed performance insights',
+      'Faster result generation'
     ],
     faqs: [
       {
-        question: 'Is it suitable for both universities and companies?',
+        question: 'Can ranks be generated automatically?',
         answer:
-          'Yes. HireHub has dedicated workflows for placement cells and corporate HR teams.',
+          'Yes, the system automatically calculates ranks based on marks and configured ranking rules.'
       },
       {
-        question: 'Does it integrate with job portals?',
+        question: 'Can parents view results?',
         answer:
-          'Yes. We support integration with major job portals and LinkedIn for seamless job posting.',
+          'Yes, parents can access their child’s performance, rankings, and reports through the parent portal.'
       },
       {
-        question: 'Can we customize the recruitment workflow?',
+        question: 'Can teachers manage multiple subjects?',
         answer:
-          'Yes. Workflows are fully customizable to match your organization\'s recruitment process.',
-      },
+          'Yes, teachers can be assigned multiple subjects and classes.'
+      }
     ],
-    color: '#43A047',
-    accentColor: '#E8F5E9',
+    color: '#059669',
+    accentColor: '#D1FAE5',
     screenshots: [
-      'https://images.unsplash.com/photo-1521737711867-e3b90473bd58?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1553877522-43269d4ea984?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1503676382389-4809596d5290?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1200&auto=format&fit=crop',
     ],
-    demoUrl: 'https://demo.webncode.com/hirehub',
+    demoUrl: 'https://demo.webncode.com/daily-test-manager-pro',
   },
   {
     id: '5',
-    slug: 'school-erp-pro',
-    title: 'School ERP Pro',
+    slug: 'hirehub',
+    title: 'HireHub',
     shortDescription:
-      'Complete school management platform to handle admissions, academics, finance, and communication seamlessly.',
+      'Candidate and recruitment management platform for employers, consultants, and job seekers.',
     description:
-      'School ERP Pro is our flagship education management platform designed for K-12 institutions. It unifies admissions, student records, fee management, parent communication, and administrative workflows into a single, intuitive system. Built for administrators who need clarity and parents who need transparency.',
-    category: 'Education',
+      'HireHub streamlines the hiring process by helping organizations manage job postings, candidate applications, interviews, and recruitment workflows. Employers can track applicants, shortlist candidates, schedule interviews, and manage hiring activities from a single dashboard.',
+    category: 'HR',
     features: [
-      'Student & staff management',
-      'Fee collection & receipts',
-      'Parent-teacher communication',
-      'Admission workflow automation',
-      'Report card generation',
-      'Transport & hostel modules',
-      'Library management',
+      'Job posting management',
+      'Candidate database',
+      'Resume management',
+      'Interview scheduling',
+      'Applicant tracking',
+      'Recruitment dashboard',
+      'Employer portal',
+      'Candidate profiles',
+      'Status tracking',
+      'Hiring analytics'
     ],
     benefits: [
-      'Reduce administrative workload by up to 40%',
-      'Improve parent engagement with real-time updates',
-      'Centralize data across departments',
-      'Generate compliance reports instantly',
-      'Streamline admission processes',
+      'Faster hiring process',
+      'Centralized candidate management',
+      'Improved recruitment tracking',
+      'Better hiring decisions',
+      'Reduced manual work'
     ],
-    faqs: [
-      {
-        question: 'Is School ERP Pro suitable for multi-campus schools?',
-        answer:
-          'Yes. School ERP Pro supports multi-branch configurations with centralized reporting and branch-level autonomy.',
-      },
-      {
-        question: 'Can parents access the system on mobile?',
-        answer:
-          'Parents can access a dedicated portal and mobile-friendly interface for fees, attendance, and announcements.',
-      },
-      {
-        question: 'How is data secured?',
-        answer:
-          'We use encrypted connections, role-based access control, and regular security audits to protect your data.',
-      },
-    ],
-    color: '#0F5ED7',
-    accentColor: '#E3F2FD',
+    faqs: [],
+    color: '#8B5CF6',
+    accentColor: '#EDE9FE',
     screenshots: [
-      'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1521737711867-e3b90473bd58?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1553877522-43269d4ea984?q=80&w=1200&auto=format&fit=crop'
     ],
-    demoUrl: 'https://demo.webncode.com/school-erp-pro',
+    demoUrl: 'https://demo.webncode.com/hirehub',
   },
   {
     id: '6',
@@ -525,6 +516,73 @@ export const products: Product[] = [
     ],
     demoUrl: 'https://demo.webncode.com/campus-connect-pro',
   },
+  {
+    id: '11',
+    slug: 'web-builder-pro',
+    title: 'Web Builder Pro',
+    shortDescription:
+      'School website builder platform with professional templates, drag-and-drop customization, and instant publishing.',
+    description:
+      'Web Builder Pro is a powerful school website builder platform that enables educational institutions to create stunning, professional websites without any coding knowledge. Choose from multiple professionally designed templates, customize colors, content, galleries, and announcements, and publish your website instantly. Perfect for schools looking to establish a strong online presence and showcase their institution to prospective parents and students.',
+    category: 'Education',
+    features: [
+      'Multiple professional templates',
+      'Drag and drop customization',
+      'Notice board management',
+      'Gallery management',
+      'Faculty profiles',
+      'Admission pages',
+      'Mobile responsive design',
+      'SEO optimization',
+      'Custom domain support',
+      'Cloud hosting',
+    ],
+    benefits: [
+      'Create professional websites without coding',
+      'Launch your school website in minutes, not months',
+      'Showcase faculty and staff with dedicated profiles',
+      'Manage admissions information seamlessly',
+      'Publish instantly with one-click deployment',
+      'Host websites on our secure cloud platform',
+      'Optimize for search engines to attract more visitors',
+      'Customize branding with colors and logos',
+    ],
+    faqs: [
+      {
+        question: 'Do I need coding skills to use Web Builder Pro?',
+        answer:
+          'No. Web Builder Pro is designed for non-technical users. Our drag-and-drop interface makes website creation simple and intuitive.',
+      },
+      {
+        question: 'Can I use my own domain name?',
+        answer:
+          'Yes. Web Builder Pro supports custom domain integration. You can connect your existing domain or purchase a new one through our platform.',
+      },
+      {
+        question: 'Are the templates mobile-responsive?',
+        answer:
+          'All our templates are fully responsive and optimized for mobile devices, ensuring your website looks great on any screen size.',
+      },
+      {
+        question: 'Can I update content after publishing?',
+        answer:
+          'Yes. You can update content, add new pages, manage galleries, and publish changes instantly at any time.',
+      },
+      {
+        question: 'Is hosting included?',
+        answer:
+          'Yes. Web Builder Pro includes secure cloud hosting with SSL certificates, automatic backups, and 99.9% uptime guarantee.',
+      },
+    ],
+    color: '#7C3AED',
+    accentColor: '#EDE9FE',
+    screenshots: [
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop',
+    ],
+    demoUrl: 'https://demo.webncode.com/web-builder-pro',
+  }
 ]
 
 export function getProductBySlug(slug: string): Product | undefined {

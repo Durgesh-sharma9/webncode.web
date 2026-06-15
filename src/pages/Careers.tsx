@@ -12,34 +12,34 @@ const typeColors: Record<string, string> = {
 export default function Careers() {
   return (
     <>
-      <section className="relative overflow-hidden gradient-bg pt-8">
+      <section className="relative overflow-hidden gradient-bg">
         <div className="orb orb-primary w-96 h-96 -top-48 -right-48" />
         <div className="orb orb-accent w-80 h-80 bottom-0 -left-40" />
         
-        <div className="container-wide relative px-5 pt-16 pb-12 md:px-8 lg:px-12 lg:pt-20 lg:pb-16">
+        <div className="container-wide relative px-5 pt-4 pb-4 md:px-8 lg:px-12 lg:pt-6 lg:pb-6">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="max-w-3xl"
           >
-            <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-primary">
+            <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
               Join Our Product Core
             </span>
-            <h1 className="mt-5 display-lg gradient-text">
+            <h1 className="mt-3 display-lg gradient-text">
               Build Products That Scale & Matter
             </h1>
-            <p className="mt-5 text-lg leading-relaxed text-text-secondary md:text-xl">
+            <p className="mt-3 text-base leading-relaxed text-text-secondary md:text-lg">
               Join an elite team of engineers, designers, and system thinkers in Mahapura, Jaipur, building next-generation SaaS ecosystems used all over India.
             </p>
           </motion.div>
         </div>
       </section>
 
-      <section className="section-padding section-light">
+      <section className="section-padding-compact section-light">
         <div className="container-wide">
           <SectionHeading title="Why Join Us" description="More than just a standard workspace—a product sandbox designed to maximize human potential." />
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:gap-6">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:gap-5">
             {whyJoin.map((item, i) => (
               <motion.div
                 key={item.title}

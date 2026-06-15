@@ -6,8 +6,10 @@ import { solutions } from '../data/solutions'
 export default function Solutions() {
   return (
     <>
-      <section className="border-b border-border/60 section-surface">
-        <div className="container-wide section-padding !pb-16">
+      <section className="relative overflow-hidden gradient-bg border-b border-border/60">
+        <div className="orb orb-primary w-96 h-96 -top-48 -right-48" />
+        <div className="orb orb-accent w-80 h-80 bottom-0 -left-40" />
+        <div className="container-wide section-padding-compact !pb-12 relative">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -16,7 +18,7 @@ export default function Solutions() {
             <span className="text-xs font-bold uppercase tracking-widest text-primary">
               Solutions
             </span>
-            <h1 className="mt-4 display-md text-text-primary">
+            <h1 className="mt-4 display-lg gradient-text">
               Solutions for Every Sector
             </h1>
             <p className="mt-5 max-w-2xl text-lg text-text-secondary">
@@ -27,7 +29,7 @@ export default function Solutions() {
       </section>
 
       <section className="section-padding section-light">
-        <div className="container-wide space-y-20">
+        <div className="container-wide space-y-8">
           {solutions.map((solution, i) => (
             <motion.div
               key={solution.id}
@@ -41,7 +43,7 @@ export default function Solutions() {
                 <span className="text-xs font-bold uppercase tracking-wider text-primary">
                   {solution.industry}
                 </span>
-                <h2 className="mt-2 display-sm text-text-primary">{solution.headline}</h2>
+                <h2 className="mt-2 display-sm gradient-text">{solution.headline}</h2>
 
                 <div className="mt-8">
                   <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-muted">
@@ -86,9 +88,9 @@ export default function Solutions() {
               <div className={`${i % 2 === 1 ? 'lg:order-1' : ''}`}>
                 <div className="card-premium p-8">
                   <div className="mb-6 h-2 w-24 rounded bg-gradient-to-r from-primary to-primary-light" />
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {solution.solutions.map((sol, j) => (
-                      <div key={sol} className="flex items-center gap-4 rounded-xl bg-surface p-4">
+                      <div key={sol} className="flex items-center gap-4 rounded-xl bg-surface p-4 hover:bg-surface-hover transition-colors">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-sm font-bold text-primary">
                           {j + 1}
                         </div>

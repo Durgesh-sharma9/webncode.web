@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { LogoIcon } from '../ui/Icons'
+import Logo from '../ui/Logo'
 import { company } from '../../data/company'
 import { products } from '../../data/products'
 
@@ -17,13 +17,7 @@ export default function Footer() {
       <div className="container-wide section-padding !py-20">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-1">
-            <Link to="/" className="flex items-center gap-3">
-              <LogoIcon />
-              <div>
-                <div className="text-sm font-bold leading-tight tracking-tight">{company.name}</div>
-                <div className="text-xs text-white/60 font-medium tracking-wide">{company.tagline}</div>
-              </div>
-            </Link>
+            <Logo className="text-white" />
             <p className="mt-4 text-sm leading-relaxed text-white/70">
               {company.description}
             </p>

@@ -10,7 +10,7 @@ interface ProductCardProps {
 
 function ProductVisual({ product }: { product: Product }) {
   return (
-    <div className="relative h-52 overflow-hidden">
+    <div className="relative h-48 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20" />
       <img
         src={product.screenshots[0]}
@@ -18,10 +18,10 @@ function ProductVisual({ product }: { product: Product }) {
         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-navy/80 via-navy/20 to-transparent opacity-60" />
-      <span className="absolute top-4 right-4 rounded-lg bg-white/95 backdrop-blur-md px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary shadow-lg">
+      <span className="absolute top-3 right-3 rounded-lg bg-white/95 backdrop-blur-md px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary shadow-lg dark:bg-slate-800/95 dark:text-primary-light">
         {product.category}
       </span>
-      <div className="absolute bottom-4 left-4 right-4">
+      <div className="absolute bottom-3 left-3 right-3">
         <div className="h-1 w-12 rounded-full bg-gradient-to-r from-primary to-accent" />
       </div>
     </div>
@@ -35,11 +35,11 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-50px' }}
       transition={{ duration: 0.6, delay: index * 0.08 }}
-      whileHover={{ y: -8 }}
+      whileHover={{ y: -8, scale: 1.02 }}
       className="group card-premium flex flex-col overflow-hidden"
     >
       <ProductVisual product={product} />
-      <div className="flex flex-1 flex-col p-6">
+      <div className="flex flex-1 flex-col p-5">
         <h3 className="heading-lg text-text-primary group-hover:text-primary transition-colors">{product.title}</h3>
         <p className="mt-3 flex-1 text-sm leading-relaxed text-text-secondary">
           {product.shortDescription}
@@ -54,7 +54,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         </ul>
         <Link
           to={`/products/${product.slug}`}
-          className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-primary-light group-hover:gap-3"
+          className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-primary-light group-hover:gap-3"
         >
           Learn More
           <ArrowRightIcon className="transition-transform group-hover:translate-x-1" />

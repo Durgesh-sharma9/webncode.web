@@ -13,15 +13,17 @@ export default function Contact() {
 
   return (
     <>
-      <section className="border-b border-border/60 section-surface">
-        <div className="container-wide section-padding !pb-16">
+      <section className="relative overflow-hidden gradient-bg border-b border-border/60">
+        <div className="orb orb-primary w-96 h-96 -top-48 -right-48" />
+        <div className="orb orb-accent w-80 h-80 bottom-0 -left-40" />
+        <div className="container-wide section-padding-compact !pb-12 relative">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
             <span className="text-xs font-bold uppercase tracking-widest text-primary">Contact</span>
-            <h1 className="mt-4 display-md text-text-primary">
+            <h1 className="mt-4 display-lg gradient-text">
               Get in Touch
             </h1>
             <p className="mt-5 max-w-2xl text-lg text-text-secondary">
@@ -31,8 +33,8 @@ export default function Contact() {
         </div>
       </section>
 
-      <section className="section-padding section-light">
-        <div className="container-wide grid gap-12 lg:grid-cols-5">
+      <section className="section-padding-compact section-light">
+        <div className="container-wide grid gap-8 lg:grid-cols-5">
           <div className="lg:col-span-3">
             {submitted ? (
               <motion.div
@@ -43,14 +45,14 @@ export default function Contact() {
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-accent/10 text-2xl text-accent">
                   ✓
                 </div>
-                <h2 className="display-sm text-text-primary">Message Sent!</h2>
+                <h2 className="display-sm gradient-text">Message Sent!</h2>
                 <p className="mt-4 text-text-secondary">
                   Thank you for reaching out. Our team will get back to you within 24 hours.
                 </p>
               </motion.div>
             ) : (
               <form onSubmit={handleSubmit} className="card-premium p-8">
-                <h2 className="mb-6 heading-xl text-text-primary">Send us a message</h2>
+                <h2 className="mb-6 heading-xl gradient-text">Send us a message</h2>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div>
                     <label htmlFor="name" className="mb-2 block text-sm font-medium text-text-primary">
@@ -115,7 +117,7 @@ export default function Contact() {
 
           <div className="lg:col-span-2">
             <div className="card-premium p-8">
-              <h2 className="heading-xl text-text-primary">Company Details</h2>
+              <h2 className="heading-xl gradient-text">Company Details</h2>
               <div className="mt-6 space-y-5">
                 <div>
                   <div className="text-xs font-bold uppercase tracking-wider text-muted">Email</div>
@@ -154,7 +156,7 @@ export default function Contact() {
             </div>
 
             <div className="mt-6 rounded-2xl bg-gradient-to-br from-navy via-navy-light to-primary p-6 text-white">
-              <h3 className="heading-lg">Business Hours</h3>
+              <h3 className="heading-lg text-white">Business Hours</h3>
               <p className="mt-3 text-sm text-white/70">
                 Monday – Friday: 9:00 AM – 6:00 PM IST<br />
                 Saturday: 10:00 AM – 2:00 PM IST

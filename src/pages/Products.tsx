@@ -21,33 +21,33 @@ export default function Products() {
 
   return (
     <>
-      <section className="relative overflow-hidden gradient-bg pt-8">
+      <section className="relative overflow-hidden gradient-bg">
         <div className="orb orb-primary w-96 h-96 -top-48 -right-48" />
         <div className="orb orb-accent w-80 h-80 bottom-0 -left-40" />
         
-        <div className="container-wide relative px-5 pt-16 pb-12 md:px-8 lg:px-12 lg:pt-20 lg:pb-16">
+        <div className="container-wide relative px-5 pt-6 pb-6 md:px-8 lg:px-12 lg:pt-8 lg:pb-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="max-w-3xl"
           >
-            <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-primary">
+            <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
               Web n Code Suite
             </span>
-            <h1 className="mt-5 display-lg gradient-text">
+            <h1 className="mt-3 display-lg gradient-text">
               Our SaaS Products
             </h1>
-            <p className="mt-5 text-lg leading-relaxed text-text-secondary md:text-xl">
+            <p className="mt-3 text-base leading-relaxed text-text-secondary md:text-lg">
               Explore our native product suite built from the ground up to solve operation management, automation, and data complexities.
             </p>
           </motion.div>
         </div>
       </section>
 
-      <section className="section-padding section-surface">
+      <section className="section-padding-compact section-surface">
         <div className="container-wide">
-          <div className="mb-12 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="relative max-w-md flex-1">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
                 <SearchIcon className="h-5 w-5 text-muted" />
@@ -61,12 +61,12 @@ export default function Products() {
               />
             </div>
 
-            <div className="flex flex-wrap gap-2.5">
+            <div className="flex flex-wrap gap-2">
               {productCategories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setCategory(cat)}
-                  className={`rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
+                  className={`rounded-lg px-3 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
                     category === cat
                       ? 'bg-primary text-white shadow-lg shadow-primary/30'
                       : 'border border-border bg-card text-text-secondary hover:border-primary hover:text-primary'
@@ -81,7 +81,7 @@ export default function Products() {
           <div className="relative">
             <AnimatePresence mode="popLayout">
               {filtered.length > 0 ? (
-                <motion.div layout className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <motion.div layout className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                   {filtered.map((product, i) => (
                     <motion.div
                       layout

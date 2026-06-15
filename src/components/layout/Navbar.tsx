@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogoIcon, MenuIcon, CloseIcon, SunIcon, MoonIcon } from '../ui/Icons'
+import { MenuIcon, CloseIcon } from '../ui/Icons'
 import Button from '../ui/Button'
-import { company } from '../../data/company'
-import { useTheme } from '../../contexts/ThemeContext'
+import Logo from '../ui/Logo'
 
 const navLinks = [
   { to: '/', label: 'Home' },
@@ -19,10 +18,9 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const { theme, toggleTheme } = useTheme()
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
+    const onScroll = () => setScrolled(window.scrollY > 10)
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
@@ -47,14 +45,8 @@ export default function Navbar() {
           : 'glass'
       }`}
     >
-      <nav className="container-wide flex h-[4.5rem] items-center justify-between px-5 md:px-8 lg:px-12">
-        <Link to="/" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
-          <LogoIcon />
-          <div className="hidden sm:block">
-            <div className="text-sm font-bold text-text-primary leading-tight tracking-tight">{company.name}</div>
-            <div className="text-xs font-medium text-muted tracking-wide">{company.tagline}</div>
-          </div>
-        </Link>
+      <nav className="container-wide flex h-[4rem] items-center justify-between px-5 md:px-8 lg:px-12">
+        <Logo size="md" />
 
         <div className="hidden items-center gap-1 lg:flex">
           {navLinks.map((link) => (
@@ -65,13 +57,6 @@ export default function Navbar() {
         </div>
 
         <div className="hidden lg:flex items-center gap-3">
-          <button
-            onClick={toggleTheme}
-            className="p-2.5 rounded-xl text-text-secondary hover:text-text-primary hover:bg-surface transition-all duration-200"
-            aria-label="Toggle theme"
-          >
-            {theme === 'light' ? <MoonIcon /> : <SunIcon />}
-          </button>
           <Button to="/products" size="sm" className="shadow-lg shadow-primary/25">
             Explore Products
           </Button>
@@ -79,14 +64,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-2 lg:hidden">
           <button
-            onClick={toggleTheme}
-            className="p-2.5 rounded-xl text-text-secondary hover:text-text-primary hover:bg-surface transition-all duration-200"
-            aria-label="Toggle theme"
-          >
-            {theme === 'light' ? <MoonIcon /> : <SunIcon />}
-          </button>
-          <button
-            className="rounded-xl p-2.5 text-text-primary hover:bg-surface transition-colors"
+            className="rounded-xl p-2 text-text-primary hover:bg-surface transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
           >
@@ -104,6 +82,9 @@ export default function Navbar() {
             className="overflow-hidden border-t border-border glass lg:hidden"
           >
             <div className="flex flex-col gap-1 px-5 py-6">
+              <div className="mb-4">
+                <Logo size="sm" showText={false} />
+              </div>
               {navLinks.map((link) => (
                 <NavLink
                   key={link.to}

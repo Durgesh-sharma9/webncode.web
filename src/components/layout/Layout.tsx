@@ -10,7 +10,7 @@ export default function Layout() {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      <main className="flex-1 pt-[4.5rem]">
+      <main className="flex-1 pt-[4rem]">
         <AnimatePresence mode="wait">
           <PageTransition key={location.pathname}>
             <Outlet />

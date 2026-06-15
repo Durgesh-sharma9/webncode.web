@@ -33,7 +33,7 @@ function UpdateModal({ update, onClose }: { update: Update; onClose: () => void 
           <button onClick={onClose} className="text-text-secondary hover:text-text-primary text-xl">×</button>
         </div>
         <time className="text-sm text-text-secondary">{formatDate(update.date)}</time>
-        <h2 className="mt-2 display-sm text-text-primary">{update.title}</h2>
+        <h2 className="mt-2 display-sm gradient-text">{update.title}</h2>
         <p className="mt-4 leading-relaxed text-text-secondary">{update.content}</p>
       </motion.article>
     </motion.div>
@@ -50,15 +50,17 @@ export default function UpdatesPage() {
 
   return (
     <>
-      <section className="border-b border-border/60 section-surface">
-        <div className="container-wide section-padding !pb-16">
+      <section className="relative overflow-hidden gradient-bg border-b border-border/60">
+        <div className="orb orb-primary w-96 h-96 -top-48 -right-48" />
+        <div className="orb orb-accent w-80 h-80 bottom-0 -left-40" />
+        <div className="container-wide section-padding-compact !pb-12 relative">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
             <span className="text-xs font-bold uppercase tracking-widest text-primary">Updates</span>
-            <h1 className="mt-4 display-md text-text-primary">
+            <h1 className="mt-4 display-lg gradient-text">
               News & Announcements
             </h1>
             <p className="mt-5 max-w-2xl text-lg text-text-secondary">
@@ -68,9 +70,9 @@ export default function UpdatesPage() {
         </div>
       </section>
 
-      <section className="section-padding section-light">
+      <section className="section-padding-compact section-light">
         <div className="container-wide">
-          <div className="mb-10 flex flex-wrap gap-2.5">
+          <div className="mb-6 flex flex-wrap gap-2">
             {categories.map((cat) => (
               <button
                 key={cat}
