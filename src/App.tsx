@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { ThemeProvider } from './contexts/ThemeContext'
 import Layout from './components/layout/Layout'
 import ScrollToTop from './components/ui/ScrollToTop'
 import Toast from './components/ui/Toast'
@@ -15,22 +14,20 @@ import Contact from './pages/Contact'
 export default function App() {
   return (
     <BrowserRouter>
-      <ThemeProvider>
-        <ScrollToTop />
-        <Toast />
-        <Routes>
-          <Route element={<Layout />}>
-            <Route index element={<Home />} />
-            <Route path="products" element={<Products />} />
-            <Route path="products/:slug" element={<ProductDetail />} />
-            <Route path="solutions" element={<Solutions />} />
-            <Route path="about" element={<About />} />
-            <Route path="careers" element={<Careers />} />
-            <Route path="updates" element={<Updates />} />
-            <Route path="contact" element={<Contact />} />
-          </Route>
-        </Routes>
-      </ThemeProvider>
+      <ScrollToTop />
+      <Toast />
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="products" element={<Products />} />
+          <Route path="products/:slug" element={<ProductDetail />} />
+          <Route path="solutions" element={<Solutions />} />
+          <Route path="about" element={<About />} />
+          <Route path="careers" element={<Careers />} />
+          <Route path="updates" element={<Updates />} />
+          <Route path="contact" element={<Contact />} />
+        </Route>
+      </Routes>
     </BrowserRouter>
   )
 }
