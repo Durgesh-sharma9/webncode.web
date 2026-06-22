@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion'
-import type { ReactNode } from 'react'
 
 interface SectionHeadingProps {
   label?: string

@@ -11,7 +11,7 @@ interface ProductCardProps {
 
 function ProductVisual({ product }: { product: Product }) {
   const [currentImgIdx, setCurrentImgIdx] = useState(0)
-  const cardTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const cardTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (product.screenshots && product.screenshots.length > 1) {
