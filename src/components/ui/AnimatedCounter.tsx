@@ -4,7 +4,7 @@ import { useInView, motion } from 'framer-motion'
 interface AnimatedCounterProps {
   value: number
   suffix?: string
-  label: string
+  label?: string
   // Naye style ke liye dynamic block colors accept karne ka option add kiya
   bgColorClass?: string 
 }

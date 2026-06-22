@@ -33,7 +33,7 @@ export default function Statistics() {
             >
               {/* Internal Counter Output Wrap Block */}
               <div className="text-3xl md:text-4xl font-black font-mono tracking-tight border-b-2 border-slate-900 pb-2 flex items-baseline gap-0.5">
-                <AnimatedCounter value={stat.value} />
+                <AnimatedCounter value={stat.value} label={stat.label} />
                 {stat.suffix && <span className="text-xl font-black text-slate-800">{stat.suffix}</span>}
               </div>
 
