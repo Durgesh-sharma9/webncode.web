@@ -12,93 +12,107 @@ const proofPoints = [
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden gradient-bg">
-      <div className="orb orb-primary w-96 h-96 -top-48 -right-48" />
-      <div className="orb orb-accent w-80 h-80 bottom-0 -left-40" />
-      <div className="container-wide relative px-5 pt-4 pb-8 md:px-8 lg:px-12 lg:pt-6 lg:pb-10">
-        <div className="grid items-center gap-6 lg:grid-cols-[1fr_1fr] lg:gap-10">
+    <section className="relative overflow-hidden bg-[#fafafa] border-b-2 border-slate-900 py-12 lg:py-20">
+      {/* Dynamic Background Micro Dotted Mesh Matrix */}
+      <div className="absolute inset-0 opacity-[0.15] pointer-events-none" 
+           style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+      
+      <div className="container-wide relative px-5 md:px-8 lg:px-12 z-10">
+        <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-12">
 
+          {/* Left Text Metadata Column */}
           <div>
+            {/* Top Pill Tagline Badge */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
             >
-              <span className="mb-2 inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
-                <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_0_3px_rgba(15,94,215,0.3)] animate-pulse" />
+              <span className="mb-4 inline-flex items-center gap-2 rounded border-2 border-slate-900 bg-white px-3 py-1 text-[10px] font-black uppercase tracking-wider font-mono text-slate-900 shadow-[2px_2px_0px_0px_#000]">
+                <span className="h-2 w-2 border border-slate-900 bg-[#86efac]" />
                 {company.tagline}
               </span>
             </motion.div>
 
+            {/* Industrial Bold Title Heading */}
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-balance display-lg gradient-text"
+              transition={{ duration: 0.4, delay: 0.08, ease: 'easeOut' }}
+              className="text-4xl sm:text-5xl font-black uppercase tracking-tight text-slate-900 leading-none"
             >
-              Software products that make operations feel simple
+              SOFTWARE PRODUCTS THAT <br />
+              <span className="inline-block mt-2 bg-[#ff9e7d] border-2 border-slate-900 px-4 py-0.5 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]">
+                SIMPLIFY OPERATIONS
+              </span>
             </motion.h1>
 
+            {/* Description Paragraph */}
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="mt-2 max-w-xl text-base leading-relaxed text-text-secondary md:text-lg"
+              transition={{ duration: 0.4, delay: 0.15, ease: 'easeOut' }}
+              className="mt-6 max-w-xl text-sm font-bold uppercase tracking-wide text-slate-700 leading-relaxed"
             >
               {company.description}
             </motion.p>
 
+            {/* Checklist Proof Grid Blocks */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.25 }}
-              className="mt-3 grid gap-2 sm:grid-cols-2"
+              transition={{ duration: 0.4, delay: 0.2, ease: 'easeOut' }}
+              className="mt-6 grid gap-3 sm:grid-cols-2"
             >
               {proofPoints.map((item) => (
-                <div key={item} className="flex items-start gap-2 rounded-xl border border-border/60 bg-card/80 p-2 text-xs font-medium text-text-primary backdrop-blur-sm card-shadow">
-                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary shadow-[0_0_0_3px_rgba(15,94,215,0.2)]" />
-                  {item}
+                <div key={item} className="flex items-start gap-2.5 border-2 border-slate-900 bg-white p-3 text-xs font-black uppercase font-mono tracking-wide text-slate-900 shadow-[2px_2px_0px_0px_#000]">
+                  <span className="mt-0.5 h-3.5 w-3.5 shrink-0 border border-slate-900 bg-[#86efac] flex items-center justify-center font-black text-[10px]">✓</span>
+                  <span className="leading-tight">{item}</span>
                 </div>
               ))}
             </motion.div>
 
+            {/* Global Refactored Action Buttons */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="mt-3 flex flex-wrap gap-3"
+              transition={{ duration: 0.4, delay: 0.25, ease: 'easeOut' }}
+              className="mt-8 flex flex-wrap gap-4"
             >
-              <Button to="/products" size="lg" className="shadow-xl shadow-primary/30">
+              <Button to="/products" size="md" variant="primary">
                 Explore Products
               </Button>
-              <Button to="/contact" variant="outline" size="lg" className="border-2">
+              <Button to="/contact" variant="outline" size="md">
                 Contact Us
               </Button>
             </motion.div>
 
+            {/* Dynamic Hard-Shadow Stat Counters Row */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="mt-5 grid grid-cols-3 gap-2 border-t border-border/60 pt-3 sm:max-w-lg"
+              transition={{ duration: 0.4, delay: 0.35 }}
+              className="mt-8 grid grid-cols-3 gap-3 border-t-2 border-slate-900 pt-5 sm:max-w-lg"
             >
               {[
-                { value: '12+', label: 'Products built' },
-                { value: '150+', label: 'Organizations served' },
-                { value: '24/7', label: 'Support ready' },
+                { value: '12+', label: 'Products built', color: 'bg-[#93c5fd]' },
+                { value: '150+', label: 'Orgs served', color: 'bg-[#c084fc]' },
+                { value: '24/7', label: 'Support ready', color: 'bg-[#86efac]' },
               ].map((item) => (
-                <div key={item.label} className="rounded-xl bg-card/80 p-2 backdrop-blur-sm card-shadow">
-                  <div className="text-lg font-extrabold gradient-text">{item.value}</div>
-                  <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted">{item.label}</div>
+                <div key={item.label} className={`border-2 border-slate-900 ${item.color} p-2.5 shadow-[3px_3px_0px_0px_#000]`}>
+                  <div className="text-xl font-black font-mono tracking-tight text-slate-900">{item.value}</div>
+                  <div className="mt-1 text-[9px] font-black uppercase tracking-wider font-mono text-slate-700 leading-none">{item.label}</div>
                 </div>
               ))}
             </motion.div>
           </div>
 
+          {/* Right Dashboard Interactive Canvas Mockup */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
+            initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.5, delay: 0.15, ease: 'easeOut' }}
+            className="w-full"
           >
             <DashboardShowcase />
           </motion.div>

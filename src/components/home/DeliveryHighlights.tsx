@@ -1,73 +1,52 @@
 import { motion } from 'framer-motion'
 import SectionHeading from '../ui/SectionHeading'
-import { deliveryHighlights } from '../../data/company'
+import { FeatureIcon } from '../ui/Icons'
+import { industries } from '../../data/company'
 
-export default function DeliveryHighlights() {
+export default function Industries() {
   return (
-    <section className="section-padding section-light">
-      <div className="container-wide">
+    <section className="section-padding bg-[#fafafa] border-b-2 border-slate-900 relative">
+      {/* Background Matrix Dotted Accent Mesh Pattern */}
+      <div className="absolute inset-0 opacity-[0.10] pointer-events-none" 
+           style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+
+      <div className="container-wide relative z-10 px-5 md:px-8 lg:px-12">
+        {/* Switched light to false to align perfectly with the new flat crisp background theme */}
         <SectionHeading
-          label="Implementation"
-          title="A Product Team That Stays Through Launch"
-          description="From process mapping to team training, we focus on the details that make software usable in real offices, classrooms, and admin departments."
+          label="Industries"
+          title="Built for Organizations That Matter"
+          description="Our products serve diverse sectors with tailored solutions for their unique operational needs."
+          light={false}
         />
-
-        <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="card-premium p-6"
-          >
-            <div className="mb-6 flex items-center justify-between border-b border-border/60 pb-4">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-wider text-primary">Rollout snapshot</p>
-                <h3 className="mt-2 display-sm text-text-primary">Plan, build, migrate, train</h3>
+        
+        {/* Grid Loop Panel Display */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 pt-4">
+          {industries.map((industry, i) => (
+            <motion.div
+              key={industry.name}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.05 }}
+              // Heavy solid box containers with micro displacement movement configurations
+              className="group bg-white border-2 border-slate-900 p-6 rounded-md shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(15,23,42,1)] transition-all"
+            >
+              {/* Rigid Mechanical Brand Color Box for Icons */}
+              <div className="mb-5 flex h-12 w-12 items-center justify-center border-2 border-slate-900 bg-[#c084fc] text-slate-900 shadow-[2px_2px_0px_0px_#000] group-hover:bg-[#ff9e7d] transition-colors">
+                <FeatureIcon name={industry.icon} className="h-6 w-6 stroke-[2.5]" />
               </div>
-              <div className="hidden rounded-xl bg-card px-4 py-3 text-right card-shadow sm:block">
-                <div className="text-2xl font-bold gradient-text">30%</div>
-                <div className="text-xs text-text-secondary">faster adoption</div>
-              </div>
-            </div>
 
-            <div className="space-y-4">
-              {['Process audit', 'Prototype review', 'Data migration', 'Pilot launch', 'Full rollout'].map((item, index) => (
-                <div key={item} className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-light text-xs font-bold text-white shadow-lg shadow-primary/30">
-                    {index + 1}
-                  </div>
-                  <div className="h-2 flex-1 rounded-full bg-border">
-                    <div
-                      className="h-2 rounded-full bg-gradient-to-r from-primary to-primary-light"
-                      style={{ width: `${34 + index * 15}%` }}
-                    />
-                  </div>
-                  <span className="w-28 text-sm font-medium text-text-primary">{item}</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            {deliveryHighlights.map((item, index) => (
-              <motion.article
-                key={item.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -4 }}
-                className="card-premium p-6"
-              >
-                <div className="mb-4 inline-flex rounded-full bg-accent/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent">
-                  {item.metric}
-                </div>
-                <h3 className="heading-lg text-text-primary">{item.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-text-secondary">{item.description}</p>
-              </motion.article>
-            ))}
-          </div>
+              {/* Title Header Component */}
+              <h3 className="text-lg font-black uppercase font-mono tracking-tight text-slate-900">
+                {industry.name}
+              </h3>
+              
+              {/* Subtext Description Details */}
+              <p className="mt-3 text-xs font-medium leading-relaxed text-slate-700">
+                {industry.description}
+              </p>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

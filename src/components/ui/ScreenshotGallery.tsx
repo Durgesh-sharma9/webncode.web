@@ -26,72 +26,72 @@ export default function ScreenshotGallery({ screenshots, productName }: Screensh
   }
 
   return (
-    <div className="space-y-4">
-      {/* Main Image Display */}
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-surface">
+    <div className="space-y-4 w-full">
+      {/* Main Image Viewport Wrapper with Sharp Borders & Hard Shadows */}
+      <div className="relative overflow-hidden rounded-md border-2 border-slate-900 bg-white shadow-[6px_6px_0px_0px_rgba(15,23,42,1)]">
         <AnimatePresence mode="wait">
           <motion.img
             key={currentIndex}
             src={screenshots[currentIndex]}
             alt={`${productName} screenshot ${currentIndex + 1}`}
-            initial={{ opacity: 0, x: 50 }}
+            initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.3 }}
-            className="w-full h-auto object-cover"
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="w-full h-auto object-cover max-h-[480px]"
           />
         </AnimatePresence>
 
-        {/* Navigation Buttons */}
+        {/* Structural Navigation Arrows Block */}
         {screenshots.length > 1 && (
           <>
             <button
               onClick={goToPrevious}
-              className="absolute left-4 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
+              className="absolute left-4 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center border-2 border-slate-900 bg-white text-slate-900 shadow-[2px_2px_0px_0px_#000] hover:bg-[#ff9e7d] hover:translate-y-[-52%] active:translate-y-[-48%] active:shadow-[1px_1px_0px_0px_#000] transition-all"
               aria-label="Previous screenshot"
             >
-              <svg className="h-5 w-5 text-navy" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="h-5 w-5 stroke-[3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <button
               onClick={goToNext}
-              className="absolute right-4 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
+              className="absolute right-4 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center border-2 border-slate-900 bg-white text-slate-900 shadow-[2px_2px_0px_0px_#000] hover:bg-[#ff9e7d] hover:translate-y-[-52%] active:translate-y-[-48%] active:shadow-[1px_1px_0px_0px_#000] transition-all"
               aria-label="Next screenshot"
             >
-              <svg className="h-5 w-5 text-navy" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="h-5 w-5 stroke-[3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </button>
           </>
         )}
 
-        {/* Slide Counter */}
+        {/* Flat Solid Frame Counter Badge */}
         {screenshots.length > 1 && (
-          <div className="absolute bottom-4 right-4 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+          <div className="absolute bottom-4 right-4 border-2 border-slate-900 bg-white px-3 py-1 text-xs font-black font-mono uppercase tracking-wider text-slate-900 shadow-[2px_2px_0px_0px_#000]">
             {currentIndex + 1} / {screenshots.length}
           </div>
         )}
       </div>
 
-      {/* Thumbnail Navigation */}
+      {/* Grid Thumbnail Controls Panel */}
       {screenshots.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-3 overflow-x-auto pb-2 pt-1 scrollbar-thin">
           {screenshots.map((screenshot, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`relative flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
+              className={`relative flex-shrink-0 overflow-hidden rounded border-2 transition-all duration-150 ${
                 index === currentIndex
-                  ? 'border-primary scale-105 shadow-md'
-                  : 'border-border opacity-60 hover:opacity-100'
+                  ? 'border-slate-900 bg-[#7dd3fc] p-0.5 shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] translate-y-[-2px]'
+                  : 'border-slate-900/40 opacity-70 hover:opacity-100 hover:border-slate-900'
               }`}
               aria-label={`Go to screenshot ${index + 1}`}
             >
               <img
                 src={screenshot}
                 alt={`${productName} thumbnail ${index + 1}`}
-                className="h-16 w-24 object-cover"
+                className="h-14 w-20 object-cover rounded-xs"
               />
             </button>
           ))}

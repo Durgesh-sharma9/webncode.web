@@ -40,14 +40,14 @@ const getSocialIcon = (platform: string) => {
   }
   if (p.includes('instagram')) {
     return (
-      <svg className="w-5 h-5 stroke-current fill-none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+      <svg className="w-5 h-5 stroke-current fill-none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
         <rect x="2" y="2" width="20" h="20" rx="5" ry="5"></rect>
         <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
         <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
       </svg>
     )
   }
-  return <span className="font-bold text-sm">{platform.slice(0, 2).toUpperCase()}</span>
+  return <span className="font-black text-xs">{platform.slice(0, 2).toUpperCase()}</span>
 }
 
 export default function Contact() {
@@ -61,55 +61,41 @@ export default function Contact() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    console.log('Form submission started')
     setIsSubmitting(true)
-
     try {
-      // Send form data to backend API
-      console.log('Sending data to backend:', formData)
-      const response = await axios.post('http://localhost:5000/api/contact', formData)
-      console.log('Backend response:', response.data)
-
-      // Show success toast
-      showSuccessToast('Message sent successfully! We will get back to you soon.')
-      console.log('Success toast shown')
-
-      // Clear form fields (React state only - don't use form.reset() to avoid conflicts)
+      await axios.post('http://localhost:5000/api/contact', formData)
+      showSuccessToast('Message sent successfully!')
       setFormData({ name: '', email: '', phone: '', message: '' })
-      console.log('Form state cleared')
-
     } catch (error: any) {
-      // Show error toast
-      console.error('Error submitting form:', error)
-      const errorMessage = error.response?.data?.message || 'Failed to send message. Please try again.'
+      const errorMessage = error.response?.data?.message || 'Failed to send message.'
       showErrorToast(errorMessage)
     } finally {
       setIsSubmitting(false)
-      console.log('Form submission completed, loading state reset')
     }
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 overflow-hidden relative selection:bg-sky-100 selection:text-sky-900">
+    <div className="min-h-screen bg-[#fafafa] text-slate-900 relative selection:bg-[#ff9e7d]">
       
-      {/* Soft Background Blobs matching Updates Page */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-sky-200/30 via-indigo-100/20 to-transparent rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-10 left-10 w-[500px] h-[500px] bg-gradient-to-tr from-purple-100/20 via-sky-100/30 to-transparent rounded-full blur-[140px] pointer-events-none" />
+      {/* Background Micro Grid Pattern Asset */}
+      <div className="absolute inset-0 opacity-[0.12] pointer-events-none" 
+           style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
       {/* Hero Header Section */}
-      <section className="relative pt-16 pb-12 bg-white/40 backdrop-blur-md border-b border-slate-200/40">
+      <section className="relative pt-16 pb-12 bg-[#ebebeb] border-b-2 border-slate-900">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 text-left relative z-10">
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-            <span className="text-xs font-bold uppercase tracking-widest text-sky-600 bg-sky-50 px-3 py-1 rounded-md border border-sky-100">
-              CONTACT
+          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+            <span className="rounded border-2 border-slate-900 bg-white px-3 py-1 text-[10px] font-black uppercase tracking-wider font-mono shadow-[2px_2px_0px_0px_#000]">
+              CONTACT SYSTEM
             </span>
-            {/* Updates page ke matching pure linear text gradient color fix */}
-            <h1 className="mt-4 text-4xl sm:text-5xl font-black tracking-tight text-slate-900">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600">
-                Let's start a conversation
+            
+            <h1 className="mt-5 text-4xl sm:text-6xl font-black uppercase tracking-tight text-slate-900 leading-none">
+              LET'S START A <br />
+              <span className="inline-block mt-2 bg-[#ff9e7d] border-2 border-slate-900 px-4 py-0.5 shadow-[4px_4px_0px_0px_#000]">
+                CONVERSATION
               </span>
             </h1>
-            <p className="mt-3 max-w-2xl text-sm sm:text-base text-slate-500 font-medium leading-relaxed">
+            <p className="mt-6 max-w-2xl text-sm sm:text-base text-slate-700 font-bold uppercase tracking-wide">
               Have questions about our products? Want to schedule a demo? We&apos;d love to hear from you.
             </p>
           </motion.div>
@@ -120,48 +106,49 @@ export default function Contact() {
       <section className="py-12 relative z-10">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 grid gap-8 lg:grid-cols-5 items-stretch">
           
-          {/* Left Side: Form */}
+          {/* Left Side: Form Container */}
           <div className="lg:col-span-3 flex flex-col justify-stretch">
-            <form onSubmit={handleSubmit} className="bg-white border border-slate-200/50 p-8 rounded-3xl shadow-md relative flex flex-col justify-between h-full">
-              <div className="absolute top-0 left-0 w-full h-[4px] bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 rounded-t-3xl" />
+            <form onSubmit={handleSubmit} className="bg-white border-2 border-slate-900 p-8 rounded-md shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] flex flex-col justify-between h-full">
               
               <div>
-                <h2 className="text-xl font-bold text-slate-900 mb-6">Send us a message</h2>
+                <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6 border-b-2 border-slate-900 pb-2 inline-block font-mono">
+                  Send us a message
+                </h2>
                 
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="space-y-1.5">
-                    <label htmlFor="name" className="block text-xs font-bold uppercase tracking-wider text-slate-400">Name</label>
+                    <label htmlFor="name" className="block text-xs font-black uppercase tracking-wider font-mono text-slate-500">Name</label>
                     <input
                       id="name" name="name" type="text" required value={formData.name} onChange={handleInputChange}
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 outline-none transition-all focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/5"
-                      placeholder="Your full name"
+                      className="w-full rounded-md border-2 border-slate-900 bg-white px-4 py-3 text-sm text-slate-900 font-mono outline-none shadow-[2px_2px_0px_0px_#000] focus:bg-[#fafafa] focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] transition-all"
+                      placeholder="YOUR FULL NAME"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-slate-400">Email Address</label>
+                    <label htmlFor="email" className="block text-xs font-black uppercase tracking-wider font-mono text-slate-500">Email Address</label>
                     <input
                       id="email" name="email" type="email" required value={formData.email} onChange={handleInputChange}
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 outline-none transition-all focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/5"
-                      placeholder="you@organization.com"
+                      className="w-full rounded-md border-2 border-slate-900 bg-white px-4 py-3 text-sm text-slate-900 font-mono outline-none shadow-[2px_2px_0px_0px_#000] focus:bg-[#fafafa] focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] transition-all"
+                      placeholder="YOU@ORGANIZATION.COM"
                     />
                   </div>
                 </div>
 
                 <div className="mt-5 space-y-1.5">
-                  <label htmlFor="phone" className="block text-xs font-bold uppercase tracking-wider text-slate-400">Phone Number</label>
+                  <label htmlFor="phone" className="block text-xs font-black uppercase tracking-wider font-mono text-slate-500">Phone Number</label>
                   <input
                     id="phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 outline-none transition-all focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/5"
+                    className="w-full rounded-md border-2 border-slate-900 bg-white px-4 py-3 text-sm text-slate-900 font-mono outline-none shadow-[2px_2px_0px_0px_#000] focus:bg-[#fafafa] focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] transition-all"
                     placeholder="8619574703"
                   />
                 </div>
 
                 <div className="mt-5 space-y-1.5">
-                  <label htmlFor="message" className="block text-xs font-bold uppercase tracking-wider text-slate-400">Your Message</label>
+                  <label htmlFor="message" className="block text-xs font-black uppercase tracking-wider font-mono text-slate-500">Your Message</label>
                   <textarea
                     id="message" name="message" required rows={4} value={formData.message} onChange={handleInputChange}
-                    className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 outline-none transition-all focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/5"
-                    placeholder="Tell us about your requirements..."
+                    className="w-full resize-none rounded-md border-2 border-slate-900 bg-white px-4 py-3 text-sm text-slate-900 font-mono outline-none shadow-[2px_2px_0px_0px_#000] focus:bg-[#fafafa] focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] transition-all"
+                    placeholder="TELL US ABOUT YOUR REQUIREMENTS..."
                   />
                 </div>
               </div>
@@ -170,7 +157,7 @@ export default function Contact() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full sm:w-auto bg-slate-900 hover:bg-sky-600 text-white font-semibold px-8 py-3 rounded-xl shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto bg-[#86efac] text-slate-900 font-black uppercase font-mono tracking-wider px-8 py-3 rounded-md border-2 border-slate-900 shadow-[4px_4px_0px_0px_#000] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_#000] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? 'Sending...' : 'Send Message'}
                 </button>
@@ -178,69 +165,70 @@ export default function Contact() {
             </form>
           </div>
 
-          {/* Right Side: Company Details */}
+          {/* Right Side: Company Info Columns */}
           <div className="lg:col-span-2 flex flex-col gap-6 justify-between">
             
-            <div className="bg-white border border-slate-200/50 p-8 rounded-3xl shadow-md flex-1 flex flex-col justify-between">
+            <div className="bg-white border-2 border-slate-900 p-8 rounded-md shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] flex-1 flex flex-col justify-between">
               <div>
-                <h2 className="text-xl font-bold text-slate-900">Company Details</h2>
+                <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 border-b-2 border-slate-900 pb-1 inline-block font-mono">
+                  Company Details
+                </h2>
                 
-                <div className="mt-6 space-y-5">
+                <div className="mt-6 space-y-6">
                   {/* Email */}
                   <div className="flex items-center gap-4">
-                    <div className="p-2.5 rounded-xl bg-sky-50 text-sky-600 border border-sky-100">
-                      <svg className="w-5 h-5 fill-none stroke-current" strokeWidth="2" viewBox="0 0 24 24">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-slate-900 bg-[#93c5fd] text-slate-900 shadow-[2px_2px_0px_0px_#000]">
+                      <svg className="w-5 h-5 fill-none stroke-current stroke-[2.5]" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
                       </svg>
                     </div>
                     <div>
-                      <div className="text-xs font-bold uppercase tracking-widest text-slate-400">Email</div>
-                      <a href={`mailto:${companyData.email}`} className="mt-0.5 block font-semibold text-slate-700 hover:text-sky-600 text-sm sm:text-base">{companyData.email}</a>
+                      <div className="text-[10px] font-black uppercase tracking-widest font-mono text-slate-400">Email</div>
+                      <a href={`mailto:${companyData.email}`} className="mt-0.5 block font-black font-mono text-slate-800 hover:underline text-sm sm:text-base">{companyData.email}</a>
                     </div>
                   </div>
                   
                   {/* Phone */}
                   <div className="flex items-center gap-4">
-                    <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100">
-                      <svg className="w-5 h-5 fill-none stroke-current" strokeWidth="2" viewBox="0 0 24 24">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-slate-900 bg-[#c084fc] text-slate-900 shadow-[2px_2px_0px_0px_#000]">
+                      <svg className="w-5 h-5 fill-none stroke-current stroke-[2.5]" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.58c0-1.017.822-1.839 1.839-1.839h3.113c.465 0 .89.262 1.09.683l1.375 2.91a1.033 1.033 0 0 1-.166 1.132L7.618 11.41a14.94 14.94 0 0 0 6.136 6.136l1.713-1.78a1.033 1.033 0 0 1 1.132-.166l2.91 1.375c.42.201.683.626.683 1.09v3.113c0 1.017-.822 1.839-1.839 1.839h-3.113a15.356 15.356 0 0 1-11.833-11.833V6.58z" />
                       </svg>
                     </div>
                     <div>
-                      <div className="text-xs font-bold uppercase tracking-widest text-slate-400">Phone</div>
-                      <a href={`tel:${companyData.phone}`} className="mt-0.5 block font-semibold text-slate-700 hover:text-indigo-600 text-sm sm:text-base">{companyData.phone}</a>
+                      <div className="text-[10px] font-black uppercase tracking-widest font-mono text-slate-400">Phone</div>
+                      <a href={`tel:${companyData.phone}`} className="mt-0.5 block font-black font-mono text-slate-800 hover:underline text-sm sm:text-base">{companyData.phone}</a>
                     </div>
                   </div>
 
                   {/* Address */}
                   <div className="flex items-start gap-4">
-                    <div className="p-2.5 rounded-xl bg-purple-50 text-purple-600 border border-purple-100">
-                      <svg className="w-5 h-5 fill-none stroke-current" strokeWidth="2" viewBox="0 0 24 24">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-slate-900 bg-[#7dd3fc] text-slate-900 shadow-[2px_2px_0px_0px_#000]">
+                      <svg className="w-5 h-5 fill-none stroke-current stroke-[2.5]" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0z" />
                       </svg>
                     </div>
                     <div>
-                      <div className="text-xs font-bold uppercase tracking-widest text-slate-400">HQ Address</div>
-                      <p className="mt-1 text-xs sm:text-sm leading-relaxed text-slate-600 font-medium">{companyData.address}</p>
+                      <div className="text-[10px] font-black uppercase tracking-widest font-mono text-slate-400">HQ Address</div>
+                      <p className="mt-1 text-xs sm:text-sm font-bold text-slate-700 leading-relaxed uppercase tracking-tight">{companyData.address}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Socials Block */}
-              <div className="mt-6 border-t border-slate-100 pt-5">
-                <div className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Follow Our Journey</div>
-                <div className="flex gap-2.5">
+              {/* Socials Connection Row */}
+              <div className="mt-6 border-t-2 border-slate-900/10 pt-5">
+                <div className="text-[10px] font-black uppercase tracking-widest font-mono text-slate-400 mb-3">Follow Our Journey</div>
+                <div className="flex gap-3">
                   {Object.entries(companyData.social).map(([platform, url]) => (
                     <motion.a
                       key={platform}
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      whileHover={{ scale: 1.1, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 border border-slate-200 text-slate-600 hover:bg-sky-600 hover:text-white hover:border-transparent transition-all shadow-sm"
+                      whileHover={{ y: -2 }}
+                      className="flex h-10 w-10 items-center justify-center border-2 border-slate-900 bg-white text-slate-900 shadow-[2px_2px_0px_0px_#000] hover:bg-[#ff9e7d] hover:shadow-[4px_4px_0px_0px_#000] transition-all"
                     >
                       {getSocialIcon(platform)}
                     </motion.a>
@@ -249,19 +237,19 @@ export default function Contact() {
               </div>
             </div>
 
-            {/* Business Hours Card */}
-            <div className="rounded-3xl bg-slate-900 p-6 border border-slate-900 shadow-md relative overflow-hidden">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <span className="text-sky-400">⏰</span> Business Hours
+            {/* Business Hours Permanent Card Grid Block */}
+            <div className="border-2 border-slate-900 bg-slate-900 p-6 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] relative overflow-hidden rounded-md">
+              <h3 className="text-sm font-black uppercase font-mono tracking-wider text-white flex items-center gap-2">
+                ⚡ Business Hours
               </h3>
-              <div className="mt-4 text-xs sm:text-sm text-slate-300 leading-relaxed space-y-2.5 font-medium">
+              <div className="mt-4 text-xs font-mono uppercase tracking-wide text-slate-300 leading-relaxed space-y-2.5">
                 <div className="flex justify-between border-b border-slate-800 pb-2">
                   <span className="text-slate-400">Monday – Friday</span> 
-                  <span className="text-white font-semibold">9:00 AM – 6:00 PM IST</span>
+                  <span className="text-white font-black">9:00 AM – 6:00 PM IST</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Saturday</span> 
-                  <span className="text-white font-semibold">10:00 AM – 2:00 PM IST</span>
+                  <span className="text-white font-black">10:00 AM – 2:00 PM IST</span>
                 </div>
               </div>
             </div>

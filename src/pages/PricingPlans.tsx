@@ -13,7 +13,8 @@ const tiers = [
       'Email & Community Support',
       'Up to 500 Active Users',
     ],
-    mostPopular: false,
+    bgColor: 'bg-white',
+    accentColor: 'bg-[#93c5fd]',
   },
   {
     name: 'Growth Suite',
@@ -28,7 +29,8 @@ const tiers = [
       'Priority 24/7 Support',
       'Unlimited Users',
     ],
-    mostPopular: true,
+    bgColor: 'bg-[#fafafa]',
+    accentColor: 'bg-[#ff9e7d]', // Solid master brand identifier
   },
   {
     name: 'Custom Enterprise',
@@ -42,96 +44,95 @@ const tiers = [
       'Dedicated Account Manager',
       'SLA & High-grade Security',
     ],
-    mostPopular: false,
+    bgColor: 'bg-white',
+    accentColor: 'bg-[#c084fc]',
   },
 ]
 
 export default function PricingPlans() {
   return (
-    <section className="relative isolate overflow-hidden bg-white px-6 py-24 sm:py-32 lg:px-8">
-      {/* Subtle background glow */}
-      <div className="absolute inset-x-0 -top-3 -z-10 transform-gpu overflow-hidden blur-3xl" aria-hidden="true">
-        <div
-          className="mx-auto aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-indigo-200 to-purple-200 opacity-30"
-          style={{
-            clipPath:
-              'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
-          }}
-        />
-      </div>
+    <section className="relative overflow-hidden bg-white px-6 py-20 lg:px-8 border-b-2 border-slate-900">
+      {/* Background Grid Accent Pattern */}
+      <div className="absolute inset-0 opacity-[0.10] pointer-events-none" 
+           style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
-      <div className="mx-auto max-w-4xl text-center">
-        <h2 className="text-base font-semibold leading-7 text-indigo-600 uppercase tracking-wider">Pricing</h2>
-        <p className="mt-2 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
-          Transparent Plans for Every Scale
-        </p>
-        <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-slate-600">
+      {/* Heading Container */}
+      <div className="mx-auto max-w-4xl text-center relative z-10 flex flex-col items-center">
+        <span className="rounded border-2 border-slate-900 bg-white px-3 py-1 text-[10px] font-black uppercase tracking-wider font-mono text-slate-900 shadow-[2px_2px_0px_0px_#000]">
+          PRICING ENGINE
+        </span>
+        <h2 className="mt-5 text-3xl md:text-5xl font-black uppercase tracking-tight text-slate-900 leading-tight">
+          <span className="inline-block bg-[#ff9e7d] border-2 border-slate-900 px-4 py-1 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]">
+            TRANSPARENT PLANS
+          </span>
+        </h2>
+        <p className="mt-6 max-w-2xl text-sm md:text-base font-bold uppercase tracking-wide text-slate-700">
           Choose a plan that fits your organizational needs. No hidden charges, fully scalable deployment.
         </p>
       </div>
 
-      <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 gap-y-6 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-x-8 lg:items-center">
+      {/* Cards Display Grid */}
+      <div className="mx-auto mt-16 grid max-w-md grid-cols-1 gap-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:items-stretch relative z-10">
         {tiers.map((tier, tierIdx) => (
           <motion.div
             key={tier.id}
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: tierIdx * 0.1 }}
-            className={`relative rounded-3xl p-8 ring-1 transition-all duration-300 hover:shadow-xl ${
-              tier.mostPopular
-                ? 'bg-slate-900 ring-slate-900 shadow-xl lg:py-12 text-white'
-                : 'bg-white ring-slate-200 text-slate-900'
-            }`}
+            transition={{ duration: 0.4, delay: tierIdx * 0.08 }}
+            className={`relative rounded-md border-2 border-slate-900 p-8 flex flex-col justify-between h-full ${tier.bgColor} shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(15,23,42,1)] transition-all`}
           >
-            {tier.mostPopular && (
-              <span className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-white shadow-sm">
-                Most Popular
+            {/* Rigid Corner Custom Badge */}
+            {tier.id === 'tier-growth' && (
+              <span className="absolute -top-3.5 left-6 rounded border-2 border-slate-900 bg-[#86efac] px-3 py-0.5 text-[10px] font-black uppercase tracking-wider font-mono text-slate-900 shadow-[2px_2px_0px_0px_#000]">
+                MOST POPULAR
               </span>
             )}
 
-            <h3 className={`text-xl font-bold tracking-tight ${tier.mostPopular ? 'text-indigo-400' : 'text-indigo-600'}`}>
-              {tier.name}
-            </h3>
-            
-            <p className={`mt-4 text-sm leading-6 ${tier.mostPopular ? 'text-slate-300' : 'text-slate-600'}`}>
-              {tier.description}
-            </p>
+            <div>
+              {/* Plan Header Title */}
+              <h3 className="text-xl font-black uppercase font-mono text-slate-900 border-b-2 border-slate-900 pb-1.5 inline-block">
+                {tier.name}
+              </h3>
+              
+              <p className="mt-4 text-xs font-bold uppercase tracking-wide text-slate-600 leading-relaxed">
+                {tier.description}
+              </p>
 
-            <p className="mt-6 flex items-baseline gap-x-1">
-              <span className="text-4xl font-extrabold tracking-tight">{tier.price}</span>
-              {tier.price !== 'Custom' && <span className={`text-sm font-semibold ${tier.mostPopular ? 'text-slate-400' : 'text-slate-500'}`}>/yearly</span>}
-            </p>
+              {/* Pricing Display Frame */}
+              <p className="mt-6 flex items-baseline gap-x-1 border-2 border-slate-900 bg-white p-3 shadow-[2px_2px_0px_0px_#000] inline-flex rounded">
+                <span className="text-3xl font-black font-mono tracking-tight text-slate-900">{tier.price}</span>
+                {tier.price !== 'Custom' && <span className="text-xs font-black font-mono uppercase text-slate-500 tracking-tight ml-1">/yr</span>}
+              </p>
 
-            <button
-              className={`mt-6 block w-full rounded-xl px-3 py-2.5 text-center text-sm font-semibold shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-all duration-200 ${
-                tier.mostPopular
-                  ? 'bg-indigo-500 text-white hover:bg-indigo-400 focus-visible:outline-indigo-500'
-                  : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100 focus-visible:outline-indigo-600'
-              }`}
-            >
-              Get Started Today
-            </button>
+              {/* Features List Checklist */}
+              <ul className="mt-8 space-y-3.5 text-xs font-black uppercase tracking-wide font-mono text-slate-800">
+                {tier.features.map((feature) => (
+                  <li key={feature} className="flex gap-x-2.5 items-center">
+                    <div className={`flex h-5 w-5 shrink-0 items-center justify-center border border-slate-900 text-slate-900 ${tier.accentColor}`}>
+                      <svg className="h-3 w-3 stroke-[3.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                    </div>
+                    <span className="truncate">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-            <ul className={`mt-8 space-y-3 text-sm leading-6 xl:mt-10 ${tier.mostPopular ? 'text-slate-300' : 'text-slate-600'}`}>
-              {tier.features.map((feature) => (
-                <li key={feature} className="flex gap-x-3 items-center">
-                  <svg
-                    className={`h-5 w-5 flex-none ${tier.mostPopular ? 'text-indigo-400' : 'text-indigo-600'}`}
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {feature}
-                </li>
-              ))}
-            </ul>
+            {/* Custom Interactive Action CTA Wrapper */}
+            <div className="mt-8 pt-2">
+              <button
+                className={`w-full text-center text-xs font-black uppercase font-mono tracking-wider px-4 py-3 rounded border-2 border-slate-900 shadow-[3px_3px_0px_0px_#000] hover:translate-y-[-2px] hover:shadow-[5px_5px_0px_0px_#000] active:translate-y-[1px] active:shadow-[1px_1px_0px_0px_#000] transition-all ${
+                  tier.id === 'tier-growth'
+                    ? 'bg-[#ff9e7d] text-slate-900'
+                    : 'bg-white text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                Get Started Today
+              </button>
+            </div>
+
           </motion.div>
         ))}
       </div>
