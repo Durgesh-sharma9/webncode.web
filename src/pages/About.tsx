@@ -13,7 +13,6 @@ import aryan2 from '../assets/team/aryann2.png'
 import pranav1 from '../assets/team/pranav1.png'
 import pranav2 from '../assets/team/pranav2.png'
 
-const rahulImg = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80"
 const amitImg = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80"
 
 const themeGradients = [

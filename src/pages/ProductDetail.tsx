@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, Link, Navigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Button from '../components/ui/Button'
-import { CheckIcon, ArrowRightIcon } from '../components/ui/Icons'
+import { ArrowRightIcon } from '../components/ui/Icons'
 import { getProductBySlug, products } from '../data/products'
 import dtp_db from '../assets/projects/daily-test-pro/dtp_db.png'
 
@@ -11,7 +11,7 @@ export default function ProductDetail() {
   const product = slug ? getProductBySlug(slug) : undefined
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [currentScreenshot, setCurrentScreenshot] = useState(0)
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (product?.screenshots && product.screenshots.length > 1) {

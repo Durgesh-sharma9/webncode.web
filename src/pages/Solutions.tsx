@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion'
 import Button from '../components/ui/Button'
-import { CheckIcon } from '../components/ui/Icons'
 import { solutions } from '../data/solutions'
 
 export default function Solutions() {
