@@ -11,8 +11,7 @@ interface ProductCardProps {
 function ProductVisual({ product }: { product: Product }) {
   const [currentImgIdx, setCurrentImgIdx] = useState(0)
   const cardTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const hasDedicatedImage = Boolean(product.image)
-  const hasSlideshow = !hasDedicatedImage && product.screenshots && product.screenshots.length > 1
+  const hasSlideshow = product.screenshots && product.screenshots.length > 1
 
   useEffect(() => {
     return () => {
@@ -36,10 +35,9 @@ function ProductVisual({ product }: { product: Product }) {
     <div className="relative h-48 overflow-hidden bg-slate-100 flex items-center justify-center border-b-2 border-slate-900 group">
       <img
         src={
-          product.image ||
-          (product.screenshots && product.screenshots[currentImgIdx]
+          product.screenshots && product.screenshots[currentImgIdx]
             ? product.screenshots[currentImgIdx]
-            : '')
+            : ''
         }
         alt={`${product.title} view`}
         className="h-full w-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-300"
@@ -49,7 +47,7 @@ function ProductVisual({ product }: { product: Product }) {
         {product.category}
       </span>
       
-      {!hasDedicatedImage && product.screenshots && product.screenshots.length > 1 && (
+      {product.screenshots && product.screenshots.length > 1 && (
         <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 bg-white border-2 border-slate-900 px-2 py-1 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] z-10">
           {product.screenshots.map((_, idx) => (
             <div 
