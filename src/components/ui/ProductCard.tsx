@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import type { Product } from '../../data/products'
 import { ArrowRightIcon, CheckIcon } from './Icons'
@@ -95,13 +94,15 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
         {/* Neo-brutalist Text Action Trigger */}
         <div className="pt-2">
-          <Link
-            to={`/products/${product.slug}`}
-            className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-widest font-mono text-slate-900 hover:text-slate-900 bg-[#7dd3fc] border border-slate-900 px-2.5 py-1.5 shadow-[2px_2px_0px_0px_#000] hover:translate-y-[-1px] hover:shadow-[3px_3px_0px_0px_#000] transition-all"
+          <a
+            href={product.demoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-widest font-mono text-slate-900 hover:text-slate-900 bg-[#ff9e7d] border border-slate-900 px-2.5 py-1.5 shadow-[2px_2px_0px_0px_#000] hover:translate-y-[-1px] hover:shadow-[3px_3px_0px_0px_#000] transition-all"
           >
-            <span>Learn More</span>
+            <span>Get Started</span>
             <ArrowRightIcon className="h-3.5 w-3.5" />
-          </Link>
+          </a>
         </div>
 
       </div>

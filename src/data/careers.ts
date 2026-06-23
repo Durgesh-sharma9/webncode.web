@@ -4,6 +4,7 @@ export interface JobPosition {
   department: string
   location: string
   type: 'Full-time' | 'Internship' | 'Contract'
+  experience: string
   description: string
 }
 
@@ -44,56 +45,72 @@ export const whyJoin = [
 export const positions: JobPosition[] = [
   {
     id: '1',
-    title: 'Senior Frontend Developer',
+    title: 'Frontend Developer',
     department: 'Engineering',
-    location: 'Noida / Remote',
+    location: 'Jaipur / Remote',
     type: 'Full-time',
+    experience: '2+ Years',
     description:
-      'Lead React development for our education SaaS products. You will architect component libraries, optimize performance, and mentor junior developers.',
+      'Lead React development for our SaaS products. You will architect component libraries, optimize performance, and deliver exceptional user experiences.',
   },
   {
     id: '2',
-    title: 'Backend Developer (Node.js)',
+    title: 'Backend Developer',
     department: 'Engineering',
-    location: 'Noida / Remote',
+    location: 'Jaipur / Remote',
     type: 'Full-time',
+    experience: '2+ Years',
     description:
-      'Build scalable APIs and microservices using Node.js, Express, and MongoDB. Experience with AWS and Docker is a plus.',
+      'Build scalable APIs and microservices using Node.js and MongoDB. Focus on high performance and secure backend architecture.',
   },
   {
     id: '3',
-    title: 'Product Designer',
-    department: 'Design',
-    location: 'Noida / Hybrid',
+    title: 'Full Stack Developer',
+    department: 'Engineering',
+    location: 'Jaipur / Remote',
     type: 'Full-time',
+    experience: '3+ Years',
     description:
-      'Design intuitive interfaces for complex education workflows. You will own the design system and conduct user research with partner institutions.',
+      'Own end-to-end product features. Work seamlessly across React frontend and Node.js backend to deliver complete solutions.',
   },
   {
     id: '4',
-    title: 'QA Engineer',
-    department: 'Engineering',
-    location: 'Noida',
+    title: 'UI/UX Designer',
+    department: 'Design',
+    location: 'Jaipur / Hybrid',
     type: 'Full-time',
+    experience: '2+ Years',
     description:
-      'Ensure product quality through automated and manual testing. Build test suites and work closely with developers on CI/CD pipelines.',
+      'Design intuitive interfaces for complex workflows. You will own the design system and ensure our products look and feel incredible.',
   },
   {
     id: '5',
-    title: 'Software Engineering Intern',
+    title: 'QA Tester',
     department: 'Engineering',
-    location: 'Noida',
-    type: 'Internship',
+    location: 'Jaipur',
+    type: 'Full-time',
+    experience: '1+ Years',
     description:
-      '6-month internship working on live products. Ideal for students in their final year of CS or related programs. Mentorship included.',
+      'Ensure product quality through automated and manual testing. Identify bugs before they reach production and improve test coverage.',
   },
   {
     id: '6',
-    title: 'UI/UX Design Intern',
-    department: 'Design',
-    location: 'Noida / Remote',
-    type: 'Internship',
+    title: 'Digital Marketing Executive',
+    department: 'Marketing',
+    location: 'Jaipur',
+    type: 'Full-time',
+    experience: '1+ Years',
     description:
-      'Assist the design team with wireframes, prototypes, and user testing. Portfolio required. 3–6 month duration.',
+      'Drive growth for our SaaS products. Manage campaigns, analyze metrics, and optimize conversion funnels across multiple channels.',
   },
+  {
+    id: '7',
+    title: 'Content Writer',
+    department: 'Marketing',
+    location: 'Jaipur / Remote',
+    type: 'Full-time',
+    experience: '1+ Years',
+    description:
+      'Craft compelling narratives for our products. Write blog posts, documentation, and marketing copy that resonates with our audience.',
+  }
 ]

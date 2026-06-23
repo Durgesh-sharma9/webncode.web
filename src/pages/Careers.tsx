@@ -1,7 +1,9 @@
-import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import SectionHeading from '../components/ui/SectionHeading'
 import Button from '../components/ui/Button'
-import { whyJoin, positions, benefits } from '../data/careers'
+import { whyJoin, positions, benefits, type JobPosition } from '../data/careers'
+import ApplicationForm from '../components/careers/ApplicationForm'
 
 const typeColors: Record<string, string> = {
   'Full-time': 'bg-[#93c5fd] text-black border border-black',
@@ -10,6 +12,8 @@ const typeColors: Record<string, string> = {
 }
 
 export default function Careers() {
+  const [selectedJob, setSelectedJob] = useState<JobPosition | null>(null)
+
   return (
     <>
       {/* HERO SECTION - Neo-brutalist Style matching the screenshot */}
@@ -76,51 +80,59 @@ export default function Careers() {
       {/* OPEN POSITIONS SECTION */}
       <section className="py-16 bg-[#fafafa] border-b-2 border-black">
         <div className="container-wide px-5 md:px-8">
-          <SectionHeading title="Open Positions" description="Explore job openings across various tech domains. Your next challenge is waiting." />
+          <SectionHeading title={selectedJob ? "Application Form" : "Open Positions"} description={selectedJob ? "Fill out the form below to apply. Show us what you can build." : "Explore job openings across various tech domains. Your next challenge is waiting."} />
           
-          <div className="mt-12 space-y-6">
-            {positions.map((job, i) => (
-              <motion.div
-                key={job.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.6 }}
-                className="bg-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] transition-all"
-              >
-                <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="space-y-3 max-w-3xl">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <h3 className="text-xl font-black uppercase text-black">{job.title}</h3>
-                      <span className={`rounded-md px-3 py-1 text-xs font-black uppercase ${typeColors[job.type] || 'bg-white text-black border border-black'}`}>
-                        {job.type}
-                      </span>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-x-4 items-center text-xs font-black uppercase tracking-wider text-black/60">
-                      <span>{job.department}</span>
-                      <span className="h-1.5 w-1.5 rounded-full bg-black" />
-                      <span className="text-black">{job.location}</span>
-                    </div>
-                    
-                    <p className="mt-2 text-sm font-medium text-black/70 leading-relaxed">
-                      {job.description}
-                    </p>
-                  </div>
-
-                  <div className="shrink-0 pt-2 lg:pt-0">
-                    <Button 
-                      to="/contact" 
-                      variant="outline" 
-                      size="lg"
-                      className="w-full lg:w-auto border-2 border-black bg-white text-black font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:bg-[#ff9e7d] hover:translate-y-[-2px] transition-all"
+          <div className="mt-12">
+            <AnimatePresence mode="wait">
+              {selectedJob ? (
+                <ApplicationForm key="form" job={selectedJob} onBack={() => setSelectedJob(null)} />
+              ) : (
+                <motion.div key="list" className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  {positions.map((job, i) => (
+                    <motion.div
+                      key={job.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.08, duration: 0.6 }}
+                      className="bg-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_#000] hover:shadow-[6px_6px_0px_0px_#000] transition-all"
                     >
-                      Apply Now
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="space-y-3 max-w-3xl">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <h3 className="text-xl font-black uppercase text-black">{job.title}</h3>
+                            <span className={`rounded-md px-3 py-1 text-xs font-black uppercase ${typeColors[job.type] || 'bg-white text-black border border-black'}`}>
+                              {job.type}
+                            </span>
+                          </div>
+                          
+                          <div className="flex flex-wrap gap-x-4 gap-y-2 items-center text-xs font-black uppercase tracking-wider text-black/60">
+                            <span>{job.department}</span>
+                            <span className="h-1.5 w-1.5 rounded-full bg-black" />
+                            <span className="text-black">{job.location}</span>
+                            <span className="h-1.5 w-1.5 rounded-full bg-black" />
+                            <span className="text-black font-bold">Exp: {job.experience}</span>
+                          </div>
+                          
+                          <p className="mt-2 text-sm font-medium text-black/70 leading-relaxed">
+                            {job.description}
+                          </p>
+                        </div>
+
+                        <div className="shrink-0 pt-2 lg:pt-0">
+                          <button 
+                            onClick={() => setSelectedJob(job)}
+                            className="w-full lg:w-auto border-2 border-black px-6 py-3 bg-white text-black font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:bg-[#ff9e7d] hover:translate-y-[-2px] hover:shadow-[5px_5px_0px_0px_#000] transition-all"
+                          >
+                            Apply Now
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </section>

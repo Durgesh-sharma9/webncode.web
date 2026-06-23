@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const contactRoutes = require('./routes/contactRoutes');
+const careerRoutes = require('./routes/careerRoutes');
 
 // Load environment variables from .env file
 dotenv.config();
@@ -17,15 +18,18 @@ app.use(cors({
   credentials: true
 }));
 
-// Parse incoming JSON requests
-app.use(express.json());
+// Parse incoming JSON requests (Increased limit for Base64 resume uploads)
+app.use(express.json({ limit: '10mb' }));
 
 // Parse URL-encoded data
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // API Routes
 // Mount contact routes at /api/contact
 app.use('/api/contact', contactRoutes);
+
+// Mount career routes at /api/careers
+app.use('/api/careers', careerRoutes);
 
 // Root endpoint for health check
 app.get('/', (req, res) => {
