@@ -1,6 +1,5 @@
 import Hero from "../components/home/Hero";
 import FeaturedProducts from "../components/home/FeaturedProducts";
-import LatestUpdates from "../components/home/LatestUpdates";
 import Industries from "../components/home/Industries";
 import WhyChoose from "../components/home/WhyChoose";
 import DeliveryHighlights from "../components/home/DeliveryHighlights";
@@ -22,12 +21,12 @@ export default function Home() {
     <div className="bg-[#fafafa] min-h-screen">
       <Hero />
       <FeaturedProducts />
-      <LatestUpdates />
-      <Industries />
+      {/* <LatestUpdates /> */}
+      {/* <Industries /> */}
       <WhyChoose />
       <DeliveryHighlights />
-      <TechStack />
-      <Process />
+      {/* <TechStack /> */}
+      {/* <Process /> */}
       <Testimonials />
       <CTA />
     </div>

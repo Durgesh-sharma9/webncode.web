@@ -1,13 +1,25 @@
 import { motion } from 'framer-motion'
 import SectionHeading from '../ui/SectionHeading'
 import { techStack } from '../../data/company'
+import { FaReact, FaNodeJs, FaDocker, FaAws } from 'react-icons/fa'
+import { SiMongodb, SiExpress } from 'react-icons/si'
 
 // Dynamic high-contrast background tokens for technological stacks 
 const stackAccents = ['bg-[#7dd3fc]', 'bg-[#ff9e7d]', 'bg-[#86efac]', 'bg-[#c084fc]', 'bg-[#93c5fd]']
 
+// Technology icon mapping
+const techIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  'React': FaReact,
+  'Node.js': FaNodeJs,
+  'MongoDB': SiMongodb,
+  'Express': SiExpress,
+  'Docker': FaDocker,
+  'AWS': FaAws,
+}
+
 export default function TechStack() {
   return (
-    <section className="section-padding bg-[#fafafa] border-b-2 border-slate-900 relative">
+    <section className="py-12 lg:py-16 bg-[#fafafa] border-b-2 border-slate-900 relative">
       {/* Background Matrix Dotted Accent Mesh Pattern */}
       <div className="absolute inset-0 opacity-[0.10] pointer-events-none" 
            style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
@@ -30,10 +42,13 @@ export default function TechStack() {
               transition={{ duration: 0.3, delay: i * 0.04 }}
               className="group bg-white border-2 border-slate-900 p-6 rounded-md shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(15,23,42,1)] transition-all flex flex-col items-center text-center"
             >
-              {/* Mechanical Initial Terminal Character Block Box */}
-              <div className={`mb-5 flex h-14 w-14 items-center justify-center border-2 border-slate-900 ${stackAccents[i % stackAccents.length]} font-mono text-xl font-black text-slate-900 shadow-[2px_2px_0px_0px_#000]`}
+              {/* Technology Logo Block */}
+              <div className={`mb-5 flex h-16 w-16 items-center justify-center border-2 border-slate-900 ${stackAccents[i % stackAccents.length]} shadow-[2px_2px_0px_0px_#000]`}
               >
-                {tech.name.charAt(0).toUpperCase()}
+                {(() => {
+                  const Icon = techIcons[tech.name]
+                  return Icon ? <Icon className="h-10 w-10" /> : <span className="font-mono text-xl font-black text-slate-900">{tech.name.charAt(0).toUpperCase()}</span>
+                })()}
               </div>
 
               {/* Title Identity Block */}

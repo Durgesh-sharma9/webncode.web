@@ -11,7 +11,7 @@ export default function Layout() {
   return (
     <div className="flex min-h-screen flex-col bg-[#fafafa] text-slate-900 selection:bg-[#ff9e7d]">
       <Navbar />
-      <main className="flex-1 pt-[4rem]">
+      <main className="flex-1">
         <AnimatePresence mode="wait">
           <PageTransition key={location.pathname}>
             <Outlet />
