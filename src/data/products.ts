@@ -9,6 +9,7 @@ export const productCategories = [
   'Analytics',
   'HR',
   'Sports Management',
+  'Services',
 ] as const
 
 
@@ -140,7 +141,7 @@ export const products: Product[] = [
   {
     id: '3',
     slug: 'star-sports',
-    title: 'Star Sports',
+    title: 'Start Sports',
     shortDescription:
       'Sports ground booking and management platform for sports facility owners.',
     description:
@@ -180,7 +181,7 @@ export const products: Product[] = [
   {
     id: '4',
     slug: 'daily-test-manager-pro',
-    title: 'Daily Test Manager Pro',
+    title: 'Test Manager Pro',
     shortDescription:
       'Complete daily test, assessment, ranking, and student performance tracking platform for schools.',
     description:
@@ -272,323 +273,129 @@ export const products: Product[] = [
     ],
     demoUrl: 'https://demo.webncode.com/hirehub',
   },
-  {
+   {
     id: '6',
-    slug: 'attendance-pro',
-    title: 'Attendance Pro',
+    slug: 'star-sports',
+    title: 'Sports Academy Pro',
     shortDescription:
-      'Track attendance in real-time with biometric integration, automated reports, and instant parent alerts.',
+      'Sports ground booking and management platform for sports facility owners.',
     description:
-      'Attendance Pro provides accurate, real-time tracking for students and staff. Integrate with biometric devices, generate compliance reports, and send automated alerts to parents. Built for institutions that need reliability and instant visibility into attendance patterns.',
-    category: 'Analytics',
+      'Star Sports helps sports ground owners manage bookings, schedules, customer records, and accounts from a single platform. Owners can track upcoming bookings, prevent booking clashes, manage payments, monitor ground utilization, and maintain complete operational control. The platform simplifies sports facility management and improves the booking experience for customers.',
+    category: 'Sports Management',
     features: [
-      'Biometric & RFID integration',
-      'Real-time attendance tracking',
-      'Automated parent notifications',
-      'Leave management workflow',
-      'Attendance analytics dashboard',
-      'Export & compliance reports',
+      'Ground booking management',
+      'Booking calendar',
+      'Clash-free scheduling',
+      'Customer management',
+      'Payment tracking',
+      'Account management',
+      'Booking history',
+      'Ground availability tracking',
+      'Daily revenue reports',
+      'Dashboard analytics'
     ],
     benefits: [
-      'Achieve 99%+ attendance recording accuracy',
-      'Reduce truancy with instant parent alerts',
-      'Generate government compliance reports easily',
-      'Identify attendance trends early',
-      'Save hours on manual attendance work',
+      'Prevent double bookings',
+      'Manage bookings efficiently',
+      'Track customer history',
+      'Monitor revenue and accounts',
+      'Improve ground utilization',
+      'Simplify daily operations',
+      'Save administrative time'
     ],
-    faqs: [
-      {
-        question: 'Which biometric devices are supported?',
-        answer:
-          'We support major fingerprint and face recognition devices. Contact us for a compatibility list.',
-      },
-      {
-        question: 'Can attendance be marked manually?',
-        answer:
-          'Yes. Teachers can mark attendance via web or mobile when biometric devices are unavailable.',
-      },
-      {
-        question: 'Are SMS alerts included?',
-        answer:
-          'Automated SMS and email alerts are configurable per institution with customizable templates.',
-      },
-    ],
-    color: '#43A047',
-    accentColor: '#E8F5E9',
+    faqs: [],
+    color: '#F97316',
+    accentColor: '#FFEDD5',
     screenshots: [
-      'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-151749763962-0c623066013b?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1547347298-4074fc3086f0?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1200&auto=format&fit=crop',
     ],
-    demoUrl: 'https://demo.webncode.com/attendance-pro',
+    demoUrl: 'https://demo.webncode.com/star-sports',
   },
-  {
+{
     id: '7',
-    slug: 'result-manager-pro',
-    title: 'Result Manager Pro',
+    slug: 'timetable-pro',
+    title: 'Syllabus Tracker',
+    
     shortDescription:
-      'Streamline examination workflows, grade entry, and result publication with accuracy and speed.',
+      'Smart timetable and academic management platform for schools and educational institutions.',
     description:
-      'Result Manager Pro eliminates the chaos of manual mark sheets and delayed result publication. From exam scheduling to grade calculation and secure result distribution, every step is automated and auditable. Designed for schools and colleges handling high-volume examinations.',
+      'Timetable Pro helps schools manage faculty schedules, class timetables, homework assignments, and teaching activities. Teachers can view schedules, submit daily reports, assign homework, track completed topics, and stay organized through a centralized dashboard. The system reduces scheduling conflicts and improves academic coordination across the institution.',
     category: 'Education',
     features: [
-      'Exam schedule management',
-      'Marks entry & validation',
-      'Automated grade calculation',
-      'Result publication portal',
-      'Transcript generation',
-      'Analytics & performance trends',
+      'Faculty timetable management',
+      'Class timetable scheduling',
+      'Teacher dashboard',
+      'Homework assignment',
+      'Daily teaching reports',
+      'Period management',
+      'Class-wise schedules',
+      'Academic planning',
+      'Teacher activity tracking',
+      'Notifications and updates'
     ],
     benefits: [
-      'Publish results 70% faster than manual processes',
-      'Eliminate calculation errors with automated grading',
-      'Provide students instant access to results',
-      'Track academic performance over time',
-      'Reduce paper usage significantly',
+      'Reduce timetable conflicts',
+      'Improve academic planning',
+      'Assign homework digitally',
+      'Track teacher activities',
+      'Centralized timetable management',
+      'Save administrative time'
     ],
-    faqs: [
-      {
-        question: 'Does it support different grading systems?',
-        answer:
-          'Yes. Configure percentage, GPA, letter grades, or custom grading schemes per institution.',
-      },
-      {
-        question: 'Can teachers enter marks in bulk?',
-        answer:
-          'Teachers can enter marks individually or via bulk upload using standardized templates.',
-      },
-      {
-        question: 'Is there an audit trail?',
-        answer:
-          'Every mark entry and modification is logged with timestamp and user identity for full accountability.',
-      },
-    ],
-    color: '#071A52',
-    accentColor: '#E8EAF6',
+    faqs: [],
+    color: '#2563EB',
+    accentColor: '#DBEAFE',
     screenshots: [
-      'https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop',
+      ttp1,
+      ttp2,
+      ttp3,
     ],
-    demoUrl: 'https://demo.webncode.com/result-manager-pro',
+    demoUrl: 'https://demo.webncode.com/timetable-pro',
   },
   {
     id: '8',
-    slug: 'parent-connect-pro',
-    title: 'Parent Connect Pro',
+    slug: 'broker-connect',
+    title: 'Broker Connect',
+    
     shortDescription:
-      'Bridge the communication gap between schools and parents with real-time updates and engagement tools.',
+      'Smart timetable and academic management platform for schools and educational institutions.',
     description:
-      'Parent Connect Pro creates a seamless communication channel between institutions and parents. Share updates, track progress, conduct virtual meetings, and build trust through transparent communication. Essential for modern educational institutions focused on parent engagement.',
-    category: 'Education',
+      'Timetable Pro helps schools manage faculty schedules, class timetables, homework assignments, and teaching activities. Teachers can view schedules, submit daily reports, assign homework, track completed topics, and stay organized through a centralized dashboard. The system reduces scheduling conflicts and improves academic coordination across the institution.',
+    category: 'Services',
     features: [
-      'Real-time notifications',
-      'Progress reports & analytics',
-      'Virtual parent-teacher meetings',
-      'Fee payment reminders',
-      'Announcement broadcasts',
-      'Two-way messaging',
+      'Faculty timetable management',
+      'Class timetable scheduling',
+      'Teacher dashboard',
+      'Homework assignment',
+      'Daily teaching reports',
+      'Period management',
+      'Class-wise schedules',
+      'Academic planning',
+      'Teacher activity tracking',
+      'Notifications and updates'
     ],
     benefits: [
-      'Increase parent engagement by 80%',
-      'Reduce inquiry calls significantly',
-      'Build trust through transparency',
-      'Improve student outcomes with involved parents',
-      'Streamline communication workflows',
+      'Reduce timetable conflicts',
+      'Improve academic planning',
+      'Assign homework digitally',
+      'Track teacher activities',
+      'Centralized timetable management',
+      'Save administrative time'
     ],
-    faqs: [
-      {
-        question: 'Is there a mobile app for parents?',
-        answer:
-          'Yes. Parent Connect Pro includes a dedicated mobile app for iOS and Android.',
-      },
-      {
-        question: 'Can we send targeted notifications?',
-        answer:
-          'Yes. Send notifications to specific classes, sections, or individual parents as needed.',
-      },
-      {
-        question: 'How secure is the communication?',
-        answer:
-          'All communications are encrypted with role-based access to protect student privacy.',
-      },
-    ],
-    color: '#1E88E5',
-    accentColor: '#E1F5FE',
+    faqs: [],
+    color: '#2563EB',
+    accentColor: '#DBEAFE',
     screenshots: [
-      'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1200&auto=format&fit=crop',
+      ttp1,
+      ttp2,
+      ttp3,
     ],
-    demoUrl: 'https://demo.webncode.com/parent-connect-pro',
+    demoUrl: 'https://demo.webncode.com/timetable-pro',
   },
-  {
-    id: '9',
-    slug: 'staff-management-pro',
-    title: 'Staff Management Pro',
-    shortDescription:
-      'Comprehensive HR and payroll management system for educational institutions and organizations.',
-    description:
-      'Staff Management Pro handles all aspects of staff administration from recruitment to retirement. Manage payroll, leave, attendance, performance, and compliance in one unified system. Designed for institutions with complex HR requirements and multiple employee categories.',
-    category: 'HR',
-    features: [
-      'Payroll management',
-      'Leave & attendance tracking',
-      'Performance evaluation',
-      'Recruitment workflow',
-      'Document management',
-      'Compliance reporting',
-    ],
-    benefits: [
-      'Automate payroll processing completely',
-      'Ensure compliance with labor laws',
-      'Reduce HR administrative workload',
-      'Improve staff satisfaction',
-      'Centralized employee records',
-    ],
-    faqs: [
-      {
-        question: 'Does it handle different pay structures?',
-        answer:
-          'Yes. Supports multiple pay structures, allowances, deductions, and payment cycles.',
-      },
-      {
-        question: 'Can employees access their records?',
-        answer:
-          'Yes. Employees have a self-service portal to view payslips, apply for leave, and update details.',
-      },
-      {
-        question: 'Is tax compliance included?',
-        answer:
-          'Yes. The system handles tax calculations, deductions, and generates compliance reports.',
-      },
-    ],
-    color: '#071A52',
-    accentColor: '#E8EAF6',
-    screenshots: [
-      'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1553877522-43269d4ea984?q=80&w=1200&auto=format&fit=crop',
-    ],
-    demoUrl: 'https://demo.webncode.com/staff-management-pro',
-  },
-  {
-    id: '10',
-    slug: 'campus-connect-pro',
-    title: 'Campus Connect Pro',
-    shortDescription:
-      'Unified campus management platform connecting students, faculty, and administration seamlessly.',
-    description:
-      'Campus Connect Pro is an all-in-one campus management solution that brings together students, faculty, and administration on a single platform. From learning management to campus events, from library services to hostel management—everything connected in one place.',
-    category: 'Education',
-    features: [
-      'Learning management system',
-      'Campus event management',
-      'Library management',
-      'Hostel management',
-      'Transport tracking',
-      'Alumni network',
-    ],
-    benefits: [
-      'Create a connected campus ecosystem',
-      'Improve student experience significantly',
-      'Reduce administrative silos',
-      'Enhance campus safety and security',
-      'Build strong alumni relationships',
-    ],
-    faqs: [
-      {
-        question: 'Can it integrate with existing systems?',
-        answer:
-          'Yes. Campus Connect Pro offers API integrations with most popular educational tools.',
-      },
-      {
-        question: 'Is there a student mobile app?',
-        answer:
-          'Yes. Students can access all services through a comprehensive mobile application.',
-      },
-      {
-        question: 'How does it help with alumni engagement?',
-        answer:
-          'Built-in alumni portal helps maintain connections, share opportunities, and organize events.',
-      },
-    ],
-    color: '#0F5ED7',
-    accentColor: '#E3F2FD',
-    screenshots: [
-      'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=1200&auto=format&fit=crop',
-    ],
-    demoUrl: 'https://demo.webncode.com/campus-connect-pro',
-  },
-  {
-    id: '11',
-    slug: 'web-builder-pro',
-    title: 'Web Builder Pro',
-    shortDescription:
-      'School website builder platform with professional templates, drag-and-drop customization, and instant publishing.',
-    description:
-      'Web Builder Pro is a powerful school website builder platform that enables educational institutions to create stunning, professional websites without any coding knowledge. Choose from multiple professionally designed templates, customize colors, content, galleries, and announcements, and publish your website instantly. Perfect for schools looking to establish a strong online presence and showcase their institution to prospective parents and students.',
-    category: 'Education',
-    features: [
-      'Multiple professional templates',
-      'Drag and drop customization',
-      'Notice board management',
-      'Gallery management',
-      'Faculty profiles',
-      'Admission pages',
-      'Mobile responsive design',
-      'SEO optimization',
-      'Custom domain support',
-      'Cloud hosting',
-    ],
-    benefits: [
-      'Create professional websites without coding',
-      'Launch your school website in minutes, not months',
-      'Showcase faculty and staff with dedicated profiles',
-      'Manage admissions information seamlessly',
-      'Publish instantly with one-click deployment',
-      'Host websites on our secure cloud platform',
-      'Optimize for search engines to attract more visitors',
-      'Customize branding with colors and logos',
-    ],
-    faqs: [
-      {
-        question: 'Do I need coding skills to use Web Builder Pro?',
-        answer:
-          'No. Web Builder Pro is designed for non-technical users. Our drag-and-drop interface makes website creation simple and intuitive.',
-      },
-      {
-        question: 'Can I use my own domain name?',
-        answer:
-          'Yes. Web Builder Pro supports custom domain integration. You can connect your existing domain or purchase a new one through our platform.',
-      },
-      {
-        question: 'Are the templates mobile-responsive?',
-        answer:
-          'All our templates are fully responsive and optimized for mobile devices, ensuring your website looks great on any screen size.',
-      },
-      {
-        question: 'Can I update content after publishing?',
-        answer:
-          'Yes. You can update content, add new pages, manage galleries, and publish changes instantly at any time.',
-      },
-      {
-        question: 'Is hosting included?',
-        answer:
-          'Yes. Web Builder Pro includes secure cloud hosting with SSL certificates, automatic backups, and 99.9% uptime guarantee.',
-      },
-    ],
-    color: '#7C3AED',
-    accentColor: '#EDE9FE',
-    screenshots: [
-      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop',
-    ],
-    demoUrl: 'https://demo.webncode.com/web-builder-pro',
-  }
+
+  
+  
 ]
 
 export function getProductBySlug(slug: string): Product | undefined {

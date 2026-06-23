@@ -71,9 +71,12 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3 text-sm font-bold uppercase tracking-wide text-slate-700">
               <li>
-                <a href={`mailto:${company.email}`} className="hover:text-slate-900 hover:underline transition-all">
-                  {company.email}
-                </a>
+                <a
+  href={`mailto:${company.email}`}
+  className="text-sm font-semibold normal-case text-slate-800 hover:text-slate-900 hover:underline transition-all break-all"
+>
+  {company.email}
+</a>
               </li>
               <li>
                 <a href={`tel:${company.phone.replace(/\s/g, '')}`} className="hover:text-slate-900 hover:underline transition-all">

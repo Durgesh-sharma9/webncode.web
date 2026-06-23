@@ -2,15 +2,15 @@ export const company = {
   name: 'Web n Code Technologies',
   tagline: 'Code. Innovate. Grow.',
   description:
-    'Web n Code Technologies is a product company focused on building and operating software products for schools, sports academies, and organizations. We create practical solutions that simplify daily operations, improve efficiency, and support long-term growth.',
-  email: 'hello@webncode.com',
-  phone: '+91 98765 43210',
+    'Building practical software products that help organizations manage operations more efficiently.',
+  email: 'webncodetechnologies@gmail.com',
+  phone: '+91 89479 19195',
   address: 'Mahapura Rd, Jaipur, Bhankrota, Rajasthan 302026, India',
   social: {
     linkedin: 'https://www.linkedin.com/company/webncodetechnologies',
     instagram: 'https://www.instagram.com/webncodetechnologies',
     youtube: 'https://youtube.com/@webncode',
-    x: 'https://x.com/webncode',
+    x: 'https://x.com/webncodetech',
   },
 }
 

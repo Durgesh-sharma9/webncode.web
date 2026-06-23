@@ -10,9 +10,9 @@ export default function FeaturedProducts() {
 
   return (
     <section
-  id="products-section"
-  className="section-padding bg-white border-b-2 border-slate-900 relative scroll-mt-16"
->
+      id="products-section"
+      className="pt-16 pb-12 md:pt-24 md:pb-16 bg-white border-b-2 border-slate-900 relative scroll-mt-16"
+    >
       {/* Background Matrix Dotted Accent Mesh Pattern */}
       <div className="absolute inset-0 opacity-[0.10] pointer-events-none" 
            style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
@@ -37,7 +37,7 @@ export default function FeaturedProducts() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.3, delay: 0.2 }}
-          className="mt-14 text-center"
+          className="mt-10 md:mt-12 text-center"
         >
           <Button to="/products" variant="outline" size="lg">
             View All Products

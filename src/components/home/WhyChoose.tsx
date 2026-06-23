@@ -8,7 +8,7 @@ const blockAccents = ['bg-[#ff9e7d]', 'bg-[#7dd3fc]', 'bg-[#86efac]', 'bg-[#c084
 
 export default function WhyChoose() {
   return (
-    <section className="section-padding bg-[#fafafa] border-b-2 border-slate-900 relative">
+    <section className="pt-12 pb-16 md:pt-16 md:pb-24 bg-[#fafafa] border-b-2 border-slate-900 relative">
       {/* Background Matrix Dotted Accent Mesh Pattern */}
       <div className="absolute inset-0 opacity-[0.10] pointer-events-none" 
            style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
