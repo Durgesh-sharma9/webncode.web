@@ -10,36 +10,46 @@ interface ProductCardProps {
 
 function ProductVisual({ product }: { product: Product }) {
   const [currentImgIdx, setCurrentImgIdx] = useState(0)
-  const cardTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const cardTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const hasDedicatedImage = Boolean(product.image)
+  const hasSlideshow = !hasDedicatedImage && product.screenshots && product.screenshots.length > 1
 
   useEffect(() => {
-    if (product.screenshots && product.screenshots.length > 1) {
-      cardTimerRef.current = setInterval(() => {
-        setCurrentImgIdx((prev) => (prev === product.screenshots.length - 1 ? 0 : prev + 1))
-      }, 3500)
+    return () => {
+      if (cardTimerRef.current) clearInterval(cardTimerRef.current)
     }
+  }, [])
+
+  useEffect(() => {
+    if (!hasSlideshow) return
+
+    cardTimerRef.current = setInterval(() => {
+      setCurrentImgIdx((prev) => (prev === product.screenshots.length - 1 ? 0 : prev + 1))
+    }, 3500)
 
     return () => {
       if (cardTimerRef.current) clearInterval(cardTimerRef.current)
     }
-  }, [product.screenshots])
+  }, [hasSlideshow, product.screenshots])
 
   return (
     <div className="relative h-48 overflow-hidden bg-slate-100 flex items-center justify-center border-b-2 border-slate-900 group">
-      {/* Auto-rotating continuous screen snapshot image layer */}
       <img
-        src={product.screenshots && product.screenshots[currentImgIdx] ? product.screenshots[currentImgIdx] : ''}
+        src={
+          product.image ||
+          (product.screenshots && product.screenshots[currentImgIdx]
+            ? product.screenshots[currentImgIdx]
+            : '')
+        }
         alt={`${product.title} view`}
         className="h-full w-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-300"
       />
       
-      {/* Neo-brutalist Flat Category Badge Tag styling */}
       <span className="absolute top-3 right-3 rounded border-2 border-slate-900 bg-white px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-900 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
         {product.category}
       </span>
       
-      {/* Square Image Pips Tracking indicators */}
-      {product.screenshots && product.screenshots.length > 1 && (
+      {!hasDedicatedImage && product.screenshots && product.screenshots.length > 1 && (
         <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 bg-white border-2 border-slate-900 px-2 py-1 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] z-10">
           {product.screenshots.map((_, idx) => (
             <div 

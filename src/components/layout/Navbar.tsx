@@ -8,7 +8,6 @@ import Logo from '../ui/Logo'
 const navLinks = [
   { to: '/', label: 'Home' },
   { to: '/products', label: 'Products' },
-  { to: '/solutions', label: 'Solutions' },
   { to: '/about', label: 'About' },
   { to: '/careers', label: 'Careers' },
   { to: '/updates', label: 'Updates' },

@@ -2,10 +2,11 @@ import { Link } from 'react-router-dom'
 import Logo from '../ui/Logo'
 import { company } from '../../data/company'
 import { products } from '../../data/products'
+import { FaLinkedin, FaInstagram, FaYoutube, FaTwitter } from 'react-icons/fa'
+
 
 const quickLinks = [
   { to: '/about', label: 'About Us' },
-  { to: '/solutions', label: 'Solutions' },
   { to: '/careers', label: 'Careers' },
   { to: '/updates', label: 'Updates' },
   { to: '/contact', label: 'Contact' },
@@ -84,18 +85,27 @@ export default function Footer() {
             
             {/* Neo-brutalist Social Blocks */}
             <div className="mt-6 flex gap-3">
-              {company.social && Object.entries(company.social).map(([platform, url]) => (
-                <a
-                  key={platform}
-                  href={url as string}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex h-10 w-10 items-center justify-center border-2 border-slate-900 bg-white text-xs font-black uppercase text-slate-900 font-mono shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] hover:bg-[#ff9e7d] hover:translate-y-[-2px] hover:shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] transition-all"
-                  aria-label={platform}
-                >
-                  {(platform[0] || '').toUpperCase()}
-                </a>
-              ))}
+              {company.social && Object.entries(company.social).map(([platform, url]) => {
+                const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+                  linkedin: FaLinkedin,
+                  instagram: FaInstagram,
+                  youtube: FaYoutube,
+                  x: FaTwitter,
+                }
+                const Icon = iconMap[platform.toLowerCase()]
+                return (
+                  <a
+                    key={platform}
+                    href={url as string}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex h-10 w-10 items-center justify-center border-2 border-slate-900 bg-white text-slate-900 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] hover:bg-[#ff9e7d] hover:translate-y-[-2px] hover:shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] transition-all"
+                    aria-label={platform}
+                  >
+                    {Icon ? <Icon className="h-5 w-5" /> : (platform[0] || '').toUpperCase()}
+                  </a>
+                )
+              })}
             </div>
           </div>
         </div>

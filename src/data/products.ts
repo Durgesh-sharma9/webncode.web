@@ -1,3 +1,7 @@
+import ttp1 from '../assets/projects/time-table-pro/ttp1.jpeg'
+import ttp2 from '../assets/projects/time-table-pro/ttp2.jpeg'
+import ttp3 from '../assets/projects/time-table-pro/ttp3.jpeg'
+
 export const productCategories = [
   'All',
   'Education',
@@ -6,6 +10,7 @@ export const productCategories = [
   'HR',
   'Sports Management',
 ] as const
+
 
 export interface Product {
   id: string
@@ -96,6 +101,7 @@ export const products: Product[] = [
     id: '2',
     slug: 'timetable-pro',
     title: 'Timetable Pro',
+    
     shortDescription:
       'Smart timetable and academic management platform for schools and educational institutions.',
     description:
@@ -125,9 +131,9 @@ export const products: Product[] = [
     color: '#2563EB',
     accentColor: '#DBEAFE',
     screenshots: [
-      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop',
+      ttp1,
+      ttp2,
+      ttp3,
     ],
     demoUrl: 'https://demo.webncode.com/timetable-pro',
   },

@@ -4,10 +4,10 @@ import ProductShowcase from '../ui/ProductShowcase'
 import { company } from '../../data/company'
 
 const proofPoints = [
-  'Education ERP and academic workflows',
-  'Dashboards for finance, attendance, and results',
-  'Cloud-ready products with secure access',
-  'Implementation support from planning to launch',
+  'Product-Driven Solutions',
+  'Industry-Focused Software',
+  'Cloud-Based Platforms',
+  'Reporting & Automation',
 ]
 
 export default function Hero() {
@@ -18,7 +18,7 @@ export default function Hero() {
         style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
       <div className="container-wide relative px-5 md:px-8 lg:px-12 z-10">
-        <div className="grid items-start gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-12">
+        <div className="grid items-start gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-26">
 
           {/* Left Text Metadata Column */}
           <div>
@@ -39,11 +39,16 @@ export default function Hero() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.08, ease: 'easeOut' }}
-              className="text-4xl sm:text-5xl font-black uppercase tracking-tight text-slate-900 leading-none"
+              className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-slate-900 leading-none"
             >
-              SOFTWARE PRODUCTS THAT <br />
-              <span className="inline-block mt-2 bg-[#ff9e7d] border-2 border-slate-900 px-4 py-0.5 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]">
-                SIMPLIFY OPERATIONS
+              BUILDING SOFTWARE <br />
+              PRODUCTS
+
+              <br />
+
+              <span className="inline-block mt-2 bg-[#ff9e7d] border-2 border-slate-900 px-4 py-1 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]">
+                FOR REAL-WORLD <br />
+                OPERATIONS
               </span>
             </motion.h1>
 
