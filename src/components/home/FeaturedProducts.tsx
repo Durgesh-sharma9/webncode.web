@@ -9,7 +9,10 @@ export default function FeaturedProducts() {
   const featuredProducts = products.slice(0, 4)
 
   return (
-    <section className="section-padding bg-white border-b-2 border-slate-900 relative">
+    <section
+  id="products-section"
+  className="section-padding bg-white border-b-2 border-slate-900 relative scroll-mt-16"
+>
       {/* Background Matrix Dotted Accent Mesh Pattern */}
       <div className="absolute inset-0 opacity-[0.10] pointer-events-none" 
            style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />

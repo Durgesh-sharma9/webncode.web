@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import Button from '../ui/Button'
-import DashboardShowcase from '../ui/DashboardShowcase'
+import ProductShowcase from '../ui/ProductShowcase'
 import { company } from '../../data/company'
 
 const proofPoints = [
@@ -12,13 +12,13 @@ const proofPoints = [
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden bg-[#fafafa] border-b-2 border-slate-900 py-12 lg:py-20">
+    <section className="relative overflow-hidden bg-[#fafafa] border-b-2 border-slate-900 pt-[5rem] pb-10 lg:pb-12">
       {/* Dynamic Background Micro Dotted Mesh Matrix */}
-      <div className="absolute inset-0 opacity-[0.15] pointer-events-none" 
-           style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-      
+      <div className="absolute inset-0 opacity-[0.15] pointer-events-none"
+        style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+
       <div className="container-wide relative px-5 md:px-8 lg:px-12 z-10">
-        <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-12">
+        <div className="grid items-start gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-12">
 
           {/* Left Text Metadata Column */}
           <div>
@@ -112,9 +112,14 @@ export default function Hero() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.15, ease: 'easeOut' }}
-            className="w-full"
+            className="w-full lg:mt-[60px] cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
+            onClick={() =>
+              document
+                .getElementById('products-section')
+                ?.scrollIntoView({ behavior: 'smooth' })
+            }
           >
-            <DashboardShowcase />
+            <ProductShowcase />
           </motion.div>
 
         </div>
