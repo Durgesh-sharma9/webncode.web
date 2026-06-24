@@ -13,7 +13,9 @@ import aryan2 from '../assets/team/aryann2.png'
 import pranav1 from '../assets/team/pranav1.png'
 import pranav2 from '../assets/team/pranav2.png'
 
-const amitImg = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80"
+import dev1 from '../assets/team/dev1.png'
+
+// const amitImg = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80"
 
 const themeGradients = [
   { bg: 'bg-[#ffa07a]', border: 'border-orange-500', bannerBg: 'bg-[#ff6c4a]' },
@@ -55,14 +57,15 @@ const founders: ProfileMember[] = [
     linkedin: 'https://linkedin.com',
     email: 'mailto:founder@webncode.com',
     youtube: 'https://youtube.com',
-    twitter: 'https://x.com'
+    twitter: 'https://x.com',
+    instagram: 'https://www.instagram.com/aaryankumarswain'
   }
 ]
 
 const developers: ProfileMember[] = [
   {
-    id: 'bhawana-sharma',
-    name: 'BHAWANA SHARMA',
+    id: 'aryan',
+    name: 'ARYAN KUMAR SWAIN',
     role: 'FULL STACK DEVELOPER',
     bio: 'Develops robust frontend interfaces and scalable backend systems. Specialized in React, Node.js, and compiler logic.',
     image: aryan1,
@@ -70,40 +73,40 @@ const developers: ProfileMember[] = [
     location: 'JAIPUR, INDIA',
     flag: '🇮🇳',
     team: 'WnC TEAM',
-    linkedin: 'https://linkedin.com',
-    github: 'https://github.com',
-    twitter: 'https://x.com',
-    instagram: 'https://instagram.com'
+    linkedin: 'https://www.linkedin.com/in/aryan-ks/',
+    github: 'https://github.com/AryanKumarSwain',
+    twitter: 'https://x.com/Aryannn_KS',
+    instagram: 'https://www.instagram.com/aaryankumarswain'
   },
   {
-    id: 'rahul-verma',
-    name: 'RAHUL VERMA',
-    role: 'FRONTEND DEVELOPER',
+    id: 'pranav',
+    name: 'PRANAV KUMAR SWAIN',
+    role: 'FULL STACK DEVELOPER',
     bio: 'Crafts responsive UI modules with fine-tuned interactive designs. Focused on app speeds and modular architecture.',
     image: pranav1,
     hoverImage: pranav2,
     location: 'JAIPUR, INDIA',
     flag: '🇮🇳',
     team: 'WnC TEAM',
-    linkedin: 'https://linkedin.com',
-    github: 'https://github.com',
-    twitter: 'https://x.com',
-    instagram: 'https://instagram.com'
+    linkedin: 'https://www.linkedin.com/in/pranav-kumar-swain?utm_source=share_via&utm_content=profile&utm_medium=member_android',
+    github: ' https://share.google/sVbf9n3YHbstO82w8',
+    twitter: 'https://x.com/PrnvSwain',
+    instagram: 'https://www.instagram.com/pranavkumarswain?igsh=bTlpd2E5ZXFnZGVr'
   },
   {
-    id: 'amit-patel',
-    name: 'AMIT PATEL',
-    role: 'BACKEND DEVELOPER',
+    id: 'dev',
+    name: 'DURGESH SHARMA ',
+    role: 'FULL STACK DEVELOPER',
     bio: 'Architects database schemas, secure RESTful API nodes, and optimized real-time synchronization hooks.',
-    image: amitImg,
-    hoverImage: amitImg,
+    image: dev1,
+    hoverImage: dev1,
     location: 'JAIPUR, INDIA',
     flag: '🇮🇳',
     team: 'WnC TEAM',
-    linkedin: 'https://linkedin.com',
-    github: 'https://github.com',
-    twitter: 'https://x.com',
-    instagram: 'https://instagram.com'
+    linkedin: 'https://www.linkedin.com/in/durgesh-sharma-508762339/',
+    github: 'https://github.com/Durgesh-sharma9',
+    twitter: 'https://x.com/Dev_sharma_ai',
+    instagram: 'https://www.instagram.com/dev998889?igsh=aDhjd2FqeWlveHRr'
   }
 ]
 
