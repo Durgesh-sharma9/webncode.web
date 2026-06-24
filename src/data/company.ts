@@ -8,7 +8,7 @@ export const company = {
     'Building modern SaaS products for schools, academies, and organizations to automate operations, improve efficiency, and support growth.',
   email: 'webncodetechnologies@gmail.com',
   phone: '+91 89479 19195',
-  address: 'Mahapura Rd, Jaipur, Bhankrota, Rajasthan 302026, India',
+  address: 'Mahapura, Ajmer Road, Jaipur, Rajasthan 302026, India',
   social: {
     linkedin: 'https://www.linkedin.com/company/webncodetechnologies',
     instagram: 'https://www.instagram.com/webncodetechnologies',
