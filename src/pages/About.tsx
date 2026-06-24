@@ -111,15 +111,18 @@ function CollectibleCard({ member, themeIndex, isFounder }: { member: ProfileMem
   const [isHovered, setIsHovered] = useState(false)
   const theme = themeGradients[themeIndex % themeGradients.length]
 
+  // Conditional sizing for 4-grid layout (making devs slightly smaller)
+  const cardHeight = isFounder ? 'h-[450px]' : 'h-[380px]'
+  const imgHeight = isFounder ? 'h-[320px]' : 'h-[270px]'
+
   return (
     <Link 
       to={`/people/${member.id}`} 
-      // CHANGED: pt-32 to pt-10 to drastically reduce empty top space
       className="relative block pt-10 group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="w-full h-[450px] bg-white rounded-xl border-2 border-slate-900 shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] flex flex-col relative overflow-visible select-none z-20 transition-all duration-300 group-hover:shadow-[12px_12px_0px_0px_rgba(15,23,42,1)]">
+      <div className={`w-full ${cardHeight} bg-white rounded-xl border-2 border-slate-900 shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] flex flex-col relative overflow-visible select-none z-20 transition-all duration-300 group-hover:shadow-[12px_12px_0px_0px_rgba(15,23,42,1)]`}>
         
         {/* UPPER AVATAR BOX LAYER */}
         <div className={`h-[62%] w-full ${theme.bg} relative shrink-0 overflow-visible rounded-t-lg`}>
@@ -134,13 +137,28 @@ function CollectibleCard({ member, themeIndex, isFounder }: { member: ProfileMem
                 scale: isHovered ? 1.15 : 1 
               }}
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[95%] h-[320px] object-cover object-top origin-bottom"
+              className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-[95%] ${imgHeight} object-cover object-top origin-bottom`}
             />
           </div>
 
+          {/* DYNAMIC ICONS & TOOLTIPS */}
           <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-20">
-            <div className="w-7 h-7 rounded-md bg-white border border-slate-900 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] flex items-center justify-center text-xs">🍗</div>
-            <div className="w-7 h-7 rounded-md bg-white border border-slate-900 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] flex items-center justify-center text-xs">👑</div>
+            <div className="relative group/tooltip">
+              <div className="w-7 h-7 rounded-md bg-white border border-slate-900 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] flex items-center justify-center text-xs cursor-help">
+                {isFounder ? '👑' : '🍕'}
+              </div>
+              <div className="absolute left-10 top-1/2 -translate-y-1/2 opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none bg-slate-900 text-white text-[10px] font-bold px-3 py-1.5 rounded-md whitespace-nowrap z-50 border border-slate-700 shadow-xl font-mono uppercase tracking-wide">
+                {isFounder ? 'Founder & Vision Leader' : 'Powered by coffee, pizza and code'}
+              </div>
+            </div>
+            <div className="relative group/tooltip">
+              <div className="w-7 h-7 rounded-md bg-white border border-slate-900 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] flex items-center justify-center text-xs cursor-help">
+                {isFounder ? '🎂' : '⚙️'}
+              </div>
+              <div className="absolute left-10 top-1/2 -translate-y-1/2 opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none bg-slate-900 text-white text-[10px] font-bold px-3 py-1.5 rounded-md whitespace-nowrap z-50 border border-slate-700 shadow-xl font-mono uppercase tracking-wide">
+                {isFounder ? 'Building products that solve real problems' : 'Building and improving products daily'}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -154,14 +172,14 @@ function CollectibleCard({ member, themeIndex, isFounder }: { member: ProfileMem
             className="absolute inset-0 p-4 flex flex-col justify-between bg-white z-10 pb-12"
           >
             <div className="text-center space-y-1">
-              <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase font-mono leading-none">
+              <h3 className={`${isFounder ? 'text-2xl' : 'text-xl'} font-black text-slate-900 tracking-tight uppercase font-mono leading-none`}>
                 {member.name}
               </h3>
-              <p className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">
+              <p className="text-[10px] sm:text-xs font-extrabold text-slate-500 tracking-wider uppercase">
                 {member.role}
               </p>
             </div>
-            <div className="flex items-center justify-center gap-1.5 text-xs font-black text-slate-800 tracking-wide uppercase font-mono">
+            <div className="flex items-center justify-center gap-1.5 text-[10px] sm:text-xs font-black text-slate-800 tracking-wide uppercase font-mono">
               <span>{member.flag}</span>
               <span>{member.location}</span>
             </div>
@@ -289,7 +307,6 @@ export default function About() {
       <section className="pt-[25px] pb-[30px] bg-[#ebebeb] border-b-2 border-slate-900 overflow-visible">
         <div className="container mx-auto px-4 max-w-7xl">
           
-          {/* CHANGED: mb-[40px] to mb-0 because the cards themselves provide exactly 40px of padding (pt-10) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -303,7 +320,7 @@ export default function About() {
           </motion.div>
 
           {/* Founders Row */}
-          <div className="mb-[40px] overflow-visible">
+          <div className="mb-[20px] overflow-visible">
             <div className="grid gap-6 grid-cols-1 md:grid-cols-12 max-w-6xl mx-auto items-end overflow-visible relative">
               
               {/* Left Side: CEO Card */}
@@ -313,7 +330,7 @@ export default function About() {
                 ))}
               </div>
 
-              {/* Right Side: Details Box (REMOVED pt-10 md:pt-16 to keep it vertically aligned with the now compacted card) */}
+              {/* Right Side: Details Box */}
               <div className="md:col-span-8 relative z-20 overflow-visible">
                 <div className="w-full md:h-[400px] h-auto bg-slate-950 text-white rounded-xl border-2 border-slate-900 p-6 flex flex-col justify-between shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] font-mono relative overflow-visible">
                   
@@ -363,9 +380,24 @@ export default function About() {
             </div>
           </div>
 
-          {/* Developers Row */}
+          {/* NEW: DEVELOPERS SECTION HEADING */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-[40px] pt-12 space-y-4"
+          >
+            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight font-mono uppercase inline-block bg-[#fda4af] px-5 py-2 rounded-lg border-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]">
+              Our Developers & Team Members
+            </h3>
+            <p className="text-xs text-slate-600 font-black uppercase tracking-widest block">
+              The engineers, designers and innovators behind Web N Code Technologies.
+            </p>
+          </motion.div>
+
+          {/* Developers Row (UPDATED TO 4 COLUMNS ON DESKTOP) */}
           <div>
-            <div className="grid gap-x-8 gap-y-12 sm:gap-y-16 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
+            <div className="grid gap-x-6 gap-y-12 sm:gap-y-16 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-7xl mx-auto">
               {developers.map((member, i) => (
                 <CollectibleCard key={member.id} member={member} themeIndex={founders.length + i} isFounder={false} />
               ))}
