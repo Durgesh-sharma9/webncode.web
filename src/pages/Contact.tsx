@@ -71,7 +71,10 @@ export default function Contact() {
     e.preventDefault()
     setIsSubmitting(true)
     try {
-      await axios.post('http://localhost:5000/api/contact', formData)
+      await axios.post(
+  `${import.meta.env.VITE_API_URL}/api/contact`,
+  formData
+)
       showSuccessToast('Message sent successfully!')
       setFormData({ name: '', email: '', phone: '', message: '' })
     } catch (error: any) {
