@@ -12,70 +12,75 @@ export interface Update {
 export const updates: Update[] = [
   {
     id: '1',
-    slug: 'new-school-erp-released',
-    title: 'New School ERP Released',
+    slug: 'web-builder-pro-launched',
+    title: 'Web Builder Pro Launched',
     excerpt:
-      'We are excited to announce the launch of School ERP 2.0 with a redesigned dashboard, faster performance, and new parent communication features.',
+      'Schools can now create and manage professional websites using customizable templates without coding knowledge.',
     content:
-      'After months of development and feedback from partner institutions, School ERP 2.0 is now available. The new release features a completely redesigned admin dashboard, 40% faster page loads, enhanced parent portal with push notifications, and a new fee management module with installment tracking. Existing customers will receive a guided migration path with dedicated support.',
+      'Web Builder Pro allows schools to build, customize, and publish modern websites using ready-made templates. Schools can manage pages, galleries, notices, admissions, and announcements without depending on developers.',
     date: '2026-05-15',
     category: 'Product',
     featured: true,
   },
+
   {
     id: '2',
-    slug: 'timetable-module-added',
-    title: 'New Timetable Module Added',
+    slug: 'start-sports-booking-system-live',
+    title: 'Start Sports Booking System Live',
     excerpt:
-      'Our Timetable Management System now includes AI-assisted conflict resolution and substitute teacher workflows.',
+      'Ground owners can manage bookings, view occupied slots, and accept online payments seamlessly.',
     content:
-      'The latest update to our Timetable Management System introduces intelligent conflict detection, one-click schedule optimization, and a complete substitute teacher management workflow. Institutions can now generate conflict-free timetables in a fraction of the time, with automatic notifications to affected teachers and students.',
+      'Start Sports simplifies sports facility management with real-time slot booking, booking history, payment tracking, customer management, and automated scheduling.',
     date: '2026-04-22',
     category: 'Product',
     featured: true,
   },
+
   {
     id: '3',
     slug: 'internship-program-open',
     title: 'Internship Program Open',
     excerpt:
-      'Join our 2026 internship cohort and work on real SaaS products used by organizations across India.',
+      'Join our internship program and work on real SaaS products used by schools and organizations.',
     content:
-      'Web n Code Technologies is opening applications for our 2026 Summer Internship Program. Interns will work alongside our engineering team on live products, participate in code reviews, and present a capstone project. Positions are available in frontend development, backend development, and product design. Applications close June 30, 2026.',
+      'Selected interns will work alongside our development team on live projects including School ERP, Web Builder Pro, HireHub, and Sports Academy Pro. Positions are available for Frontend, Backend, and Full Stack Development.',
     date: '2026-04-01',
     category: 'Careers',
     featured: true,
   },
+
   {
     id: '4',
-    slug: 'result-system-analytics',
-    title: 'Result System Analytics Dashboard',
+    slug: 'sports-academy-pro-released',
+    title: 'Sports Academy Pro Released',
     excerpt:
-      'New analytics capabilities in Result Management System help institutions track academic performance trends.',
+      'Manage coaches, students, fees, attendance, and performance tracking from one platform.',
     content:
-      'The Result Management System now includes a comprehensive analytics dashboard. Administrators can view class-wise performance trends, identify at-risk students early, and generate board-ready reports. The dashboard supports custom date ranges and export to PDF and Excel.',
+      'Sports Academy Pro helps academies digitize operations with coach management, player records, fee collection, attendance monitoring, performance tracking, and reporting dashboards.',
     date: '2026-03-10',
     category: 'Product',
   },
+
   {
     id: '5',
-    slug: '150-organizations-milestone',
-    title: '150+ Organizations Milestone',
+    slug: 'web-n-code-ecosystem-growth',
+    title: 'Web n Code Product Ecosystem Expands',
     excerpt:
-      'We have reached a significant milestone—over 150 organizations now trust Web n Code products.',
+      'Our software ecosystem now supports schools, academies, sports facilities, and organizations.',
     content:
-      'We are proud to announce that Web n Code Technologies now serves over 150 organizations across schools, colleges, and coaching institutes. This milestone reflects the trust our customers place in our products and our commitment to building software that makes a real difference in daily operations.',
+      'Web n Code Technologies continues expanding its SaaS ecosystem with products focused on education management, recruitment, sports operations, website building, and business automation.',
     date: '2026-02-14',
     category: 'Company',
   },
+
   {
     id: '6',
-    slug: 'attendance-biometric-update',
-    title: 'Attendance System Biometric Update',
+    slug: 'hirehub-platform-update',
+    title: 'HireHub Recruitment Platform Updated',
     excerpt:
-      'Expanded biometric device support and real-time sync improvements in our Attendance Management System.',
+      'Advanced candidate search, talent pool access, and recruiter productivity tools are now available.',
     content:
-      'The Attendance Management System now supports 15 additional biometric device models with plug-and-play configuration. Real-time sync latency has been reduced to under 2 seconds, and a new offline mode ensures attendance is captured even during network interruptions.',
+      'HireHub now includes enhanced candidate filtering, shared talent pool access, profile management improvements, and streamlined recruitment workflows for schools and organizations.',
     date: '2026-01-28',
     category: 'Product',
   },

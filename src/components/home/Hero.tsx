@@ -59,7 +59,7 @@ export default function Hero() {
               transition={{ duration: 0.4, delay: 0.15, ease: 'easeOut' }}
               className="mt-6 max-w-xl text-sm font-bold uppercase tracking-wide text-slate-700 leading-relaxed"
             >
-              {company.description}
+              {company.heroDescription}
             </motion.p>
 
             {/* Checklist Proof Grid Blocks */}

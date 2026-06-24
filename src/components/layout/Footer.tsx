@@ -22,7 +22,7 @@ export default function Footer() {
           <div className="lg:col-span-1 space-y-4">
             <Logo className="text-slate-900" />
             <p className="text-sm font-bold uppercase tracking-wide text-slate-700 leading-relaxed">
-              {company.description}
+              {company.footerDescription}
             </p>
           </div>
 
