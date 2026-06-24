@@ -54,8 +54,8 @@ const founders: ProfileMember[] = [
     location: 'JAIPUR RAJASTHAN, INDIA',
     flag: '',
     team: 'WnC TEAM',
-    linkedin: 'https://linkedin.com',
-    email: 'mailto:founder@webncode.com',
+    linkedin: 'https://www.linkedin.com/in/narendra-singh-choudhary-135a97418/',
+    email: 'mailto:nnarendra695@gmail.com',
     youtube: 'https://youtube.com',
     twitter: 'https://x.com',
     instagram: 'https://www.instagram.com/aaryankumarswain'
