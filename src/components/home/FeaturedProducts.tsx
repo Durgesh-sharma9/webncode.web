@@ -6,11 +6,11 @@ import Button from '../ui/Button'
 import { products } from '../../data/products'
 
 export default function FeaturedProducts() {
-  const carouselRef = useRef(null)
+  const carouselRef = useRef<HTMLDivElement | null>(null)
   const [isPaused, setIsPaused] = useState(false)
 
   // Carousel Movement manual click handler
-  const scroll = (direction) => {
+  const scroll = (direction: 'left' | 'right') => {
     if (carouselRef.current) {
       const { scrollLeft } = carouselRef.current
       const scrollOffset = direction === 'left' ? -340 : 340

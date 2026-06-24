@@ -9,12 +9,12 @@ export default function Products() {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All')
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false)
-  const panelRef = useRef(null)
+  const panelRef = useRef<HTMLDivElement | null>(null)
 
   // Handle outside click to close the dropdown panel
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (panelRef.current && !panelRef.current.contains(event.target)) {
+    function handleClickOutside(event: MouseEvent) {
+      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
         setIsFilterPanelOpen(false)
       }
     }
