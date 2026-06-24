@@ -51,30 +51,28 @@ export default function FeaturedProducts() {
            style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
       <div className="container-wide relative z-10 px-5 md:px-8 lg:px-12">
-        <div className="relative flex flex-col sm:flex-row sm:items-end sm:justify-between">
-          <SectionHeading
-            label="" /* REMOVED: Badge header badge dropped completely */
-            title="Software Built for Real Operations"
-            description="Purpose-built SaaS products that solve everyday challenges for schools, colleges, and organizations."
-          />
-          
-          {/* Manual Control Triggers */}
-          <div className="hidden md:flex items-center gap-3 mb-6 z-20">
-            <button
-              onClick={() => scroll('left')}
-              className="flex h-10 w-10 items-center justify-center border-2 border-slate-900 bg-white font-black text-slate-900 shadow-[2px_2px_0px_0px_#000] hover:bg-slate-50 active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0px_0px_#000] transition-all"
-              aria-label="Scroll Left"
-            >
-              ←
-            </button>
-            <button
-              onClick={() => scroll('right')}
-              className="flex h-10 w-10 items-center justify-center border-2 border-slate-900 bg-white font-black text-slate-900 shadow-[2px_2px_0px_0px_#000] hover:bg-slate-50 active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0px_0px_#000] transition-all"
-              aria-label="Scroll Right"
-            >
-              →
-            </button>
-          </div>
+        <SectionHeading
+          label="" /* REMOVED: Badge header badge dropped completely */
+          title="Software Built for Real Operations"
+          description="Purpose-built SaaS products that solve everyday challenges for schools, colleges, and organizations."
+        />
+        
+        {/* Manual Control Triggers - Separate row below subtitle */}
+        <div className="hidden md:flex justify-end items-center gap-3 mb-4 z-20">
+          <button
+            onClick={() => scroll('left')}
+            className="flex h-10 w-10 items-center justify-center border-2 border-slate-900 bg-white font-black text-slate-900 shadow-[2px_2px_0px_0px_#000] hover:bg-slate-50 active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0px_0px_#000] transition-all"
+            aria-label="Scroll Left"
+          >
+            ←
+          </button>
+          <button
+            onClick={() => scroll('right')}
+            className="flex h-10 w-10 items-center justify-center border-2 border-slate-900 bg-white font-black text-slate-900 shadow-[2px_2px_0px_0px_#000] hover:bg-slate-50 active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0px_0px_#000] transition-all"
+            aria-label="Scroll Right"
+          >
+            →
+          </button>
         </div>
 
         {/* Swipeable Carousel Element Frame wrapper */}

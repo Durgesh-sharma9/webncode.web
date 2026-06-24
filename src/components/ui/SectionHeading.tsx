@@ -57,7 +57,7 @@ export default function SectionHeading({
       {/* Subtext Description Block */}
       {description && (
         <p
-          className={`mt-5 text-sm md:text-base font-bold uppercase tracking-wide leading-relaxed max-w-3xl ${
+          className={`mt-5 text-sm md:text-base font-bold uppercase tracking-wide leading-relaxed max-w-4xl md:whitespace-nowrap ${
             light ? 'text-slate-200' : 'text-slate-700'
           }`}
         >
