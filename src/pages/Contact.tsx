@@ -137,7 +137,7 @@ export default function Contact() {
                     <input
                       id="name" name="name" type="text" required value={formData.name} onChange={handleInputChange}
                       className="w-full rounded-md border-2 border-slate-900 bg-[#fafafa] px-4 py-3 text-sm text-slate-900 font-bold outline-none shadow-[2px_2px_0px_0px_#000] focus:bg-white focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] transition-all"
-                      placeholder="JOHN DOE"
+                      placeholder=""
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -145,7 +145,7 @@ export default function Contact() {
                     <input
                       id="email" name="email" type="email" required value={formData.email} onChange={handleInputChange}
                       className="w-full rounded-md border-2 border-slate-900 bg-[#fafafa] px-4 py-3 text-sm text-slate-900 font-bold outline-none shadow-[2px_2px_0px_0px_#000] focus:bg-white focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] transition-all"
-                      placeholder="YOU@COMPANY.COM"
+                      placeholder=""
                     />
                   </div>
                 </div>
@@ -155,7 +155,7 @@ export default function Contact() {
                   <input
                     id="phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange}
                     className="w-full rounded-md border-2 border-slate-900 bg-[#fafafa] px-4 py-3 text-sm text-slate-900 font-bold outline-none shadow-[2px_2px_0px_0px_#000] focus:bg-white focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] transition-all"
-                    placeholder="8619574703"
+                    placeholder=""
                   />
                 </div>
 
