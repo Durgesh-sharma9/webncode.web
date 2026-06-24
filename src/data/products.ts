@@ -8,7 +8,7 @@ export const productCategories = [
   'Operations',
   'Analytics',
   'HR',
-  'Sports Management',
+  'Sports',
   'Services',
 ] as const
 
@@ -146,7 +146,7 @@ export const products: Product[] = [
       'Sports ground booking and management platform for sports facility owners.',
     description:
       'Star Sports helps sports ground owners manage bookings, schedules, customer records, and accounts from a single platform. Owners can track upcoming bookings, prevent booking clashes, manage payments, monitor ground utilization, and maintain complete operational control. The platform simplifies sports facility management and improves the booking experience for customers.',
-    category: 'Sports Management',
+    category: 'Sports',
     features: [
       'Ground booking management',
       'Booking calendar',
@@ -281,7 +281,7 @@ export const products: Product[] = [
       'Sports ground booking and management platform for sports facility owners.',
     description:
       'Star Sports helps sports ground owners manage bookings, schedules, customer records, and accounts from a single platform. Owners can track upcoming bookings, prevent booking clashes, manage payments, monitor ground utilization, and maintain complete operational control. The platform simplifies sports facility management and improves the booking experience for customers.',
-    category: 'Sports Management',
+    category: 'Sports',
     features: [
       'Ground booking management',
       'Booking calendar',
