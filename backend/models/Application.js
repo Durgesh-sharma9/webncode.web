@@ -16,7 +16,6 @@ const applicationSchema = new mongoose.Schema({
 
   // SECTION 3: Career Details
   position: { type: String, required: true },
-  employmentType: { type: String, required: true },
   experience: { type: String, required: true },
   currentCompany: { type: String },
   currentRole: { type: String },
@@ -27,7 +26,7 @@ const applicationSchema = new mongoose.Schema({
   projectLinks: { type: String },
   whyJoin: { type: String, required: true },
 
-  // SECTION 5: Internship Fields
+  // SECTION 5: Internship/Academic Fields
   college: { type: String },
   course: { type: String },
   currentYear: { type: String },

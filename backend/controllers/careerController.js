@@ -9,7 +9,7 @@ exports.submitApplication = async (req, res) => {
     const resumeBase64 = data.resumeBase64;
     const resumeName = data.resumeName || 'resume.pdf';
     
-    // Validate required fields
+    // Validate required fields (employmentType removed)
     if (!data.fullName || !data.email || !data.mobile || !data.position || !data.declaration) {
       return res.status(400).json({ success: false, message: 'Essential fields are missing.' });
     }
@@ -26,7 +26,6 @@ exports.submitApplication = async (req, res) => {
       github: data.github,
       portfolio: data.portfolio,
       position: data.position,
-      employmentType: data.employmentType,
       experience: data.experience,
       currentCompany: data.currentCompany,
       currentRole: data.currentRole,
@@ -85,14 +84,13 @@ exports.submitApplication = async (req, res) => {
         <p><strong>Portfolio:</strong> ${data.portfolio || 'N/A'}</p>
 
         <h3 style="border-bottom: 2px solid #ccc; padding-bottom: 5px;">Section 3: Career Details</h3>
-        <p><strong>Employment Type:</strong> ${data.employmentType}</p>
         <p><strong>Experience:</strong> ${data.experience}</p>
         <p><strong>Notice Period:</strong> ${data.noticePeriod}</p>
         <p><strong>Current Company:</strong> ${data.currentCompany || 'N/A'}</p>
         <p><strong>Current Role:</strong> ${data.currentRole || 'N/A'}</p>
 
-        ${data.employmentType === 'Internship' ? `
-          <h3 style="border-bottom: 2px solid #ccc; padding-bottom: 5px;">Section 5: Internship Details</h3>
+        ${(data.college || data.course) ? `
+          <h3 style="border-bottom: 2px solid #ccc; padding-bottom: 5px;">Section 5: Academic Details</h3>
           <p><strong>College:</strong> ${data.college || 'N/A'}</p>
           <p><strong>Course:</strong> ${data.course || 'N/A'}</p>
           <p><strong>Current Year:</strong> ${data.currentYear || 'N/A'}</p>
