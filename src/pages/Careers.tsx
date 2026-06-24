@@ -72,7 +72,7 @@ export default function Careers() {
             </h1>
             
             <p className="mt-8 text-base md:text-lg font-bold uppercase tracking-wide text-black/80 max-w-3xl leading-relaxed mx-auto">
-              Join an elite team of engineers, designers, and system thinkers in Mahapura, Jaipur, building next-generation SaaS ecosystems used all over India.
+              Join an elite team of engineers, designers, and system thinkers in Jaipur, building next-generation SaaS ecosystems used all over India.
             </p>
           </motion.div>
         </div>

@@ -27,7 +27,7 @@ export default function WhyChoose() {
       <div className="container-wide relative z-10 px-5 md:px-8 lg:px-12">
         <SectionHeading
           label=""
-          title="Why Choose Web n Code"
+          title="Why Choose Web n Code ?"
           description="We combine deep domain expertise with modern engineering to deliver products you can trust."
         />
         

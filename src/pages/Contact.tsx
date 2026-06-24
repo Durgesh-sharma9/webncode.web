@@ -12,8 +12,8 @@ const LOCATION_CONFIG = {
 }
 
 const companyData = {
-  email: 'wnc@gmail.com',
-  phone: '8619574703',
+  email: 'webncodetechnologies@gmail.com',
+  phone: '+91 89479 19195',
   address: LOCATION_CONFIG.address,
   social: {
     linkedin: '#',

@@ -427,8 +427,8 @@ export default function About() {
           <div className="lg:col-span-5">
             <div className="grid grid-cols-2 gap-3 sm:gap-4 rounded-xl border-2 border-slate-900 bg-[#ebebeb] p-5 sm:p-6 shadow-[6px_6px_0px_0px_rgba(15,23,42,1)]">
               {[
-                { label: 'Company Founded', value: '2020' },
-                { label: 'Team Size', value: '15+' },
+                { label: 'Company Founded', value: '2026' },
+                { label: 'Team Size', value: '10+' },
                 { label: 'Software Platforms', value: '12+' },
                 { label: 'Institutions Served', value: '100+' },
               ].map((item) => (

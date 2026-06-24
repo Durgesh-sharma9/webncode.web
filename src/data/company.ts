@@ -5,7 +5,7 @@ export const company = {
     'Web n Code Technologies is a product company focused on building and operating software products for schools, sports academies, and organizations. We create practical solutions that simplify daily operations, improve efficiency, and support long-term growth.',
 
   footerDescription:
-    'Building modern SaaS products for schools, academies, and organizations to automate operations, improve efficiency, and support growth.',
+    'Building modern SaaS products for schools, academies & organizations to automate operations, improve efficiency and support growth.',
   email: 'webncodetechnologies@gmail.com',
   phone: '+91 89479 19195',
   address: 'Mahapura, Ajmer Road, Jaipur, Rajasthan 302026, India',

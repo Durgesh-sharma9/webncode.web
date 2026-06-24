@@ -26,7 +26,7 @@ export const testimonials: Testimonial[] = [
   {
     id: '3',
     quote:
-      'Timetable scheduling was our biggest headache every session. Web n Code\'s system generates conflict-free schedules in a single afternoon. Our teachers are genuinely happier.',
+      'Timetable scheduling was our biggest headache every session. Web n Code\'s system generates conflict-free schedules. Our teachers are genuinely happier.',
     author: 'Sanjay Sharma',
     role: 'Director',
     organization: 'Global Wisdom International School',
