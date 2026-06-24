@@ -31,7 +31,7 @@ export default function Careers() {
       department: 'General',
       location: 'Jaipur / Remote',
       experience: 'Any',
-      type: 'Any', // Kept for interface fulfillment, even though hidden in UI
+      type: 'Full-time', // Kept for interface fulfillment, even though hidden in UI
       description: 'Drop your resume, portfolio link, or GitHub handle. We are always looking for great talent to join our ecosystem.'
     })
 
