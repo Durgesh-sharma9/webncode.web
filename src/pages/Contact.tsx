@@ -3,10 +3,18 @@ import { motion } from 'framer-motion'
 import axios from 'axios'
 import { showSuccessToast, showErrorToast } from '../components/ui/Toast'
 
+// ---------------------------------------------------------
+// LOCATION CONFIGURATION
+// ---------------------------------------------------------
+const LOCATION_CONFIG = {
+  address: 'Mahapura Road, Bhankrota, Ajmer Road, Jaipur, Rajasthan 302026, India',
+  embedUrl: 'https://maps.google.com/maps?q=Mahapura+Road,+Bhankrota,+Ajmer+Road,+Jaipur,+Rajasthan+302026,+India&t=&z=14&ie=UTF8&iwloc=&output=embed'
+}
+
 const companyData = {
   email: 'wnc@gmail.com',
   phone: '8619574703',
-  address: 'Mahapura Road, Bhankrota, Ajmer Road, Jaipur, Rajasthan 302026, India',
+  address: LOCATION_CONFIG.address,
   social: {
     linkedin: '#',
     twitter: '#',
@@ -16,7 +24,7 @@ const companyData = {
 }
 
 const getSocialIcon = (platform: string) => {
-  const p = platform.toLowerCase();
+  const p = platform.toLowerCase()
   if (p.includes('linkedin')) {
     return (
       <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -75,40 +83,45 @@ export default function Contact() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-slate-900 relative selection:bg-[#ff9e7d]">
+    <div className="min-h-screen bg-[#fafafa] text-slate-900 relative selection:bg-[#ff9e7d] pb-16">
       
-      {/* Background Micro Grid Pattern Asset */}
+      {/* Background Micro Grid */}
       <div className="absolute inset-0 opacity-[0.12] pointer-events-none" 
            style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
-      {/* Hero Header Section */}
-      <section className="relative pt-16 pb-12 bg-[#ebebeb] border-b-2 border-slate-900">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 text-left relative z-10">
+      {/* 1. COMPACT HERO SECTION (Balanced Padding) */}
+      <section className="relative pt-24 pb-10 lg:pt-28 bg-[#ebebeb] border-b-2 border-slate-900 z-10">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 text-left">
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-            <span className="rounded border-2 border-slate-900 bg-white px-3 py-1 text-[10px] font-black uppercase tracking-wider font-mono shadow-[2px_2px_0px_0px_#000]">
+            <span className="rounded border-2 border-slate-900 bg-white px-3 py-1 text-[10px] font-black uppercase tracking-wider font-mono shadow-[2px_2px_0px_0px_#0f172a]">
               CONTACT SYSTEM
             </span>
             
-            <h1 className="mt-5 text-4xl sm:text-6xl font-black uppercase tracking-tight text-slate-900 leading-none">
+            <h1 className="mt-5 text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight text-slate-900 leading-none">
               LET'S START A <br />
-              <span className="inline-block mt-2 bg-[#ff9e7d] border-2 border-slate-900 px-4 py-0.5 shadow-[4px_4px_0px_0px_#000]">
+              <span className="inline-block mt-2 bg-[#ff9e7d] border-2 border-slate-900 px-4 py-1 shadow-[4px_4px_0px_0px_#0f172a]">
                 CONVERSATION
               </span>
             </h1>
-            <p className="mt-6 max-w-2xl text-sm sm:text-base text-slate-700 font-bold uppercase tracking-wide">
-              Have questions about our products? Want to schedule a demo? We&apos;d love to hear from you.
+            <p className="mt-4 max-w-2xl text-sm sm:text-base text-slate-700 font-bold uppercase tracking-wide">
+              Have questions about our products? Want to schedule a demo? We'd love to hear from you. Our engineering team is standing by.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Grid Content Layout */}
+      {/* 2. MAIN GRID (Form + Professional Details Card) */}
       <section className="py-12 relative z-10">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 grid gap-8 lg:grid-cols-5 items-stretch">
           
-          {/* Left Side: Form Container */}
-          <div className="lg:col-span-3 flex flex-col justify-stretch">
-            <form onSubmit={handleSubmit} className="bg-white border-2 border-slate-900 p-8 rounded-md shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] flex flex-col justify-between h-full">
+          {/* Left Side: Cleaned Up Form */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="lg:col-span-3 flex flex-col"
+          >
+            <form onSubmit={handleSubmit} className="bg-white border-2 border-slate-900 p-8 rounded-md shadow-[6px_6px_0px_0px_#0f172a] flex flex-col justify-between h-full">
               
               <div>
                 <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-6 border-b-2 border-slate-900 pb-2 inline-block font-mono">
@@ -117,19 +130,19 @@ export default function Contact() {
                 
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="space-y-1.5">
-                    <label htmlFor="name" className="block text-xs font-black uppercase tracking-wider font-mono text-slate-500">Name</label>
+                    <label htmlFor="name" className="block text-xs font-black uppercase tracking-wider font-mono text-slate-500">Full Name</label>
                     <input
                       id="name" name="name" type="text" required value={formData.name} onChange={handleInputChange}
-                      className="w-full rounded-md border-2 border-slate-900 bg-white px-4 py-3 text-sm text-slate-900 font-mono outline-none shadow-[2px_2px_0px_0px_#000] focus:bg-[#fafafa] focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] transition-all"
-                      placeholder="YOUR FULL NAME"
+                      className="w-full rounded-md border-2 border-slate-900 bg-[#fafafa] px-4 py-3 text-sm text-slate-900 font-bold outline-none shadow-[2px_2px_0px_0px_#000] focus:bg-white focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] transition-all"
+                      placeholder="JOHN DOE"
                     />
                   </div>
                   <div className="space-y-1.5">
                     <label htmlFor="email" className="block text-xs font-black uppercase tracking-wider font-mono text-slate-500">Email Address</label>
                     <input
                       id="email" name="email" type="email" required value={formData.email} onChange={handleInputChange}
-                      className="w-full rounded-md border-2 border-slate-900 bg-white px-4 py-3 text-sm text-slate-900 font-mono outline-none shadow-[2px_2px_0px_0px_#000] focus:bg-[#fafafa] focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] transition-all"
-                      placeholder="YOU@ORGANIZATION.COM"
+                      className="w-full rounded-md border-2 border-slate-900 bg-[#fafafa] px-4 py-3 text-sm text-slate-900 font-bold outline-none shadow-[2px_2px_0px_0px_#000] focus:bg-white focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] transition-all"
+                      placeholder="YOU@COMPANY.COM"
                     />
                   </div>
                 </div>
@@ -138,7 +151,7 @@ export default function Contact() {
                   <label htmlFor="phone" className="block text-xs font-black uppercase tracking-wider font-mono text-slate-500">Phone Number</label>
                   <input
                     id="phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange}
-                    className="w-full rounded-md border-2 border-slate-900 bg-white px-4 py-3 text-sm text-slate-900 font-mono outline-none shadow-[2px_2px_0px_0px_#000] focus:bg-[#fafafa] focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] transition-all"
+                    className="w-full rounded-md border-2 border-slate-900 bg-[#fafafa] px-4 py-3 text-sm text-slate-900 font-bold outline-none shadow-[2px_2px_0px_0px_#000] focus:bg-white focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] transition-all"
                     placeholder="8619574703"
                   />
                 </div>
@@ -146,118 +159,148 @@ export default function Contact() {
                 <div className="mt-5 space-y-1.5">
                   <label htmlFor="message" className="block text-xs font-black uppercase tracking-wider font-mono text-slate-500">Your Message</label>
                   <textarea
-                    id="message" name="message" required rows={4} value={formData.message} onChange={handleInputChange}
-                    className="w-full resize-none rounded-md border-2 border-slate-900 bg-white px-4 py-3 text-sm text-slate-900 font-mono outline-none shadow-[2px_2px_0px_0px_#000] focus:bg-[#fafafa] focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] transition-all"
+                    id="message" name="message" required rows={5} value={formData.message} onChange={handleInputChange}
+                    className="w-full resize-y rounded-md border-2 border-slate-900 bg-[#fafafa] px-4 py-3 text-sm text-slate-900 font-bold outline-none shadow-[2px_2px_0px_0px_#000] focus:bg-white focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] transition-all"
                     placeholder="TELL US ABOUT YOUR REQUIREMENTS..."
                   />
                 </div>
               </div>
 
-              <div className="mt-6 pt-2">
+              <div className="mt-8">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full sm:w-auto bg-[#86efac] text-slate-900 font-black uppercase font-mono tracking-wider px-8 py-3 rounded-md border-2 border-slate-900 shadow-[4px_4px_0px_0px_#000] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_#000] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#000] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto bg-[#ff9e7d] text-slate-900 font-black uppercase font-mono tracking-wider px-8 py-3.5 rounded-md border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0f172a] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_#0f172a] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#0f172a] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                  {isSubmitting ? 'SENDING...' : 'SEND MESSAGE'}
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
 
-          {/* Right Side: Company Info Columns */}
-          <div className="lg:col-span-2 flex flex-col gap-6 justify-between">
-            
-            <div className="bg-white border-2 border-slate-900 p-8 rounded-md shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] flex-1 flex flex-col justify-between">
-              <div>
-                <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 border-b-2 border-slate-900 pb-1 inline-block font-mono">
-                  Company Details
-                </h2>
+          {/* Right Side: Professional Single Info Card */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="lg:col-span-2 flex flex-col"
+          >
+            <div className="bg-white border-2 border-slate-900 p-8 rounded-md shadow-[6px_6px_0px_0px_#0f172a] flex flex-col h-full">
+              
+              <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 border-b-2 border-slate-900 pb-2 inline-block font-mono mb-8">
+                Company Details
+              </h2>
+              
+              <div className="space-y-8 flex-1">
                 
-                <div className="mt-6 space-y-6">
-                  {/* Email */}
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-slate-900 bg-[#93c5fd] text-slate-900 shadow-[2px_2px_0px_0px_#000]">
-                      <svg className="w-5 h-5 fill-none stroke-current stroke-[2.5]" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-black uppercase tracking-widest font-mono text-slate-400">Email</div>
-                      <a href={`mailto:${companyData.email}`} className="mt-0.5 block font-black font-mono text-slate-800 hover:underline text-sm sm:text-base">{companyData.email}</a>
-                    </div>
+                {/* Email Item */}
+                <div className="flex items-start gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border-2 border-slate-900 bg-[#7dd3fc] shadow-[2px_2px_0px_0px_#0f172a]">
+                    <svg className="w-5 h-5 fill-none stroke-slate-900 stroke-[2.5]" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                    </svg>
                   </div>
-                  
-                  {/* Phone */}
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-slate-900 bg-[#c084fc] text-slate-900 shadow-[2px_2px_0px_0px_#000]">
-                      <svg className="w-5 h-5 fill-none stroke-current stroke-[2.5]" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.58c0-1.017.822-1.839 1.839-1.839h3.113c.465 0 .89.262 1.09.683l1.375 2.91a1.033 1.033 0 0 1-.166 1.132L7.618 11.41a14.94 14.94 0 0 0 6.136 6.136l1.713-1.78a1.033 1.033 0 0 1 1.132-.166l2.91 1.375c.42.201.683.626.683 1.09v3.113c0 1.017-.822 1.839-1.839 1.839h-3.113a15.356 15.356 0 0 1-11.833-11.833V6.58z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-black uppercase tracking-widest font-mono text-slate-400">Phone</div>
-                      <a href={`tel:${companyData.phone}`} className="mt-0.5 block font-black font-mono text-slate-800 hover:underline text-sm sm:text-base">{companyData.phone}</a>
-                    </div>
+                  <div>
+                    <div className="text-[10px] font-black uppercase tracking-widest font-mono text-slate-500">Email</div>
+                    <a href={`mailto:${companyData.email}`} className="mt-0.5 block font-bold text-slate-900 hover:text-[#ff9e7d] transition-colors">{companyData.email}</a>
                   </div>
+                </div>
+                
+                {/* Phone Item */}
+                <div className="flex items-start gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border-2 border-slate-900 bg-[#7dd3fc] shadow-[2px_2px_0px_0px_#0f172a]">
+                    <svg className="w-5 h-5 fill-none stroke-slate-900 stroke-[2.5]" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.58c0-1.017.822-1.839 1.839-1.839h3.113c.465 0 .89.262 1.09.683l1.375 2.91a1.033 1.033 0 0 1-.166 1.132L7.618 11.41a14.94 14.94 0 0 0 6.136 6.136l1.713-1.78a1.033 1.033 0 0 1 1.132-.166l2.91 1.375c.42.201.683.626.683 1.09v3.113c0 1.017-.822 1.839-1.839 1.839h-3.113a15.356 15.356 0 0 1-11.833-11.833V6.58z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black uppercase tracking-widest font-mono text-slate-500">Phone</div>
+                    <a href={`tel:${companyData.phone}`} className="mt-0.5 block font-bold text-slate-900 hover:text-[#ff9e7d] transition-colors">{companyData.phone}</a>
+                  </div>
+                </div>
 
-                  {/* Address */}
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-slate-900 bg-[#7dd3fc] text-slate-900 shadow-[2px_2px_0px_0px_#000]">
-                      <svg className="w-5 h-5 fill-none stroke-current stroke-[2.5]" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-black uppercase tracking-widest font-mono text-slate-400">HQ Address</div>
-                      <p className="mt-1 text-xs sm:text-sm font-bold text-slate-700 leading-relaxed uppercase tracking-tight">{companyData.address}</p>
+                {/* Address Item */}
+                <div className="flex items-start gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border-2 border-slate-900 bg-[#7dd3fc] shadow-[2px_2px_0px_0px_#0f172a]">
+                    <svg className="w-5 h-5 fill-none stroke-slate-900 stroke-[2.5]" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black uppercase tracking-widest font-mono text-slate-500">Headquarters</div>
+                    <p className="mt-1 text-sm font-bold text-slate-900 leading-relaxed uppercase pr-4">{companyData.address}</p>
+                  </div>
+                </div>
+
+                {/* Hours Item */}
+                <div className="flex items-start gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border-2 border-slate-900 bg-[#7dd3fc] shadow-[2px_2px_0px_0px_#0f172a]">
+                    <svg className="w-5 h-5 fill-none stroke-slate-900 stroke-[2.5]" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="w-full">
+                    <div className="text-[10px] font-black uppercase tracking-widest font-mono text-slate-500">Business Hours</div>
+                    <div className="mt-1 text-sm font-bold text-slate-900 space-y-1 pr-4">
+                      <div className="flex justify-between border-b border-slate-200 pb-1">
+                        <span>Mon - Fri</span> <span>9:00 AM - 6:00 PM</span>
+                      </div>
+                      <div className="flex justify-between pt-1">
+                        <span>Saturday</span> <span>10:00 AM - 2:00 PM</span>
+                      </div>
                     </div>
                   </div>
                 </div>
+
               </div>
 
               {/* Socials Connection Row */}
-              <div className="mt-6 border-t-2 border-slate-900/10 pt-5">
-                <div className="text-[10px] font-black uppercase tracking-widest font-mono text-slate-400 mb-3">Follow Our Journey</div>
+              <div className="mt-8 border-t-2 border-slate-900 pt-6">
+                <div className="text-[10px] font-black uppercase tracking-widest font-mono text-slate-500 mb-3">Follow Our Journey</div>
                 <div className="flex gap-3">
                   {Object.entries(companyData.social).map(([platform, url]) => (
                     <motion.a
-                      key={platform}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      whileHover={{ y: -2 }}
-                      className="flex h-10 w-10 items-center justify-center border-2 border-slate-900 bg-white text-slate-900 shadow-[2px_2px_0px_0px_#000] hover:bg-[#ff9e7d] hover:shadow-[4px_4px_0px_0px_#000] transition-all"
+                      key={platform} href={url} target="_blank" rel="noopener noreferrer"
+                      whileHover={{ y: -3 }}
+                      className="flex h-10 w-10 items-center justify-center rounded-md border-2 border-slate-900 bg-[#fafafa] text-slate-900 shadow-[3px_3px_0px_0px_#0f172a] hover:bg-[#ff9e7d] transition-colors"
                     >
                       {getSocialIcon(platform)}
                     </motion.a>
                   ))}
                 </div>
               </div>
-            </div>
 
-            {/* Business Hours Permanent Card Grid Block */}
-            <div className="border-2 border-slate-900 bg-slate-900 p-6 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] relative overflow-hidden rounded-md">
-              <h3 className="text-sm font-black uppercase font-mono tracking-wider text-white flex items-center gap-2">
-                ⚡ Business Hours
-              </h3>
-              <div className="mt-4 text-xs font-mono uppercase tracking-wide text-slate-300 leading-relaxed space-y-2.5">
-                <div className="flex justify-between border-b border-slate-800 pb-2">
-                  <span className="text-slate-400">Monday – Friday</span> 
-                  <span className="text-white font-black">9:00 AM – 6:00 PM IST</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Saturday</span> 
-                  <span className="text-white font-black">10:00 AM – 2:00 PM IST</span>
-                </div>
-              </div>
             </div>
-
-          </div>
+          </motion.div>
 
         </div>
       </section>
+
+      {/* 3. GOOGLE MAPS SECTION */}
+      <section className="py-4 relative z-10">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-white p-6 rounded-md border-2 border-slate-900 shadow-[6px_6px_0px_0px_#0f172a]"
+          >
+            <h2 className="text-xl font-black uppercase tracking-tight text-slate-900 mb-4 flex items-center gap-2 font-mono">
+              Location Map
+            </h2>
+            <div className="w-full h-[350px] sm:h-[450px] rounded border-2 border-slate-900 overflow-hidden bg-[#ebebeb]">
+              <iframe 
+                src={LOCATION_CONFIG.embedUrl}
+                width="100%" height="100%" style={{ border: 0 }} allowFullScreen={false} loading="lazy" referrerPolicy="no-referrer-when-downgrade"
+                title="Web n Code Office Location"
+                className="filter contrast-[1.1] grayscale-[0.2]"
+              />
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
     </div>
   )
 }

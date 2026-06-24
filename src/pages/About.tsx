@@ -69,7 +69,7 @@ const developers: ProfileMember[] = [
     hoverImage: aryan2,
     location: 'JAIPUR, INDIA',
     flag: '🇮🇳',
-    team: 'BLITZSCALE TEAM',
+    team: 'WnC TEAM',
     linkedin: 'https://linkedin.com',
     github: 'https://github.com',
     twitter: 'https://x.com',
@@ -84,7 +84,7 @@ const developers: ProfileMember[] = [
     hoverImage: pranav2,
     location: 'JAIPUR, INDIA',
     flag: '🇮🇳',
-    team: 'BLITZSCALE TEAM',
+    team: 'WnC TEAM',
     linkedin: 'https://linkedin.com',
     github: 'https://github.com',
     twitter: 'https://x.com',
@@ -99,7 +99,7 @@ const developers: ProfileMember[] = [
     hoverImage: amitImg,
     location: 'JAIPUR, INDIA',
     flag: '🇮🇳',
-    team: 'BLITZSCALE TEAM',
+    team: 'WnC TEAM',
     linkedin: 'https://linkedin.com',
     github: 'https://github.com',
     twitter: 'https://x.com',
@@ -286,7 +286,7 @@ export default function About() {
           >
             {[
               { label: 'Products Built', value: '12+', color: 'bg-[#7dd3fc]' },
-              { label: 'Organizations Served', value: '150+', color: 'bg-[#c084fc]' },
+              { label: 'Organizations Served', value: '100+', color: 'bg-[#c084fc]' },
               { label: 'Support System', value: '24/7/365', color: 'bg-[#6ee7b7]' },
               { label: 'Client Retention', value: '99%', color: 'bg-[#fda4af]' },
             ].map((stat) => (
@@ -340,20 +340,20 @@ export default function About() {
 
                   <div className="space-y-4 relative z-10">
                     <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 gap-2">
-                      <span className="text-[10px] sm:text-xs text-orange-400 font-bold tracking-widest uppercase">FOUNDER & CHIEF EXECUTIVE PROFILE</span>
+                      <span className="text-[10px] sm:text-xs text-orange-400 font-bold tracking-widest uppercase">CEO & FOUNDER PROFILE</span>
                       <span className="text-[10px] sm:text-xs bg-slate-900 px-3 py-1 rounded-md border border-slate-800 text-slate-400">ROLE // HEAD OF PRODUCT</span>
                     </div>
                     
                     <h4 className="text-xl sm:text-2xl font-black text-white tracking-tight uppercase">Narendra Singh Choudhary</h4>
                     
                     <p className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed">
-                      As the architect of Web n Code Technologies' core mission, Sir shapes global product strategy, monitors high-level tech benchmarks, and steers enterprise expansion. His primary layout focus is creating highly integrated automated SaaS solutions that empower over 150 institutes and schools across India.
+                     Narendra Singh Choudhary is the founder of Web n Code Technologies and leads the vision behind the company's SaaS products. With a strong focus on solving real-world challenges faced by schools, academies, and organizations, he is dedicated to building practical, user-friendly, and scalable software solutions. His goal is to make technology simple, accessible, and impactful for institutions across India.
                     </p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 font-mono text-[10px] sm:text-xs">
                       <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.5)]">
                         <span className="text-slate-500 block mb-1 font-bold">CORE DIRECTIVE</span>
-                        <span className="text-orange-300 font-extrabold">Blitzscale Evolution</span>
+                        <span className="text-orange-300 font-extrabold">Web n Code Technologies</span>
                       </div>
                       <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.5)]">
                         <span className="text-slate-500 block mb-1 font-bold">ECOSYSTEM OPS</span>
@@ -424,10 +424,10 @@ export default function About() {
           <div className="lg:col-span-5">
             <div className="grid grid-cols-2 gap-3 sm:gap-4 rounded-xl border-2 border-slate-900 bg-[#ebebeb] p-5 sm:p-6 shadow-[6px_6px_0px_0px_rgba(15,23,42,1)]">
               {[
-                { label: 'Founded Spectrum', value: '2020' },
-                { label: 'Team Size', value: '5+' },
-                { label: 'SaaS Platforms', value: '12+' },
-                { label: 'Active Deployments', value: '150+' },
+                { label: 'Company Founded', value: '2020' },
+                { label: 'Team Size', value: '15+' },
+                { label: 'Software Platforms', value: '12+' },
+                { label: 'Institutions Served', value: '100+' },
               ].map((item) => (
                 <div key={item.label} className="rounded-lg bg-white border-2 border-slate-900 p-3 sm:p-4 text-center">
                   <div className="text-xl sm:text-2xl font-black text-slate-900 font-mono">
@@ -451,10 +451,10 @@ export default function About() {
           </motion.div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { title: 'Innovation', description: 'Building practical software solutions.', color: 'bg-[#ffa07a]' },
-              { title: 'Quality Matrix', description: 'Clean, scalable, and maintainable compiler-ready code.', color: 'bg-[#7dd3fc]' },
-              { title: 'Reliability', description: 'Delivering redundant systems client networks trust.', color: 'bg-[#6ee7b7]' },
-              { title: 'Strategic Growth', description: 'Scaling institutions cleanly through precise automation vectors.', color: 'bg-[#fda4af]' },
+              { title: 'Innovation', description: 'Building practical software solutions that solve real business challenges.', color: 'bg-[#ffa07a]' },
+              { title: 'Quality Matrix', description: 'Developing clean, scalable, and maintainable products built for long-term growth.', color: 'bg-[#7dd3fc]' },
+              { title: 'Reliability', description: 'Delivering dependable platforms that organizations can trust every day.', color: 'bg-[#6ee7b7]' },
+              { title: 'Strategic Growth', description: 'Helping institutions scale operations through smart automation and technology.', color: 'bg-[#fda4af]' },
             ].map((value) => (
               <div key={value.title} className={`border-2 border-slate-900 rounded-xl p-5 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] ${value.color} transition-all`}>
                 <div className="flex h-10 w-10 items-center justify-center rounded-md bg-white border-2 border-slate-900 text-slate-900 mb-3 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
@@ -474,7 +474,9 @@ export default function About() {
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-mono uppercase mb-5">Why We Started</h2>
           <div className="bg-white rounded-xl border-2 border-slate-900 p-6 sm:p-8 shadow-[6px_6px_0px_0px_rgba(15,23,42,1)]">
             <p className="text-xs sm:text-sm text-slate-700 font-bold uppercase tracking-wide leading-relaxed">
-              Instead of producing standard client projects, we set out to build robust platform engines. Our motivation lies in engineering actual automated SaaS systems that help academies and corporate schools optimize administrative layers natively.
+             We started Web n Code Technologies with a simple mission: create software that solves real-world operational challenges.
+
+By building practical SaaS products for schools, academies, and organizations, we help teams automate routine tasks, improve efficiency, and manage their operations with confidence.
             </p>
           </div>
         </div>

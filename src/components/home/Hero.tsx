@@ -101,7 +101,7 @@ export default function Hero() {
             >
               {[
                 { value: '12+', label: 'Products built', color: 'bg-[#93c5fd]' },
-                { value: '150+', label: 'Orgs served', color: 'bg-[#c084fc]' },
+                { value: '100+', label: 'Orgs served', color: 'bg-[#c084fc]' },
                 { value: '24/7', label: 'Support ready', color: 'bg-[#86efac]' },
               ].map((item) => (
                 <div key={item.label} className={`border-2 border-slate-900 ${item.color} p-2.5 shadow-[3px_3px_0px_0px_#000]`}>
