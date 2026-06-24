@@ -7,7 +7,7 @@ import { showSuccessToast, showErrorToast } from '../components/ui/Toast'
 // LOCATION CONFIGURATION
 // ---------------------------------------------------------
 const LOCATION_CONFIG = {
-  address: 'Mahapura Road, Bhankrota, Ajmer Road, Jaipur, Rajasthan 302026, India',
+  address: 'Mahapura, Ajmer Road, Jaipur, Rajasthan 302026, India',
   embedUrl: 'https://maps.google.com/maps?q=26.846032,75.676383&t=&z=16&ie=UTF8&iwloc=&output=embed'
 }
 
