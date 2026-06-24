@@ -402,3 +402,8 @@
     border: 1px solid rgba(255, 255, 255, 0.3);
   }
 }
+img {
+  border: none;
+  outline: none;
+  image-rendering: auto;
+}
