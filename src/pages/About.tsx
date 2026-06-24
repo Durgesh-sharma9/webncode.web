@@ -419,7 +419,7 @@ export default function About() {
                 <strong className="text-slate-900 underline decoration-wavy decoration-[#ff6c4a]">Web n Code Technologies</strong> was founded with a non-negotiable objective: compile clean custom software products that resolve enterprise architecture gaps for institutes pan-India.
               </p>
               <p>
-                Operating out of our technical command base in <span className="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono text-slate-900">Mahapura, Jaipur (Rajasthan)</span>, we map complex operational logics into production-ready platforms.
+                Operating out of our technical command base in <span className="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono text-slate-900">Jaipur (Rajasthan)</span>, we map complex operational logics into production-ready platforms.
               </p>
             </div>
           </div>
