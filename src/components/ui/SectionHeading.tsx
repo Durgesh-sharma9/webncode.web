@@ -23,7 +23,7 @@ export default function SectionHeading({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className={`mb-12 max-w-4xl flex flex-col ${alignClass}`}
+      className={`mb-12 max-w-6xl flex flex-col ${alignClass}`}
     >
       {/* Top Pill Label - Boxy indicator with offset shadow */}
       {label && (
@@ -57,7 +57,7 @@ export default function SectionHeading({
       {/* Subtext Description Block */}
       {description && (
         <p
-          className={`mt-5 text-sm md:text-base font-bold uppercase tracking-wide leading-relaxed max-w-2xl ${
+          className={`mt-5 text-sm md:text-base font-bold uppercase tracking-wide leading-relaxed max-w-3xl ${
             light ? 'text-slate-200' : 'text-slate-700'
           }`}
         >
