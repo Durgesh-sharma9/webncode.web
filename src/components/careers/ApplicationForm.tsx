@@ -94,7 +94,10 @@ export default function ApplicationForm({ job, onBack }: ApplicationFormProps) {
 
     setIsSubmitting(true)
     try {
-      await axios.post('http://localhost:5000/api/careers', formData)
+      await axios.post(
+  `${import.meta.env.VITE_API_URL}/api/careers`,
+  formData
+)
       showSuccessToast('Application submitted successfully! Check your email.')
       onBack()
     } catch (error: any) {
