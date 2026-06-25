@@ -6,6 +6,10 @@ import tmp1 from '../assets/projects/daily-test-pro/tmp1.png'
 import tmp2 from '../assets/projects/daily-test-pro/tmp2.png'
 import tmp3 from '../assets/projects/daily-test-pro/tmp3.png'
 
+import sap1 from '../assets/projects/sports-academy-pro/sap1.png'
+import sap2 from '../assets/projects/sports-academy-pro/sap2.png'
+import sap3 from '../assets/projects/sports-academy-pro/sap3.png'
+
 export const productCategories = [
   'All',
   'Education',
@@ -311,9 +315,9 @@ export const products: Product[] = [
     color: '#F97316',
     accentColor: '#FFEDD5',
     screenshots: [
-      'https://images.unsplash.com/photo-151749763962-0c623066013b?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1547347298-4074fc3086f0?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1200&auto=format&fit=crop',
+     sap1,
+     sap2,
+     sap3
     ],
     demoUrl: 'https://demo.webncode.com/star-sports',
   },
