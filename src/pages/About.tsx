@@ -107,6 +107,36 @@ const developers: ProfileMember[] = [
     github: 'https://github.com/Durgesh-sharma9',
     twitter: 'https://x.com/Dev_sharma_ai',
     instagram: 'https://www.instagram.com/dev998889?igsh=aDhjd2FqeWlveHRr'
+  },
+  {
+    id: 'dev',
+    name: 'DURGESH SHARMA ',
+    role: 'FULL STACK DEVELOPER',
+    bio: 'Architects database schemas, secure RESTful API nodes, and optimized real-time synchronization hooks.',
+    image: dev1,
+    hoverImage: dev1,
+    location: 'JAIPUR, INDIA',
+    flag: '🇮🇳',
+    team: 'WnC TEAM',
+    linkedin: 'https://www.linkedin.com/in/durgesh-sharma-508762339/',
+    github: 'https://github.com/Durgesh-sharma9',
+    twitter: 'https://x.com/Dev_sharma_ai',
+    instagram: 'https://www.instagram.com/dev998889?igsh=aDhjd2FqeWlveHRr'
+  },
+  {
+    id: 'dev',
+    name: 'DURGESH SHARMA ',
+    role: 'FULL STACK DEVELOPER',
+    bio: 'Architects database schemas, secure RESTful API nodes, and optimized real-time synchronization hooks.',
+    image: dev1,
+    hoverImage: dev1,
+    location: 'JAIPUR, INDIA',
+    flag: '🇮🇳',
+    team: 'WnC TEAM',
+    linkedin: 'https://www.linkedin.com/in/durgesh-sharma-508762339/',
+    github: 'https://github.com/Durgesh-sharma9',
+    twitter: 'https://x.com/Dev_sharma_ai',
+    instagram: 'https://www.instagram.com/dev998889?igsh=aDhjd2FqeWlveHRr'
   }
 ]
 
