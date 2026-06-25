@@ -2,6 +2,10 @@ import ttp1 from '../assets/projects/time-table-pro/ttp1.jpeg'
 import ttp2 from '../assets/projects/time-table-pro/ttp2.jpeg'
 import ttp3 from '../assets/projects/time-table-pro/ttp3.jpeg'
 
+import tmp1 from '../assets/projects/daily-test-pro/tmp1.png'
+import tmp2 from '../assets/projects/daily-test-pro/tmp2.png'
+import tmp3 from '../assets/projects/daily-test-pro/tmp3.png'
+
 export const productCategories = [
   'All',
   'Education',
@@ -230,9 +234,9 @@ export const products: Product[] = [
     color: '#059669',
     accentColor: '#D1FAE5',
     screenshots: [
-      'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1503676382389-4809596d5290?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1200&auto=format&fit=crop',
+      tmp1,
+      tmp2,
+      tmp3
     ],
     demoUrl: 'https://demo.webncode.com/daily-test-manager-pro',
   },

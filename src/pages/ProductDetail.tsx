@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Button from '../components/ui/Button'
 import { ArrowRightIcon } from '../components/ui/Icons'
 import { getProductBySlug, products } from '../data/products'
-import dtp_db from '../assets/projects/daily-test-pro/dtp_db.png'
+import dtp_db from '../assets/projects/daily-test-pro/tmp1.png'
 
 export default function ProductDetail() {
   const { slug } = useParams()
