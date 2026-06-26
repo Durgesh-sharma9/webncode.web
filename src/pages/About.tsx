@@ -7,13 +7,14 @@ import { CheckIcon } from '../components/ui/Icons'
 import founderImg from '../assets/team/founder.png'
 import founderSeriousImg from '../assets/team/founder2.png'
 
-import aryan1 from '../assets/team/aryann1.png'
-import aryan2 from '../assets/team/aryann2.png'
+import aryan1 from '../assets/team/aryan1.png'
+import aryan2 from '../assets/team/aryan2.png'
 
 import pranav1 from '../assets/team/pranav1.png'
 import pranav2 from '../assets/team/pranav2.png'
 
 import dev1 from '../assets/team/dev1.png'
+import dev2 from '../assets/team/dev2.png'
 
 // const amitImg = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80"
 
@@ -99,7 +100,7 @@ const developers: ProfileMember[] = [
     role: 'FULL STACK DEVELOPER',
     bio: 'Architects database schemas, secure RESTful API nodes, and optimized real-time synchronization hooks.',
     image: dev1,
-    hoverImage: dev1,
+    hoverImage: dev2,
     location: 'JAIPUR, INDIA',
     flag: '🇮🇳',
     team: 'WnC TEAM',
