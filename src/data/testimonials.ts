@@ -19,7 +19,7 @@ export const testimonials: Testimonial[] = [
   id: '2',
   quote:
     'Web Builder Pro allowed us to launch a professional school website without hiring a development team. We selected a template, customized colors, pages, galleries, and content to match our branding, and published our website within days.',
-  author: 'Pooja Agarwal',
+  author: 'Rajesh Kumar',
   role: 'School Administrator',
   organization: 'Sunrise International School',
 },
