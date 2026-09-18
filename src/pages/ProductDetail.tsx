@@ -3,15 +3,54 @@ import { useParams, Link, Navigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Button from '../components/ui/Button'
 import { ArrowRightIcon } from '../components/ui/Icons'
-import { getProductBySlug, products } from '../data/products'
+import axios from 'axios'
+import { getProductBySlug, products, type Product } from '../data/products'
 import dtp_db from '../assets/projects/daily-test-pro/tmp1.png'
 
 export default function ProductDetail() {
   const { slug } = useParams()
-  const product = slug ? getProductBySlug(slug) : undefined
+  const staticProduct = slug ? getProductBySlug(slug) : undefined
+  const [dynamicProduct, setDynamicProduct] = useState<Product | null>(null)
+  const [isLoading, setIsLoading] = useState(!staticProduct)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [currentScreenshot, setCurrentScreenshot] = useState(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (!staticProduct && slug) {
+      const fetchFromApi = async () => {
+        try {
+          const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+          const res = await axios.get(`${API_BASE}/api/projects/${slug}`)
+          if (res.data?.success && res.data.data) {
+            const p = res.data.data
+            setDynamicProduct({
+              id: p._id,
+              slug: p.slug,
+              title: p.title,
+              shortDescription: p.shortDescription,
+              description: p.description,
+              category: p.category as any,
+              features: p.features || [],
+              benefits: [],
+              faqs: [],
+              color: p.color || '#7dd3fc',
+              accentColor: p.accentColor || '#38bdf8',
+              screenshots: p.images || [],
+              demoUrl: p.demoUrl || ''
+            })
+          }
+        } catch (err) {
+          console.error('Error fetching project by slug:', err)
+        } finally {
+          setIsLoading(false)
+        }
+      }
+      fetchFromApi()
+    }
+  }, [slug, staticProduct])
+
+  const product = staticProduct || dynamicProduct
 
   useEffect(() => {
     if (product?.screenshots && product.screenshots.length > 1) {
@@ -24,6 +63,14 @@ export default function ProductDetail() {
       if (timerRef.current) clearInterval(timerRef.current)
     }
   }, [product, currentScreenshot])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen pt-32 text-center font-mono text-sm text-slate-600">
+        Loading project details...
+      </div>
+    )
+  }
 
   if (!product) return <Navigate to="/products" replace />
 

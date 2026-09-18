@@ -1,14 +1,16 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import axios from 'axios'
 import { SearchIcon } from '../components/ui/Icons'
 import ProductCard from '../components/ui/ProductCard'
-import { products, productCategories } from '../data/products'
+import { products as staticProducts, productCategories, type Product } from '../data/products'
 
 export default function Products() {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All')
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false)
+  const [dynamicProducts, setDynamicProducts] = useState<Product[]>([])
   const panelRef = useRef<HTMLDivElement | null>(null)
 
   // Handle outside click to close the dropdown panel
@@ -22,8 +24,44 @@ export default function Products() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  // Fetch dynamic projects from API
+  useEffect(() => {
+    const fetchDynamicProjects = async () => {
+      try {
+        const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+        const res = await axios.get(`${API_BASE}/api/projects`)
+        if (res.data?.success && Array.isArray(res.data.data)) {
+          const mapped: Product[] = res.data.data.map((proj: any) => ({
+            id: proj._id,
+            slug: proj.slug,
+            title: proj.title,
+            shortDescription: proj.shortDescription,
+            description: proj.description,
+            category: proj.category as any,
+            features: proj.features || [],
+            benefits: [],
+            faqs: [],
+            color: proj.color || '#7dd3fc',
+            accentColor: proj.accentColor || '#38bdf8',
+            screenshots: proj.images || [],
+            demoUrl: proj.demoUrl || ''
+          }))
+          setDynamicProducts(mapped)
+        }
+      } catch (err) {
+        console.error('Error fetching dynamic projects:', err)
+      }
+    }
+
+    fetchDynamicProjects()
+  }, [])
+
+  const allProducts = useMemo(() => {
+    return [...dynamicProducts, ...staticProducts]
+  }, [dynamicProducts])
+
   const filtered = useMemo(() => {
-    return products.filter((p) => {
+    return allProducts.filter((p) => {
       const matchesCategory = category === 'All' || p.category === category
       const matchesSearch =
         search === '' ||
@@ -31,7 +69,7 @@ export default function Products() {
         p.shortDescription.toLowerCase().includes(search.toLowerCase())
       return matchesCategory && matchesSearch
     })
-  }, [search, category])
+  }, [allProducts, search, category])
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-slate-900 relative pt-24 pb-12 overflow-hidden">
