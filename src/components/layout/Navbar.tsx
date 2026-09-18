@@ -33,7 +33,7 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-0 right-0 left-0 z-50 bg-[#ebebeb] border-b-2 border-slate-900 transition-all duration-300">
-      <nav className="container-wide flex h-[4rem] items-center justify-between px-5 md:px-8 lg:px-12">
+      <nav className="container-wide flex h-[4rem] items-center justify-between px-4 sm:px-5 md:px-8 lg:px-12">
         <Logo size="md" />
 
         {/* Desktop Links */}
@@ -77,10 +77,7 @@ export default function Navbar() {
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden border-t-2 border-slate-900 lg:hidden bg-[#ebebeb]"
           >
-            <div className="flex flex-col gap-1 px-5 py-6">
-              <div className="mb-4">
-                <Logo size="sm" showText={false} />
-              </div>
+            <div className="flex flex-col gap-1.5 px-5 py-4">
               
               {navLinks.map((link) => (
                 <NavLink

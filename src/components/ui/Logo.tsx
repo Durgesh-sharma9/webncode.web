@@ -17,20 +17,20 @@ export default function Logo({
 }: LogoProps) {
   // Logo ka size thoda bada kar diya hai (h-14 se h-16 aur h-16 se h-20)
   const logoSizeClasses = {
-    sm: 'h-7',
-    md: 'h-9',
-    lg: 'h-11',
+    sm: 'h-6 sm:h-7',
+    md: 'h-8 sm:h-9',
+    lg: 'h-10 sm:h-11',
   }
 
   // Text size ko bhi logo ke bade size ke sath match kar diya hai
   const textSizeClasses = {
-    sm: 'text-sm',
-    md: 'text-base', 
-    lg: 'text-lg',
+    sm: 'text-xs sm:text-sm',
+    md: 'text-sm sm:text-base', 
+    lg: 'text-base sm:text-lg',
   }
 
   return (
-    <Link to="/" className={`flex items-center gap-3 ${className}`}>
+    <Link to="/" className={`flex items-center gap-2.5 sm:gap-3 ${className}`}>
       <img
         src={logo}
         alt="Web n Code Technologies"
@@ -39,14 +39,14 @@ export default function Logo({
 
       {showText && (
         // flex-col ke sath items-start aur self-center lagane se text image ke center me align ho jayega
-        <div className={`hidden sm:flex flex-col justify-center items-start gap-1 ${textClassName}`}>
+        <div className={`flex flex-col justify-center items-start gap-0.5 sm:gap-1 ${textClassName}`}>
           <div
-            className={`${textSizeClasses[size]} font-extrabold text-text-primary leading-tight tracking-tight`}
+            className={`${textSizeClasses[size]} font-extrabold text-text-primary leading-tight tracking-tight whitespace-nowrap`}
           >
             {company.name}
           </div>
 
-          <div className="text-[11px] font-semibold text-muted tracking-wide leading-none">
+          <div className="text-[10px] sm:text-[11px] font-semibold text-muted tracking-wide leading-none whitespace-nowrap">
             {company.tagline}
           </div>
         </div>

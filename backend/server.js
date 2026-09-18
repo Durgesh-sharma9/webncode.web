@@ -4,6 +4,8 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const contactRoutes = require('./routes/contactRoutes');
 const careerRoutes = require('./routes/careerRoutes');
+const authRoutes = require('./routes/authRoutes');
+const projectRoutes = require('./routes/projectRoutes');
 
 // Load environment variables from .env file
 dotenv.config();
@@ -25,6 +27,12 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // API Routes
+// Mount auth routes at /api/auth
+app.use('/api/auth', authRoutes);
+
+// Mount project routes at /api/projects
+app.use('/api/projects', projectRoutes);
+
 // Mount contact routes at /api/contact
 app.use('/api/contact', contactRoutes);
 
@@ -40,15 +48,17 @@ app.get('/', (req, res) => {
   });
 });
 
-// Connect to MongoDB Atlas
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
+// Connect to MongoDB Atlas with auto-retry
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
     console.log('✅ Connected to MongoDB Atlas successfully');
-  })
-  .catch((error) => {
-    console.error('❌ MongoDB connection error:', error);
-    process.exit(1); // Exit process if database connection fails
-  });
+  } catch (error) {
+    console.error('⚠️ MongoDB connection issue (retrying in 5s):', error.message);
+    setTimeout(connectDB, 5000);
+  }
+};
+connectDB();
 
 // Start the server
 const PORT = process.env.PORT || 5000;
