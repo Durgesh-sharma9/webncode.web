@@ -14,9 +14,17 @@ dotenv.config();
 const app = express();
 
 // Middleware
-// Enable CORS (Cross-Origin Resource Sharing) for frontend-backend communication
+// Enable CORS for frontend-backend communication (supports 5173, 5174, 5175, etc.)
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: function (origin, callback) {
+    if (!origin || origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+      return callback(null, true);
+    }
+    if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
   credentials: true
 }));
 

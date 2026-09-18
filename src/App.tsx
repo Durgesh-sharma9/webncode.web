@@ -20,6 +20,7 @@ export default function App() {
         <ScrollToTop />
         <Toast />
         <Routes>
+          {/* Public Website with Navbar and Footer */}
           <Route element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="products" element={<Products />} />
@@ -29,10 +30,12 @@ export default function App() {
             <Route path="careers" element={<Careers />} />
             <Route path="updates" element={<Updates />} />
             <Route path="contact" element={<Contact />} />
-            <Route path="superadmin" element={<Login />} />
-            <Route path="admin" element={<Login />} />
-            <Route path="login" element={<Login />} />
           </Route>
+
+          {/* Standalone SuperAdmin Portal (Independent Sidebar Layout, No Public Header/Footer) */}
+          <Route path="superadmin" element={<Login />} />
+          <Route path="admin" element={<Login />} />
+          <Route path="login" element={<Login />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

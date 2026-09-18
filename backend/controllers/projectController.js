@@ -167,6 +167,106 @@ exports.getProjectBySlug = async (req, res) => {
 };
 
 /**
+ * Update a Project
+ * PUT /api/projects/:id
+ * Protected (Admin only)
+ */
+exports.updateProject = async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found'
+      });
+    }
+
+    const {
+      title,
+      shortDescription,
+      description,
+      category,
+      features,
+      demoUrl,
+      existingImages
+    } = req.body;
+
+    if (title) project.title = title.trim();
+    if (shortDescription) project.shortDescription = shortDescription.trim();
+    if (description) project.description = description.trim();
+    if (category) project.category = category.trim();
+    if (demoUrl !== undefined) project.demoUrl = demoUrl.trim();
+
+    if (features !== undefined) {
+      let parsedFeatures = [];
+      if (Array.isArray(features)) {
+        parsedFeatures = features;
+      } else if (typeof features === 'string') {
+        try {
+          const parsed = JSON.parse(features);
+          parsedFeatures = Array.isArray(parsed) ? parsed : features.split('\n');
+        } catch {
+          parsedFeatures = features.split('\n');
+        }
+      }
+      project.features = parsedFeatures.map((f) => f.trim()).filter(Boolean);
+    }
+
+    // Keep existing images that were retained
+    let updatedImages = [];
+    if (existingImages !== undefined) {
+      if (Array.isArray(existingImages)) {
+        updatedImages = existingImages;
+      } else if (typeof existingImages === 'string') {
+        try {
+          const parsed = JSON.parse(existingImages);
+          updatedImages = Array.isArray(parsed) ? parsed : [existingImages];
+        } catch {
+          updatedImages = [existingImages];
+        }
+      }
+    } else {
+      updatedImages = project.images || [];
+    }
+
+    // Upload any newly selected files to ImageKit
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        try {
+          const sanitizedName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+          const uploadRes = await imagekit.upload({
+            file: file.buffer,
+            fileName: `wnc-${Date.now()}-${sanitizedName}`,
+            folder: '/webncode/projects/'
+          });
+          if (uploadRes && uploadRes.url) {
+            updatedImages.push(uploadRes.url);
+          }
+        } catch (uploadErr) {
+          console.error('ImageKit edit upload error:', uploadErr);
+        }
+      }
+    }
+
+    project.images = updatedImages;
+    await project.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Project updated successfully',
+      data: project
+    });
+  } catch (error) {
+    console.error('Update project error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update project',
+      error: error.message
+    });
+  }
+};
+
+/**
  * Delete a Project
  * DELETE /api/projects/:id
  * Protected (Admin only)
@@ -196,3 +296,4 @@ exports.deleteProject = async (req, res) => {
     });
   }
 };
+

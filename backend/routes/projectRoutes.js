@@ -5,6 +5,7 @@ const {
   createProject,
   getAllProjects,
   getProjectBySlug,
+  updateProject,
   deleteProject
 } = require('../controllers/projectController');
 const { protect } = require('../middleware/authMiddleware');
@@ -31,6 +32,9 @@ router.get('/:slug', getProjectBySlug);
 
 // POST /api/projects - Protected: Create new project & upload images to ImageKit
 router.post('/', protect, upload.array('images', 8), createProject);
+
+// PUT /api/projects/:id - Protected: Edit project & add new images
+router.put('/:id', protect, upload.array('images', 8), updateProject);
 
 // DELETE /api/projects/:id - Protected: Delete a project
 router.delete('/:id', protect, deleteProject);
