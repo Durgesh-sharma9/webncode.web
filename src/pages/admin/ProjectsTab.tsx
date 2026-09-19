@@ -47,17 +47,18 @@ export default function ProjectsTab() {
       if (res.data?.success && Array.isArray(res.data.data)) {
         setProjects(res.data.data)
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to load projects:', err)
-      showErrorToast(err.response?.data?.message || 'Failed to fetch projects list')
+      const msg = axios.isAxiosError(err) ? err.response?.data?.message : undefined
+      showErrorToast(msg || 'Failed to fetch projects list')
     } finally {
       setIsLoadingProjects(false)
     }
   }
 
   useEffect(() => {
-    fetchProjects()
-    fetchCategories()
+    void fetchProjects()
+    void fetchCategories()
   }, [])
 
   const handleToggleFeatured = async (proj: ProjectItem) => {
@@ -96,8 +97,9 @@ export default function ProjectsTab() {
         showSuccessToast('Project deleted successfully')
         setProjects((prev) => prev.filter((p) => p._id !== id))
       }
-    } catch (err: any) {
-      showErrorToast(err.response?.data?.message || 'Failed to delete project')
+    } catch (err) {
+      const msg = axios.isAxiosError(err) ? err.response?.data?.message : undefined
+      showErrorToast(msg || 'Failed to delete project')
     }
   }
 
