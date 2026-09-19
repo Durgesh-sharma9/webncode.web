@@ -18,6 +18,11 @@ const upload = multer({
   }
 });
 
+const devUpload = upload.fields([
+  { name: 'photo', maxCount: 1 },
+  { name: 'hoverPhoto', maxCount: 1 }
+]);
+
 /**
  * Developer Routes
  * Base path: /api/developers
@@ -26,11 +31,11 @@ const upload = multer({
 // GET /api/developers - Public: List all developers
 router.get('/', getAllDevelopers);
 
-// POST /api/developers - Protected: Add developer with photo upload
-router.post('/', protect, upload.single('photo'), createDeveloper);
+// POST /api/developers - Protected: Add developer with photo & hoverPhoto upload
+router.post('/', protect, devUpload, createDeveloper);
 
-// PUT /api/developers/:id - Protected: Edit developer & optionally upload new photo
-router.put('/:id', protect, upload.single('photo'), updateDeveloper);
+// PUT /api/developers/:id - Protected: Edit developer & optionally upload new photos
+router.put('/:id', protect, devUpload, updateDeveloper);
 
 // DELETE /api/developers/:id - Protected: Delete developer
 router.delete('/:id', protect, deleteDeveloper);

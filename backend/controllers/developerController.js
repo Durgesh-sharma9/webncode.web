@@ -9,7 +9,8 @@ const DEFAULT_DEVELOPERS = [
     name: 'ARYAN KUMAR SWAIN',
     role: 'FULL STACK DEVELOPER',
     bio: 'Develops robust frontend interfaces and scalable backend systems. Specialized in React, Node.js, and compiler logic.',
-    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80',
+    image: '',
+    hoverImage: '',
     location: 'JAIPUR, INDIA',
     flag: '🇮🇳',
     team: 'WnC TEAM',
@@ -23,7 +24,8 @@ const DEFAULT_DEVELOPERS = [
     name: 'PRANAV KUMAR SWAIN',
     role: 'FULL STACK DEVELOPER',
     bio: 'Crafts responsive UI modules with fine-tuned interactive designs. Focused on app speeds and modular architecture.',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
+    image: '',
+    hoverImage: '',
     location: 'JAIPUR, INDIA',
     flag: '🇮🇳',
     team: 'WnC TEAM',
@@ -37,7 +39,8 @@ const DEFAULT_DEVELOPERS = [
     name: 'DURGESH SHARMA',
     role: 'FULL STACK DEVELOPER',
     bio: 'Architects database schemas, secure RESTful API nodes, and optimized real-time synchronization hooks.',
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80',
+    image: '',
+    hoverImage: '',
     location: 'JAIPUR, INDIA',
     flag: '🇮🇳',
     team: 'WnC TEAM',
@@ -100,7 +103,8 @@ exports.createDeveloper = async (req, res) => {
       instagram,
       email,
       order,
-      imageUrl
+      imageUrl,
+      hoverImageUrl
     } = req.body;
 
     if (!name || !role || !bio) {
@@ -111,13 +115,15 @@ exports.createDeveloper = async (req, res) => {
     }
 
     let finalImageUrl = imageUrl || '';
+    let finalHoverImageUrl = hoverImageUrl || '';
 
-    // Handle Image upload if file provided
-    if (req.file) {
+    // Handle primary image upload
+    const primaryFile = req.files?.['photo']?.[0] || req.file;
+    if (primaryFile) {
       try {
-        const sanitizedName = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const sanitizedName = primaryFile.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
         const uploadRes = await imagekit.upload({
-          file: req.file.buffer,
+          file: primaryFile.buffer,
           fileName: `dev-${Date.now()}-${sanitizedName}`,
           folder: '/webncode/team/'
         });
@@ -133,9 +139,26 @@ exports.createDeveloper = async (req, res) => {
       }
     }
 
-    if (!finalImageUrl) {
-      // Default fallback avatar
-      finalImageUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`;
+    // Handle hover image upload
+    const hoverFile = req.files?.['hoverPhoto']?.[0];
+    if (hoverFile) {
+      try {
+        const sanitizedName = hoverFile.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const uploadRes = await imagekit.upload({
+          file: hoverFile.buffer,
+          fileName: `dev-hover-${Date.now()}-${sanitizedName}`,
+          folder: '/webncode/team/'
+        });
+        if (uploadRes && uploadRes.url) {
+          finalHoverImageUrl = uploadRes.url;
+        }
+      } catch (uploadErr) {
+        console.error('ImageKit upload error for developer hover photo:', uploadErr);
+      }
+    }
+
+    if (!finalHoverImageUrl) {
+      finalHoverImageUrl = finalImageUrl;
     }
 
     const newDev = await Developer.create({
@@ -143,7 +166,7 @@ exports.createDeveloper = async (req, res) => {
       role: role.trim().toUpperCase(),
       bio: bio.trim(),
       image: finalImageUrl,
-      hoverImage: finalImageUrl,
+      hoverImage: finalHoverImageUrl,
       location: location ? location.trim() : 'JAIPUR, INDIA',
       flag: '🇮🇳',
       team: team ? team.trim() : 'WnC TEAM',
@@ -198,17 +221,20 @@ exports.updateDeveloper = async (req, res) => {
       instagram,
       email,
       order,
-      imageUrl
+      imageUrl,
+      hoverImageUrl
     } = req.body;
 
     let finalImageUrl = existing.image;
+    let finalHoverImageUrl = existing.hoverImage;
 
-    // Handle new photo upload
-    if (req.file) {
+    // Handle new primary photo upload
+    const primaryFile = req.files?.['photo']?.[0] || req.file;
+    if (primaryFile) {
       try {
-        const sanitizedName = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const sanitizedName = primaryFile.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
         const uploadRes = await imagekit.upload({
-          file: req.file.buffer,
+          file: primaryFile.buffer,
           fileName: `dev-${Date.now()}-${sanitizedName}`,
           folder: '/webncode/team/'
         });
@@ -218,15 +244,35 @@ exports.updateDeveloper = async (req, res) => {
       } catch (uploadErr) {
         console.error('ImageKit update photo upload error:', uploadErr);
       }
-    } else if (imageUrl) {
+    } else if (imageUrl !== undefined) {
       finalImageUrl = imageUrl;
+    }
+
+    // Handle new hover photo upload
+    const hoverFile = req.files?.['hoverPhoto']?.[0];
+    if (hoverFile) {
+      try {
+        const sanitizedName = hoverFile.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const uploadRes = await imagekit.upload({
+          file: hoverFile.buffer,
+          fileName: `dev-hover-${Date.now()}-${sanitizedName}`,
+          folder: '/webncode/team/'
+        });
+        if (uploadRes && uploadRes.url) {
+          finalHoverImageUrl = uploadRes.url;
+        }
+      } catch (uploadErr) {
+        console.error('ImageKit update hover photo upload error:', uploadErr);
+      }
+    } else if (hoverImageUrl !== undefined) {
+      finalHoverImageUrl = hoverImageUrl;
     }
 
     existing.name = name !== undefined ? name.trim() : existing.name;
     existing.role = role !== undefined ? role.trim().toUpperCase() : existing.role;
     existing.bio = bio !== undefined ? bio.trim() : existing.bio;
     existing.image = finalImageUrl;
-    existing.hoverImage = finalImageUrl;
+    existing.hoverImage = finalHoverImageUrl || finalImageUrl;
     existing.location = location !== undefined ? location.trim() : existing.location;
     existing.team = team !== undefined ? team.trim() : existing.team;
     existing.linkedin = linkedin !== undefined ? linkedin.trim() : existing.linkedin;

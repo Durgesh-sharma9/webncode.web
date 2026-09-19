@@ -272,7 +272,7 @@ export default function About() {
               role: d.role,
               bio: d.bio,
               image: d.image || staticDev?.image || aryan1,
-              hoverImage: d.hoverImage || d.image || staticDev?.hoverImage || aryan2,
+              hoverImage: d.hoverImage || staticDev?.hoverImage || d.image || aryan2,
               location: d.location || 'JAIPUR, INDIA',
               flag: d.flag || '🇮🇳',
               team: d.team || 'WnC TEAM',

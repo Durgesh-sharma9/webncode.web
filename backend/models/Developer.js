@@ -26,7 +26,7 @@ const developerSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      required: [true, 'Profile image is required']
+      default: ''
     },
     hoverImage: {
       type: String,

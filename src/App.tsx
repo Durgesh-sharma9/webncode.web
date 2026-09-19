@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import Layout from './components/layout/Layout'
 import ScrollToTop from './components/ui/ScrollToTop'
@@ -12,6 +12,12 @@ import Careers from './pages/Careers'
 import Updates from './pages/Updates'
 import Contact from './pages/Contact'
 import Login from './pages/Login'
+import AdminLayout from './pages/admin/AdminLayout'
+import LeadsTab from './pages/admin/LeadsTab'
+import CareersTab from './pages/admin/CareersTab'
+import DevelopersTab from './pages/admin/DevelopersTab'
+import ProjectsTab from './pages/admin/ProjectsTab'
+import ProjectForm from './pages/admin/ProjectForm'
 
 export default function App() {
   return (
@@ -32,10 +38,20 @@ export default function App() {
             <Route path="contact" element={<Contact />} />
           </Route>
 
-          {/* Standalone SuperAdmin Portal (Independent Sidebar Layout, No Public Header/Footer) */}
-          <Route path="superadmin" element={<Login />} />
-          <Route path="admin" element={<Login />} />
+          {/* Dedicated Login Route */}
           <Route path="login" element={<Login />} />
+          <Route path="superadmin" element={<Navigate to="/admin" replace />} />
+
+          {/* Modular Admin Portal Layout & Sub-routes */}
+          <Route path="admin" element={<AdminLayout />}>
+            <Route index element={<Navigate to="leads" replace />} />
+            <Route path="leads" element={<LeadsTab />} />
+            <Route path="careers" element={<CareersTab />} />
+            <Route path="developers" element={<DevelopersTab />} />
+            <Route path="projects" element={<ProjectsTab />} />
+            <Route path="projects/new" element={<ProjectForm />} />
+            <Route path="projects/edit/:id" element={<ProjectForm />} />
+          </Route>
         </Routes>
       </AuthProvider>
     </BrowserRouter>

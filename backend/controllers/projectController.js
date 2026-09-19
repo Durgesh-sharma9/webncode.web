@@ -121,7 +121,35 @@ exports.createProject = async (req, res) => {
  */
 exports.getAllProjects = async (req, res) => {
   try {
-    const projects = await Project.find().sort({ createdAt: -1 });
+    // Ensure default homepage showcase item (Syllabus Tracker) is seeded for SuperAdmin management
+    const syllabusTracker = await Project.findOne({ slug: 'timetable-pro' });
+    if (!syllabusTracker) {
+      await Project.create({
+        title: 'Syllabus Tracker',
+        slug: 'timetable-pro',
+        shortDescription:
+          'Smart timetable and academic management platform for schools and educational institutions.',
+        description:
+          'Timetable Pro helps schools manage faculty schedules, class timetables, homework assignments, and teaching activities. Teachers can view schedules, submit daily reports, assign homework, track completed topics, and stay organized through a centralized dashboard.',
+        category: 'Education',
+        features: [
+          'Faculty timetable management',
+          'Class timetable scheduling',
+          'Teacher dashboard',
+          'Homework assignment',
+          'Daily teaching reports'
+        ],
+        demoUrl: 'https://timetablepro.webncode.in/',
+        images: [
+          'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80'
+        ],
+        isFeatured: true,
+        color: '#2563EB',
+        accentColor: '#DBEAFE'
+      });
+    }
+
+    const projects = await Project.find().sort({ isFeatured: -1, createdAt: -1 });
     res.status(200).json({
       success: true,
       count: projects.length,
@@ -188,6 +216,7 @@ exports.updateProject = async (req, res) => {
       category,
       features,
       demoUrl,
+      isFeatured,
       existingImages
     } = req.body;
 
@@ -196,6 +225,9 @@ exports.updateProject = async (req, res) => {
     if (description) project.description = description.trim();
     if (category) project.category = category.trim();
     if (demoUrl !== undefined) project.demoUrl = demoUrl.trim();
+    if (isFeatured !== undefined) {
+      project.isFeatured = isFeatured === 'true' || isFeatured === true;
+    }
 
     if (features !== undefined) {
       let parsedFeatures = [];
