@@ -34,6 +34,7 @@ const applicationSchema = new mongoose.Schema({
 
   // SECTION 6: Resume Tracking
   resumeName: { type: String, required: true },
+  resumeUrl: { type: String },
 
   // SECTION 7: Declaration
   declaration: { type: Boolean, required: true }

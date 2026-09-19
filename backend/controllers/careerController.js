@@ -1,17 +1,36 @@
 const Application = require('../models/Application');
 const nodemailer = require('nodemailer');
+const imagekit = require('../config/imagekit');
 
 exports.submitApplication = async (req, res) => {
   try {
     const data = req.body;
     
-    // Extract base64 resume and its metadata, then remove from DB save payload
+    // Extract base64 resume and its metadata
     const resumeBase64 = data.resumeBase64;
     const resumeName = data.resumeName || 'resume.pdf';
-    
-    // Validate required fields (employmentType removed)
+    let resumeUrl = '';
+
+    // Validate required fields
     if (!data.fullName || !data.email || !data.mobile || !data.position || !data.declaration) {
       return res.status(400).json({ success: false, message: 'Essential fields are missing.' });
+    }
+
+    // Upload resume to ImageKit if provided
+    if (resumeBase64) {
+      try {
+        const sanitizedName = resumeName.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const uploadRes = await imagekit.upload({
+          file: resumeBase64,
+          fileName: `resume-${Date.now()}-${sanitizedName}`,
+          folder: '/webncode/resumes/'
+        });
+        if (uploadRes && uploadRes.url) {
+          resumeUrl = uploadRes.url;
+        }
+      } catch (imgKitErr) {
+        console.error('ImageKit resume upload error (continuing without breaking):', imgKitErr.message);
+      }
     }
 
     // Save to MongoDB
@@ -38,6 +57,7 @@ exports.submitApplication = async (req, res) => {
       currentYear: data.currentYear,
       graduationYear: data.graduationYear,
       resumeName: resumeName,
+      resumeUrl: resumeUrl,
       declaration: data.declaration
     });
 
@@ -150,5 +170,57 @@ exports.submitApplication = async (req, res) => {
   } catch (error) {
     console.error('Error submitting application:', error);
     res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
+  }
+};
+
+/**
+ * Get all job applications (SuperAdmin only)
+ * GET /api/careers
+ */
+exports.getAllApplications = async (req, res) => {
+  try {
+    const applications = await Application.find().sort({ createdAt: -1 });
+    res.status(200).json({
+      success: true,
+      count: applications.length,
+      data: applications
+    });
+  } catch (error) {
+    console.error('Error fetching applications:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error fetching applications',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Delete a job application
+ * DELETE /api/careers/:id
+ */
+exports.deleteApplication = async (req, res) => {
+  try {
+    const application = await Application.findById(req.params.id);
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: 'Application record not found'
+      });
+    }
+
+    await Application.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Job application deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting application:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error deleting application',
+      error: error.message
+    });
   }
 };

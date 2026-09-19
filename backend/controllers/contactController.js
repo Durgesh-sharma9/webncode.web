@@ -87,6 +87,37 @@ exports.getAllContacts = async (req, res) => {
 };
 
 /**
+ * Delete a contact submission (Admin endpoint)
+ * DELETE /api/contact/:id
+ */
+exports.deleteContact = async (req, res) => {
+  try {
+    const contact = await Contact.findById(req.params.id);
+    if (!contact) {
+      return res.status(404).json({
+        success: false,
+        message: 'Contact enquiry not found'
+      });
+    }
+
+    await Contact.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Contact enquiry deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting contact:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error deleting contact',
+      error: error.message
+    });
+  }
+};
+
+
+/**
  * Send notification email to company
  * @param {Object} contact - Contact submission data
  */
