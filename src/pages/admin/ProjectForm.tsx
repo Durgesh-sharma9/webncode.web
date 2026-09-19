@@ -12,6 +12,10 @@ export default function ProjectForm() {
 
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('Education')
+  const [availableCategories, setAvailableCategories] = useState<string[]>(CATEGORIES)
+  const [isCreatingCat, setIsCreatingCat] = useState(false)
+  const [newCatInput, setNewCatInput] = useState('')
+  const [isSavingNewCat, setIsSavingNewCat] = useState(false)
   const [shortDescription, setShortDescription] = useState('')
   const [description, setDescription] = useState('')
   const [demoUrl, setDemoUrl] = useState('')
@@ -54,6 +58,58 @@ export default function ProjectForm() {
 
     fetchProject()
   }, [id])
+
+  // Fetch dynamic categories from server
+  useEffect(() => {
+    const fetchCats = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/api/categories`)
+        if (res.data?.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
+          const names = res.data.data.map((c: any) => c.name)
+          setAvailableCategories(Array.from(new Set([...names, ...CATEGORIES])))
+        }
+      } catch (err) {
+        console.warn('Using fallback categories:', err)
+      }
+    }
+    fetchCats()
+  }, [])
+
+  const handleQuickCreateCategory = async () => {
+    const trimmed = newCatInput.trim()
+    if (!trimmed) {
+      showErrorToast('Category name cannot be empty')
+      return
+    }
+
+    try {
+      setIsSavingNewCat(true)
+      const res = await axios.post(
+        `${API_BASE}/api/categories`,
+        { name: trimmed },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      if (res.data?.success) {
+        showSuccessToast(`Category "${trimmed}" created & selected!`)
+        setAvailableCategories((prev) => Array.from(new Set([trimmed, ...prev])))
+        setCategory(trimmed)
+        setNewCatInput('')
+        setIsCreatingCat(false)
+      }
+    } catch (err: any) {
+      // If already exists, just select it
+      if (err.response?.data?.message?.includes('already exists')) {
+        setAvailableCategories((prev) => Array.from(new Set([trimmed, ...prev])))
+        setCategory(trimmed)
+        setIsCreatingCat(false)
+        showSuccessToast(`Selected existing category "${trimmed}"`)
+      } else {
+        showErrorToast(err.response?.data?.message || 'Failed to create category')
+      }
+    } finally {
+      setIsSavingNewCat(false)
+    }
+  }
 
   // Feature handling
   const handleFeatureChange = (index: number, val: string) => {
@@ -220,20 +276,60 @@ export default function ProjectForm() {
             </div>
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-700 mb-2">
-                Industry / Category
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-4 py-3 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-sm font-bold text-slate-900 focus:bg-white shadow-[2px_2px_0px_0px_#000] outline-none cursor-pointer"
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-black uppercase tracking-wider text-slate-700">
+                  Industry / Category *
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsCreatingCat((v) => !v)}
+                  className="text-[11px] font-black uppercase text-blue-600 hover:text-blue-800 underline cursor-pointer"
+                >
+                  {isCreatingCat ? '✕ Cancel' : '+ New Category'}
+                </button>
+              </div>
+
+              {isCreatingCat ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="Type new category..."
+                    value={newCatInput}
+                    onChange={(e) => setNewCatInput(e.target.value)}
+                    className="flex-1 px-3 py-2.5 bg-amber-50 border-2 border-slate-900 rounded-lg text-xs font-bold text-slate-900 focus:bg-white shadow-[2px_2px_0px_0px_#000] outline-none"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={handleQuickCreateCategory}
+                    disabled={isSavingNewCat}
+                    className="px-3 py-2.5 bg-[#fde047] hover:bg-[#facc15] text-slate-950 border-2 border-slate-900 rounded-lg text-xs font-black uppercase shadow-[2px_2px_0px_0px_#000]"
+                  >
+                    {isSavingNewCat ? '...' : 'Add'}
+                  </button>
+                </div>
+              ) : (
+                <select
+                  value={category}
+                  onChange={(e) => {
+                    if (e.target.value === '__new__') {
+                      setIsCreatingCat(true)
+                    } else {
+                      setCategory(e.target.value)
+                    }
+                  }}
+                  className="w-full px-4 py-3 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-sm font-bold text-slate-900 focus:bg-white shadow-[2px_2px_0px_0px_#000] outline-none cursor-pointer"
+                >
+                  {availableCategories.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                  <option value="__new__" className="text-blue-600 font-bold">
+                    + Create New Category...
                   </option>
-                ))}
-              </select>
+                </select>
+              )}
             </div>
           </div>
 

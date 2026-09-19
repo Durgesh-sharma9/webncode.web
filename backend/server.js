@@ -11,6 +11,7 @@ const projectRoutes = require('./routes/projectRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const developerRoutes = require('./routes/developerRoutes');
 const updateRoutes = require('./routes/updateRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
 
 // Load environment variables from .env file
 dotenv.config();
@@ -61,6 +62,9 @@ app.use('/api/developers', developerRoutes);
 
 // Mount updates routes at /api/updates
 app.use('/api/updates', updateRoutes);
+
+// Mount categories routes at /api/categories
+app.use('/api/categories', categoryRoutes);
 
 // Root endpoint for health check
 app.get('/', (req, res) => {

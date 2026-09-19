@@ -72,7 +72,8 @@ exports.getAllContacts = async (req, res) => {
     res.status(200).json({
       success: true,
       count: contacts.length,
-      data: contacts
+      data: contacts,
+      contacts: contacts
     });
 
   } catch (error) {

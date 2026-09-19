@@ -89,6 +89,17 @@ export interface DeveloperItem {
   createdAt?: string
 }
 
+export interface CategoryItem {
+  _id: string
+  name: string
+  slug: string
+  color?: string
+  description?: string
+  projectCount?: number
+  order?: number
+  createdAt?: string
+}
+
 export const CATEGORIES = [
   'Education',
   'Operations',

@@ -1,9 +1,10 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../../contexts/AuthContext'
 import { showSuccessToast, showErrorToast } from '../../components/ui/Toast'
-import { type ProjectItem, API_BASE } from './types'
+import { type ProjectItem, type CategoryItem, API_BASE } from './types'
+import CategoryModal from './CategoryModal'
 
 const CATEGORY_COLORS: Record<string, string> = {
   Education:  'bg-blue-200 border-blue-700 text-blue-900',
@@ -21,10 +22,23 @@ export default function ProjectsTab() {
   const { token } = useAuth()
   const navigate = useNavigate()
   const [projects, setProjects] = useState<ProjectItem[]>([])
+  const [dbCategories, setDbCategories] = useState<CategoryItem[]>([])
+  const [isCatModalOpen, setIsCatModalOpen] = useState(false)
   const [isLoadingProjects, setIsLoadingProjects] = useState(false)
   const [projectSearch, setProjectSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('All')
   const [featuredOnly, setFeaturedOnly] = useState(false)
+
+  const fetchCategories = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/api/categories`)
+      if (res.data?.success && Array.isArray(res.data.data)) {
+        setDbCategories(res.data.data)
+      }
+    } catch (err) {
+      console.warn('Failed to load dynamic categories:', err)
+    }
+  }
 
   const fetchProjects = async () => {
     try {
@@ -43,6 +57,7 @@ export default function ProjectsTab() {
 
   useEffect(() => {
     fetchProjects()
+    fetchCategories()
   }, [])
 
   const handleToggleFeatured = async (proj: ProjectItem) => {
@@ -86,8 +101,13 @@ export default function ProjectsTab() {
     }
   }
 
-  // Derive unique categories from loaded projects
-  const categories = ['All', ...Array.from(new Set(projects.map((p) => p.category))).sort()]
+  // Combine DB categories with any categories present on projects
+  const categoryNamesSet = new Set<string>()
+  dbCategories.forEach((c) => categoryNamesSet.add(c.name))
+  projects.forEach((p) => {
+    if (p.category) categoryNamesSet.add(p.category)
+  })
+  const categories = ['All', ...Array.from(categoryNamesSet)]
 
   const filteredProjects = projects.filter((p) => {
     const q = projectSearch.toLowerCase()
@@ -174,35 +194,52 @@ export default function ProjectsTab() {
         </div>
       </div>
 
-      {/* Category Filter Pills */}
-      {categories.length > 1 && (
-        <div className="flex flex-wrap gap-2">
-          {categories.map((cat) => {
-            const count = cat === 'All' ? projects.length : projects.filter((p) => p.category === cat).length
-            const isActive = activeCategory === cat
-            return (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-3 py-1.5 border-2 border-slate-900 text-xs font-black uppercase rounded-lg shadow-[2px_2px_0px_0px_#000] transition-all cursor-pointer flex items-center gap-1.5 ${
-                  isActive
-                    ? 'bg-slate-900 text-white shadow-[2px_2px_0px_0px_#6366f1]'
-                    : 'bg-white hover:bg-slate-100 text-slate-700'
+      {/* Category Filter Pills & Manage Button */}
+      <div className="flex flex-wrap items-center gap-2">
+        {categories.map((cat) => {
+          const count = cat === 'All' ? projects.length : projects.filter((p) => p.category === cat).length
+          const isActive = activeCategory === cat
+          return (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-3 py-1.5 border-2 border-slate-900 text-xs font-black uppercase rounded-lg shadow-[2px_2px_0px_0px_#000] transition-all cursor-pointer flex items-center gap-1.5 ${
+                isActive
+                  ? 'bg-slate-900 text-white shadow-[2px_2px_0px_0px_#6366f1]'
+                  : 'bg-white hover:bg-slate-100 text-slate-700'
+              }`}
+            >
+              {cat}
+              <span
+                className={`px-1.5 py-0.5 rounded text-[9px] font-black border ${
+                  isActive ? 'bg-white text-slate-900 border-slate-300' : 'bg-slate-100 text-slate-700 border-slate-300'
                 }`}
               >
-                {cat}
-                <span
-                  className={`px-1.5 py-0.5 rounded text-[9px] font-black border ${
-                    isActive ? 'bg-white text-slate-900 border-slate-300' : 'bg-slate-100 text-slate-700 border-slate-300'
-                  }`}
-                >
-                  {count}
-                </span>
-              </button>
-            )
-          })}
-        </div>
-      )}
+                {count}
+              </span>
+            </button>
+          )
+        })}
+
+        <button
+          onClick={() => setIsCatModalOpen(true)}
+          className="px-3 py-1.5 border-2 border-slate-900 bg-[#fde047] hover:bg-[#facc15] text-slate-950 text-xs font-black uppercase rounded-lg shadow-[2px_2px_0px_0px_#000] transition-all cursor-pointer flex items-center gap-1.5 ml-auto sm:ml-0"
+        >
+          <span>🏷️</span>
+          <span>Manage Categories</span>
+        </button>
+      </div>
+
+      {/* Category Management Modal */}
+      <CategoryModal
+        categories={dbCategories}
+        isOpen={isCatModalOpen}
+        onClose={() => setIsCatModalOpen(false)}
+        onUpdated={() => {
+          fetchCategories()
+          fetchProjects()
+        }}
+      />
 
       {/* Projects Grid */}
       {isLoadingProjects ? (

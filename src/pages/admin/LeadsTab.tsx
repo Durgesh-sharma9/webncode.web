@@ -16,8 +16,9 @@ export default function LeadsTab() {
       const res = await axios.get(`${API_BASE}/api/contacts`, {
         headers: { Authorization: `Bearer ${token}` }
       })
-      if (res.data?.success && Array.isArray(res.data.contacts)) {
-        setContacts(res.data.contacts)
+      const list = res.data?.data || res.data?.contacts || []
+      if (res.data?.success && Array.isArray(list)) {
+        setContacts(list)
       }
     } catch (err: any) {
       console.error('Failed to load contacts:', err)

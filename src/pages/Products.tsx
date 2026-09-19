@@ -11,7 +11,25 @@ export default function Products() {
   const [category, setCategory] = useState('All')
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false)
   const [dynamicProducts, setDynamicProducts] = useState<Product[]>([])
+  const [categoriesList, setCategoriesList] = useState<string[]>(Array.from(productCategories))
   const panelRef = useRef<HTMLDivElement | null>(null)
+
+  // Fetch dynamic categories from API
+  useEffect(() => {
+    const fetchDynamicCategories = async () => {
+      try {
+        const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+        const res = await axios.get(`${API_BASE}/api/categories`)
+        if (res.data?.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
+          const names = res.data.data.map((c: any) => c.name)
+          setCategoriesList(['All', ...Array.from(new Set([...names]))])
+        }
+      } catch (err) {
+        console.warn('Using static productCategories:', err)
+      }
+    }
+    fetchDynamicCategories()
+  }, [])
 
   // Handle outside click to close the dropdown panel
   useEffect(() => {
@@ -163,7 +181,7 @@ export default function Products() {
                     <div className="space-y-2">
                       <span className="text-[10px] font-black uppercase tracking-wider font-mono text-slate-500">Categories</span>
                       <div className="flex flex-wrap gap-2">
-                        {productCategories.map((cat) => (
+                        {categoriesList.map((cat) => (
                           <motion.button
                             whileHover={{ scale: 1.03 }}
                             whileTap={{ scale: 0.97 }}

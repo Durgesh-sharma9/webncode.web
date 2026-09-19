@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import axios from 'axios'
 import { showSuccessToast, showErrorToast } from '../../components/ui/Toast'
 import { API_BASE } from './types'
+import logoImg from '../../assets/logoooo.png'
 
 export default function AdminLayout() {
   const { user, token, isAuthenticated, isLoading, logout } = useAuth()
@@ -121,9 +122,13 @@ export default function AdminLayout() {
           {/* Top Brand Block */}
           <div>
             <div className="p-4 border-b-2 border-slate-900 flex items-center justify-between bg-[#fde047]">
-              <Link to="/admin" className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-slate-900 text-white font-black flex items-center justify-center text-sm shadow-[1.5px_1.5px_0px_0px_#000]">
-                  &lt;w&gt;
+              <Link to="/admin" className="flex items-center gap-2.5 group">
+                <div className="h-9 w-9 rounded-lg bg-white border-2 border-slate-900 flex items-center justify-center p-1 shadow-[2px_2px_0px_0px_#000] shrink-0 group-hover:translate-x-[-1px] group-hover:translate-y-[-1px] transition-transform">
+                  <img
+                    src={logoImg}
+                    alt="Web n Code"
+                    className="h-full w-full object-contain"
+                  />
                 </div>
                 <div>
                   <div className="text-xs font-black uppercase tracking-wider text-slate-950 leading-none">
