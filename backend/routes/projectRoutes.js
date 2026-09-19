@@ -5,8 +5,10 @@ const {
   createProject,
   getAllProjects,
   getProjectBySlug,
+  getProjectById,
   updateProject,
-  deleteProject
+  deleteProject,
+  toggleFeatureProject
 } = require('../controllers/projectController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -27,11 +29,20 @@ const upload = multer({
 // GET /api/projects - Public: List all projects
 router.get('/', getAllProjects);
 
-// GET /api/projects/:slug - Public: Get project details
+// GET /api/projects/id/:id - Public: Get project details by MongoDB ObjectId
+router.get('/id/:id', getProjectById);
+
+// GET /api/projects/:slug - Public: Get project details by slug or ID
 router.get('/:slug', getProjectBySlug);
 
 // POST /api/projects - Protected: Create new project & upload images to ImageKit
 router.post('/', protect, upload.array('images', 8), createProject);
+
+// PATCH /api/projects/:id/feature - Protected: Toggle featured status
+router.patch('/:id/feature', protect, toggleFeatureProject);
+
+// PUT /api/projects/:id/feature - Protected: Set featured status (alias)
+router.put('/:id/feature', protect, toggleFeatureProject);
 
 // PUT /api/projects/:id - Protected: Edit project & add new images
 router.put('/:id', protect, upload.array('images', 8), updateProject);

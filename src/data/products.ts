@@ -100,9 +100,7 @@ export const products: Product[] = [
     color: '#7C3AED',
     accentColor: '#EDE9FE',
     screenshots: [
-      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop',
+      'https://ik.imagekit.io/2qoga5wjp/webncode/projects/web-builder-pro/web-builder-1.jpg'
     ],
     demoUrl: 'https://demo.webncode.com/web-builder-pro',
   },
@@ -180,9 +178,7 @@ export const products: Product[] = [
     color: '#F97316',
     accentColor: '#FFEDD5',
     screenshots: [
-      'https://images.unsplash.com/photo-151749763962-0c623066013b?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1547347298-4074fc3086f0?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1200&auto=format&fit=crop',
+      'https://ik.imagekit.io/2qoga5wjp/webncode/projects/star-sports/star-sports-1.jpg'
     ],
     demoUrl: 'https://demo.webncode.com/star-sports',
   },
@@ -276,8 +272,7 @@ export const products: Product[] = [
     color: '#8B5CF6',
     accentColor: '#EDE9FE',
     screenshots: [
-      'https://images.unsplash.com/photo-1521737711867-e3b90473bd58?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1553877522-43269d4ea984?q=80&w=1200&auto=format&fit=crop'
+      'https://ik.imagekit.io/2qoga5wjp/webncode/projects/hirehub/hirehub-1.jpg'
     ],
     demoUrl: 'https://demo.webncode.com/hirehub',
   },
@@ -395,11 +390,9 @@ export const products: Product[] = [
     color: '#2563EB',
     accentColor: '#DBEAFE',
     screenshots: [
-      ttp1,
-      ttp2,
-      ttp3,
+      'https://ik.imagekit.io/2qoga5wjp/webncode/projects/broker-connect/broker-connect-1.jpg'
     ],
-    demoUrl: 'https://demo.webncode.com/timetable-pro',
+    demoUrl: 'https://demo.webncode.com/broker-connect',
   },
 
   

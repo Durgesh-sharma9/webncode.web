@@ -43,8 +43,9 @@ app.use('/api/auth', authRoutes);
 // Mount project routes at /api/projects
 app.use('/api/projects', projectRoutes);
 
-// Mount contact routes at /api/contact
+// Mount contact routes at /api/contact and /api/contacts
 app.use('/api/contact', contactRoutes);
+app.use('/api/contacts', contactRoutes);
 
 // Mount career routes at /api/careers
 app.use('/api/careers', careerRoutes);
@@ -96,3 +97,5 @@ process.on('uncaughtException', (err) => {
   // Close server & exit process
   process.exit(1);
 });
+
+// Server initialized successfully

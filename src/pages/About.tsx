@@ -17,7 +17,6 @@ import pranav2 from '../assets/team/pranav2.png'
 import dev1 from '../assets/team/dev1.png'
 import dev2 from '../assets/team/dev2.png'
 
-// const amitImg = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80"
 
 const themeGradients = [
   { bg: 'bg-[#ffa07a]', border: 'border-orange-500', bannerBg: 'bg-[#ff6c4a]' },

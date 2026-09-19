@@ -14,7 +14,7 @@ export default function CareersTab() {
   const fetchApplications = async () => {
     try {
       setIsLoadingApplications(true)
-      const res = await axios.get(`${API_BASE}/api/careers/all`, {
+      const res = await axios.get(`${API_BASE}/api/careers`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       if (res.data?.success && Array.isArray(res.data.data)) {

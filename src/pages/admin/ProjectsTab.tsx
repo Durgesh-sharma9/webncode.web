@@ -1,9 +1,21 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../../contexts/AuthContext'
 import { showSuccessToast, showErrorToast } from '../../components/ui/Toast'
 import { type ProjectItem, API_BASE } from './types'
+
+const CATEGORY_COLORS: Record<string, string> = {
+  Education:  'bg-blue-200 border-blue-700 text-blue-900',
+  Sports:     'bg-orange-200 border-orange-700 text-orange-900',
+  HR:         'bg-purple-200 border-purple-700 text-purple-900',
+  Services:   'bg-emerald-200 border-emerald-700 text-emerald-900',
+  Analytics:  'bg-pink-200 border-pink-700 text-pink-900',
+  Operations: 'bg-amber-200 border-amber-700 text-amber-900',
+}
+
+const getCatColor = (cat: string) =>
+  CATEGORY_COLORS[cat] ?? 'bg-slate-200 border-slate-700 text-slate-900'
 
 export default function ProjectsTab() {
   const { token } = useAuth()
@@ -11,6 +23,8 @@ export default function ProjectsTab() {
   const [projects, setProjects] = useState<ProjectItem[]>([])
   const [isLoadingProjects, setIsLoadingProjects] = useState(false)
   const [projectSearch, setProjectSearch] = useState('')
+  const [activeCategory, setActiveCategory] = useState('All')
+  const [featuredOnly, setFeaturedOnly] = useState(false)
 
   const fetchProjects = async () => {
     try {
@@ -59,7 +73,6 @@ export default function ProjectsTab() {
     if (!window.confirm(`Are you sure you want to delete "${projTitle}"?`)) {
       return
     }
-
     try {
       const res = await axios.delete(`${API_BASE}/api/projects/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -73,15 +86,22 @@ export default function ProjectsTab() {
     }
   }
 
+  // Derive unique categories from loaded projects
+  const categories = ['All', ...Array.from(new Set(projects.map((p) => p.category))).sort()]
+
   const filteredProjects = projects.filter((p) => {
     const q = projectSearch.toLowerCase()
-    return (
+    const matchSearch =
       p.title.toLowerCase().includes(q) ||
       p.category.toLowerCase().includes(q) ||
       p.shortDescription.toLowerCase().includes(q) ||
       p.tags?.some((t) => t.toLowerCase().includes(q))
-    )
+    const matchCategory = activeCategory === 'All' || p.category === activeCategory
+    const matchFeatured = !featuredOnly || p.isFeatured
+    return matchSearch && matchCategory && matchFeatured
   })
+
+  const featuredCount = projects.filter((p) => p.isFeatured).length
 
   return (
     <div className="space-y-4 font-mono">
@@ -92,7 +112,7 @@ export default function ProjectsTab() {
             PORTFOLIO DIRECTORY
           </span>
           <h2 className="text-xl sm:text-2xl font-black uppercase text-slate-900 mt-1">
-            Projects & Products ({projects.length})
+            Projects &amp; Products ({projects.length})
           </h2>
           <p className="text-xs text-slate-600 font-bold">
             Manage your SaaS products, live demos, and feature items in the Homepage 3D window
@@ -117,14 +137,14 @@ export default function ProjectsTab() {
         </div>
       </div>
 
-      {/* Filter & Search Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 bg-white border-2 border-slate-900 p-3 rounded-xl shadow-[3px_3px_0px_0px_#0f172a]">
+      {/* Search + Featured Filter Row */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 bg-white border-2 border-slate-900 p-3 rounded-xl shadow-[3px_3px_0px_0px_#0f172a]">
         <div className="relative flex-1">
           <input
             type="text"
             value={projectSearch}
             onChange={(e) => setProjectSearch(e.target.value)}
-            placeholder="Search projects by title, category, features, tags..."
+            placeholder="Search by title, category, features..."
             className="w-full pl-8 pr-7 py-2 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-xs font-bold text-slate-900 focus:bg-white shadow-[1px_1px_0px_0px_rgba(0,0,0,0.1)] outline-none"
           />
           <span className="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
@@ -138,10 +158,51 @@ export default function ProjectsTab() {
           )}
         </div>
 
-        <div className="text-[11px] font-bold text-slate-500">
-          Showing {filteredProjects.length} of {projects.length}
+        <button
+          onClick={() => setFeaturedOnly((f) => !f)}
+          className={`px-3 py-2 border-2 border-slate-900 text-xs font-black uppercase rounded-lg shadow-[2px_2px_0px_0px_#000] transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+            featuredOnly
+              ? 'bg-amber-300 hover:bg-amber-400 text-slate-900'
+              : 'bg-white hover:bg-amber-50 text-slate-700'
+          }`}
+        >
+          ⭐ Hero Showcase {featuredOnly ? `(${featuredCount})` : ''}
+        </button>
+
+        <div className="text-[11px] font-bold text-slate-500 whitespace-nowrap">
+          {filteredProjects.length} / {projects.length} shown
         </div>
       </div>
+
+      {/* Category Filter Pills */}
+      {categories.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          {categories.map((cat) => {
+            const count = cat === 'All' ? projects.length : projects.filter((p) => p.category === cat).length
+            const isActive = activeCategory === cat
+            return (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`px-3 py-1.5 border-2 border-slate-900 text-xs font-black uppercase rounded-lg shadow-[2px_2px_0px_0px_#000] transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isActive
+                    ? 'bg-slate-900 text-white shadow-[2px_2px_0px_0px_#6366f1]'
+                    : 'bg-white hover:bg-slate-100 text-slate-700'
+                }`}
+              >
+                {cat}
+                <span
+                  className={`px-1.5 py-0.5 rounded text-[9px] font-black border ${
+                    isActive ? 'bg-white text-slate-900 border-slate-300' : 'bg-slate-100 text-slate-700 border-slate-300'
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       {/* Projects Grid */}
       {isLoadingProjects ? (
@@ -153,16 +214,26 @@ export default function ProjectsTab() {
           <div className="text-3xl mb-2">📁</div>
           <h3 className="text-sm font-black text-slate-900 uppercase">No Projects Found</h3>
           <p className="text-xs text-slate-600 mt-1 max-w-sm mx-auto font-bold mb-4">
-            {projectSearch
-              ? 'No projects match your search query.'
+            {projectSearch || activeCategory !== 'All' || featuredOnly
+              ? 'No projects match your current filters.'
               : 'Add your first SaaS software or client solution!'}
           </p>
-          <Link
-            to="/admin/projects/new"
-            className="px-4 py-2 bg-[#fde047] hover:bg-[#facc15] border-2 border-slate-900 text-slate-900 text-xs font-black uppercase rounded-lg shadow-[2px_2px_0px_0px_#000] inline-block"
-          >
-            + Create First Project
-          </Link>
+          {!projectSearch && activeCategory === 'All' && !featuredOnly && (
+            <Link
+              to="/admin/projects/new"
+              className="px-4 py-2 bg-[#fde047] hover:bg-[#facc15] border-2 border-slate-900 text-slate-900 text-xs font-black uppercase rounded-lg shadow-[2px_2px_0px_0px_#000] inline-block"
+            >
+              + Create First Project
+            </Link>
+          )}
+          {(projectSearch || activeCategory !== 'All' || featuredOnly) && (
+            <button
+              onClick={() => { setProjectSearch(''); setActiveCategory('All'); setFeaturedOnly(false) }}
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 border-2 border-slate-900 text-slate-900 text-xs font-black uppercase rounded-lg shadow-[2px_2px_0px_0px_#000] cursor-pointer"
+            >
+              Clear Filters
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -190,12 +261,12 @@ export default function ProjectsTab() {
                 {/* Category & Hero Showcase Tag */}
                 <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="px-2 py-0.5 bg-[#ff9e7d] border-2 border-slate-900 text-slate-900 text-[10px] font-black uppercase rounded shadow-[1px_1px_0px_0px_#000]">
+                    <span className={`px-2 py-0.5 border-2 text-[10px] font-black uppercase rounded shadow-[1px_1px_0px_0px_#000] ${getCatColor(proj.category)}`}>
                       {proj.category}
                     </span>
                     {proj.isFeatured && (
                       <span className="px-2 py-0.5 bg-amber-300 border-2 border-slate-900 text-slate-950 text-[10px] font-black uppercase rounded shadow-[1px_1px_0px_0px_#000] flex items-center gap-1">
-                        <span>🌟</span> Hero Showcase
+                        <span>🌟</span> Hero
                       </span>
                     )}
                   </div>
@@ -220,6 +291,11 @@ export default function ProjectsTab() {
                         <span className="truncate">{feat}</span>
                       </div>
                     ))}
+                    {proj.features.length > 2 && (
+                      <div className="text-[10px] text-slate-400 font-bold">
+                        +{proj.features.length - 2} more features
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -232,7 +308,7 @@ export default function ProjectsTab() {
                     target="_blank"
                     className="text-xs font-black text-blue-700 hover:underline"
                   >
-                    View Page ↗
+                    View ↗
                   </Link>
                   {proj.demoUrl && (
                     <a
@@ -241,7 +317,7 @@ export default function ProjectsTab() {
                       rel="noopener noreferrer"
                       className="text-xs font-black text-emerald-700 hover:underline"
                     >
-                      Live Demo ↗
+                      Demo ↗
                     </a>
                   )}
                 </div>
@@ -257,7 +333,7 @@ export default function ProjectsTab() {
                     }`}
                     title="Toggle whether this product appears in the Homepage Hero Browser Window"
                   >
-                    {proj.isFeatured ? '⭐ In Hero' : '☆ Add to Hero'}
+                    {proj.isFeatured ? '⭐ In Hero' : '☆ Hero'}
                   </button>
 
                   <button

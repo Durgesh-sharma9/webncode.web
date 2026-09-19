@@ -224,3 +224,38 @@ exports.deleteApplication = async (req, res) => {
     });
   }
 };
+
+/**
+ * Update application status / review notes
+ * PATCH /api/careers/:id/status
+ */
+exports.updateApplicationStatus = async (req, res) => {
+  try {
+    const { status, notes } = req.body;
+    const application = await Application.findById(req.params.id);
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: 'Application not found'
+      });
+    }
+
+    if (status) application.status = status;
+    if (notes !== undefined) application.notes = notes;
+
+    await application.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Status updated successfully',
+      data: application
+    });
+  } catch (error) {
+    console.error('Error updating application status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error updating application status',
+      error: error.message
+    });
+  }
+};

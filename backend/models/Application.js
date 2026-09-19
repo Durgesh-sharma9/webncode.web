@@ -37,7 +37,15 @@ const applicationSchema = new mongoose.Schema({
   resumeUrl: { type: String },
 
   // SECTION 7: Declaration
-  declaration: { type: Boolean, required: true }
+  declaration: { type: Boolean, required: true },
+
+  // SECTION 8: Review & Status Tracking
+  status: {
+    type: String,
+    enum: ['pending', 'reviewed', 'shortlisted', 'rejected', 'hired'],
+    default: 'pending'
+  },
+  notes: { type: String }
 
 }, { timestamps: true });
 

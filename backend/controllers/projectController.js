@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Project = require('../models/Project');
 const imagekit = require('../config/imagekit');
 
@@ -141,7 +142,7 @@ exports.getAllProjects = async (req, res) => {
         ],
         demoUrl: 'https://timetablepro.webncode.in/',
         images: [
-          'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80'
+          'https://ik.imagekit.io/2qoga5wjp/webncode/projects/timetable-pro/ttp1.jpeg'
         ],
         isFeatured: true,
         color: '#2563EB',
@@ -166,13 +167,22 @@ exports.getAllProjects = async (req, res) => {
 };
 
 /**
- * Get single Project by slug
+ * Get single Project by slug or MongoDB _id
  * GET /api/projects/:slug
  * Public
  */
 exports.getProjectBySlug = async (req, res) => {
   try {
-    const project = await Project.findOne({ slug: req.params.slug });
+    const param = req.params.slug;
+    let project = null;
+
+    if (mongoose.Types.ObjectId.isValid(param)) {
+      project = await Project.findById(param);
+    }
+    if (!project) {
+      project = await Project.findOne({ slug: param });
+    }
+
     if (!project) {
       return res.status(404).json({
         success: false,
@@ -186,6 +196,43 @@ exports.getProjectBySlug = async (req, res) => {
     });
   } catch (error) {
     console.error('Get project error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch project',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Get single Project by ID
+ * GET /api/projects/id/:id
+ * Public / Protected
+ */
+exports.getProjectById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid project ID format'
+      });
+    }
+
+    const project = await Project.findById(id);
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: project
+    });
+  } catch (error) {
+    console.error('Get project by id error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch project',
@@ -324,6 +371,44 @@ exports.deleteProject = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to delete project',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Toggle or set project featured status in Homepage 3D window
+ * PATCH /api/projects/:id/feature
+ * PUT /api/projects/:id/feature
+ */
+exports.toggleFeatureProject = async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found'
+      });
+    }
+
+    if (typeof req.body.isFeatured === 'boolean') {
+      project.isFeatured = req.body.isFeatured;
+    } else {
+      project.isFeatured = !project.isFeatured;
+    }
+
+    await project.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Project ${project.isFeatured ? 'featured in' : 'removed from'} hero showcase`,
+      data: project
+    });
+  } catch (error) {
+    console.error('Toggle featured project error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update feature status',
       error: error.message
     });
   }
