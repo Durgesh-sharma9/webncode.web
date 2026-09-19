@@ -57,6 +57,19 @@ export interface ProjectItem {
   createdAt: string
 }
 
+export interface UpdateItem {
+  _id: string
+  title: string
+  slug: string
+  excerpt: string
+  content: string
+  date: string
+  category: 'Product' | 'Company' | 'Careers'
+  featured: boolean
+  createdAt?: string
+  updatedAt?: string
+}
+
 export interface DeveloperItem {
   _id: string
   name: string

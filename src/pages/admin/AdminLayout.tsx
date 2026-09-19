@@ -80,6 +80,7 @@ export default function AdminLayout() {
     { to: '/admin/developers', label: 'Developers Team', icon: '👨‍💻' },
     { to: '/admin/projects', label: 'Projects Directory', icon: '📁' },
     { to: '/admin/projects/new', label: '+ Add Project', icon: '✨' },
+    { to: '/admin/updates', label: 'Updates & News', icon: '📢' },
   ]
 
   // Determine active section title for topbar breadcrumb

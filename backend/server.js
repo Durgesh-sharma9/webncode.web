@@ -1,3 +1,5 @@
+const dns = require('dns');
+try { dns.setServers(['8.8.8.8', '1.1.1.1']); } catch (e) {}
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -8,6 +10,7 @@ const authRoutes = require('./routes/authRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const developerRoutes = require('./routes/developerRoutes');
+const updateRoutes = require('./routes/updateRoutes');
 
 // Load environment variables from .env file
 dotenv.config();
@@ -55,6 +58,9 @@ app.use('/api/settings', settingsRoutes);
 
 // Mount developers routes at /api/developers
 app.use('/api/developers', developerRoutes);
+
+// Mount updates routes at /api/updates
+app.use('/api/updates', updateRoutes);
 
 // Root endpoint for health check
 app.get('/', (req, res) => {

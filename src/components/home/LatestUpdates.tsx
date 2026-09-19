@@ -1,8 +1,12 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import axios from 'axios'
 import SectionHeading from '../ui/SectionHeading'
-import { updates, formatDate } from '../../data/updates'
+import { updates as fallbackUpdates, formatDate, type Update } from '../../data/updates'
 import { ArrowRightIcon } from '../ui/Icons'
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000'
 
 // Strict Neo-brutalist solid tone tracking cards mapping
 const categoryColors: Record<string, string> = {
@@ -12,7 +16,33 @@ const categoryColors: Record<string, string> = {
 }
 
 export default function LatestUpdates() {
-  const featured = updates.filter((u) => u.featured).slice(0, 3)
+  const [featured, setFeatured] = useState<Update[]>(() =>
+    fallbackUpdates.filter((u) => u.featured).slice(0, 3)
+  )
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/api/updates?featured=true`)
+        if (res.data?.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
+          const mapped: Update[] = res.data.data.slice(0, 3).map((u: any) => ({
+            id: u._id || u.id || u.slug,
+            slug: u.slug,
+            title: u.title,
+            excerpt: u.excerpt,
+            content: u.content,
+            date: u.date,
+            category: u.category,
+            featured: u.featured,
+          }))
+          setFeatured(mapped)
+        }
+      } catch (err) {
+        console.warn('Could not load dynamic featured updates, using static fallback:', err)
+      }
+    }
+    fetchFeatured()
+  }, [])
 
   return (
     <section className="section-padding bg-[#fafafa] border-b-2 border-slate-900 relative">

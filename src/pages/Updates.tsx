@@ -1,6 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { updates, formatDate, type Update } from '../data/updates'
+import axios from 'axios'
+import { updates as fallbackUpdates, formatDate, type Update } from '../data/updates'
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000'
 
 const categories = ['All', 'Product', 'Company', 'Careers'] as const
 
@@ -31,7 +34,7 @@ function UpdateModal({ update, onClose }: { update: Update; onClose: () => void 
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <span className={`rounded px-2.5 py-0.5 text-[10px] font-black uppercase font-mono tracking-wider ${categoryColors[update.category]}`}>
+          <span className={`rounded px-2.5 py-0.5 text-[10px] font-black uppercase font-mono tracking-wider ${categoryColors[update.category] || 'bg-slate-200 text-slate-900 border border-slate-900'}`}>
             {update.category}
           </span>
           <button 
@@ -46,7 +49,7 @@ function UpdateModal({ update, onClose }: { update: Update; onClose: () => void 
           {update.title}
         </h2>
         <hr className="my-4 border-t-2 border-slate-900/10" />
-        <p className="text-sm font-medium leading-relaxed text-slate-700">{update.content}</p>
+        <p className="text-sm font-medium leading-relaxed text-slate-700 whitespace-pre-line">{update.content}</p>
       </motion.article>
     </motion.div>
   )
@@ -55,8 +58,37 @@ function UpdateModal({ update, onClose }: { update: Update; onClose: () => void 
 export default function UpdatesPage() {
   const [filter, setFilter] = useState<string>('All')
   const [selected, setSelected] = useState<Update | null>(null)
+  const [items, setItems] = useState<Update[]>(fallbackUpdates)
+  const [isLoading, setIsLoading] = useState(false)
 
-  const filtered = updates.filter(
+  useEffect(() => {
+    const fetchUpdates = async () => {
+      try {
+        setIsLoading(true)
+        const res = await axios.get(`${API_BASE}/api/updates`)
+        if (res.data?.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
+          const mapped: Update[] = res.data.data.map((u: any) => ({
+            id: u._id || u.id || u.slug,
+            slug: u.slug,
+            title: u.title,
+            excerpt: u.excerpt,
+            content: u.content,
+            date: u.date,
+            category: u.category,
+            featured: u.featured,
+          }))
+          setItems(mapped)
+        }
+      } catch (err) {
+        console.warn('Could not fetch dynamic updates, using fallback seed data:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchUpdates()
+  }, [])
+
+  const filtered = items.filter(
     (u) => filter === 'All' || u.category === filter
   )
 

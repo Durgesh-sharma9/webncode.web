@@ -18,6 +18,7 @@ import CareersTab from './pages/admin/CareersTab'
 import DevelopersTab from './pages/admin/DevelopersTab'
 import ProjectsTab from './pages/admin/ProjectsTab'
 import ProjectForm from './pages/admin/ProjectForm'
+import UpdatesTab from './pages/admin/UpdatesTab'
 
 export default function App() {
   return (
@@ -51,6 +52,7 @@ export default function App() {
             <Route path="projects" element={<ProjectsTab />} />
             <Route path="projects/new" element={<ProjectForm />} />
             <Route path="projects/edit/:id" element={<ProjectForm />} />
+            <Route path="updates" element={<UpdatesTab />} />
           </Route>
         </Routes>
       </AuthProvider>
