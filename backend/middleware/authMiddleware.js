@@ -16,7 +16,8 @@ const protect = async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
 
       // Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const secret = process.env.JWT_SECRET || 'webncode_super_secret_jwt_key_2026_x89f';
+      const decoded = jwt.verify(token, secret);
 
       // Fetch user from decoded id (exclude password)
       let foundUser = null;
