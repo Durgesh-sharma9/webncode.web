@@ -48,7 +48,7 @@ export default function ProjectForm() {
           setFeatures(p.features && p.features.length > 0 ? p.features : [''])
           setExistingImages(p.images || [])
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error('Failed to load project details:', err)
         showErrorToast('Failed to load project details')
       } finally {
@@ -65,7 +65,7 @@ export default function ProjectForm() {
       try {
         const res = await axios.get(`${API_BASE}/api/categories`)
         if (res.data?.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
-          const names = res.data.data.map((c: any) => c.name)
+          const names = res.data.data.map((c: { name: string }) => c.name)
           setAvailableCategories(Array.from(new Set([...names, ...CATEGORIES])))
         }
       } catch (err) {
@@ -96,15 +96,16 @@ export default function ProjectForm() {
         setNewCatInput('')
         setIsCreatingCat(false)
       }
-    } catch (err: any) {
-      // If already exists, just select it
-      if (err.response?.data?.message?.includes('already exists')) {
+    } catch (err) {
+      const isAxios = axios.isAxiosError(err)
+      const errMessage = isAxios ? err.response?.data?.message : undefined
+      if (errMessage && typeof errMessage === 'string' && errMessage.includes('already exists')) {
         setAvailableCategories((prev) => Array.from(new Set([trimmed, ...prev])))
         setCategory(trimmed)
         setIsCreatingCat(false)
         showSuccessToast(`Selected existing category "${trimmed}"`)
       } else {
-        showErrorToast(err.response?.data?.message || 'Failed to create category')
+        showErrorToast(errMessage || 'Failed to create category')
       }
     } finally {
       setIsSavingNewCat(false)
@@ -206,9 +207,14 @@ export default function ProjectForm() {
           showErrorToast(res.data?.message || 'Failed to publish project')
         }
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Project save error:', err)
-      showErrorToast(err.response?.data?.message || err.message || 'Action failed')
+      const msg = axios.isAxiosError(err)
+        ? err.response?.data?.message
+        : err instanceof Error
+        ? err.message
+        : 'Action failed'
+      showErrorToast(msg || 'Action failed')
     } finally {
       setIsSubmitting(false)
       setUploadProgress(null)
