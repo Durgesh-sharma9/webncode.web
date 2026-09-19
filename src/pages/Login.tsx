@@ -793,42 +793,59 @@ export default function SuperAdminPortal() {
     <div className="min-h-screen bg-[#fafafa] text-slate-900 flex flex-col md:flex-row relative selection:bg-[#ff9e7d]">
       {/* Background Dot Grid */}
       <div
-        className="absolute inset-0 opacity-[0.09] pointer-events-none"
+        className="fixed inset-0 opacity-[0.09] pointer-events-none z-0"
         style={{
           backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)',
           backgroundSize: '24px 24px'
         }}
       />
 
-      {/* Mobile Top Header Bar */}
-      <div className="md:hidden bg-[#ebebeb] border-b-2 border-slate-900 p-3.5 flex items-center justify-between sticky top-0 z-50">
-        <Logo size="sm" />
+      {/* Mobile Top Header Bar (Only on small screens) */}
+      <div className="md:hidden bg-[#ebebeb] border-b-2 border-slate-900 p-3 flex items-center justify-between sticky top-0 z-50">
+        <Link to="/" className="flex items-center gap-2">
+          <img src={onlyLogo} alt="Web n Code" className="h-7 w-auto object-contain" />
+          <span className="rounded border border-slate-900 bg-amber-300 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider font-mono shadow-[1px_1px_0px_0px_#000]">
+            SUPERADMIN
+          </span>
+        </Link>
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="px-3 py-1.5 bg-white border-2 border-slate-900 rounded-lg text-xs font-mono font-bold text-slate-900 shadow-[2px_2px_0px_0px_#000] cursor-pointer"
+          className="px-2.5 py-1 bg-white border-2 border-slate-900 rounded-lg text-xs font-mono font-black text-slate-900 shadow-[2px_2px_0px_0px_#000] cursor-pointer"
         >
           {sidebarOpen ? '✕ Close' : '☰ Menu'}
         </button>
       </div>
 
-      {/* ================= DEDICATED LEFT SIDEBAR (LIGHT THEME) ================= */}
+      {/* ================= DEDICATED LEFT SIDEBAR (EXTENDS TO TOP: md:h-screen md:sticky md:top-0) ================= */}
       <aside
         className={`${
           sidebarOpen
             ? 'fixed inset-0 z-50 flex flex-col justify-between w-full bg-[#ebebeb] border-r-2 border-slate-900 p-5 overflow-y-auto'
             : 'hidden'
-        } md:relative md:flex md:flex-col md:justify-between md:w-64 md:shrink-0 md:bg-[#ebebeb] md:border-r-2 md:border-slate-900 md:p-5 md:z-40 md:min-h-screen md:sticky md:top-0`}
+        } md:flex md:flex-col md:justify-between md:w-72 md:shrink-0 md:bg-[#ebebeb] md:border-r-2 md:border-slate-900 md:p-5 md:sticky md:top-0 md:h-screen md:self-start md:overflow-y-auto`}
       >
         <div>
-          {/* Brand Header */}
-          <div className="pb-5 mb-6 border-b-2 border-slate-900/20">
-            <Logo size="md" />
-            <div className="flex items-center gap-1.5 mt-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span className="text-[10px] font-mono font-bold text-slate-600 uppercase">
-                SuperAdmin Online
+          {/* Top Brand: Just the <w> Logo - no overflowing text */}
+          <div className="pb-4 mb-5 border-b-2 border-slate-900/20 flex items-center justify-between">
+            <Link to="/" className="inline-flex items-center gap-2.5 group">
+              <img
+                src={onlyLogo}
+                alt="Web n Code"
+                className="h-10 w-auto object-contain transition-transform group-hover:scale-105"
+              />
+              <span className="px-2 py-0.5 rounded border border-slate-900 bg-amber-300 text-[10px] font-mono font-black shadow-[1.5px_1.5px_0px_0px_#000]">
+                SUPERADMIN
               </span>
-            </div>
+            </Link>
+
+            {sidebarOpen && (
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="md:hidden px-2.5 py-1 bg-white border-2 border-slate-900 rounded-lg text-xs font-mono font-black shadow-[1.5px_1.5px_0px_0px_#000]"
+              >
+                ✕ Close
+              </button>
+            )}
           </div>
 
           {/* Navigation Links */}
@@ -966,7 +983,7 @@ export default function SuperAdminPortal() {
         </div>
 
         {/* Bottom Profile & Sign Out */}
-        <div className="pt-5 mt-6 border-t-2 border-slate-900/20 space-y-3">
+        <div className="pt-4 mt-6 border-t-2 border-slate-900/20 space-y-3">
           <div className="p-3.5 bg-white rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_#000]">
             <div className="text-[10px] font-mono text-slate-500 uppercase font-black mb-0.5">
               Logged In As
@@ -985,6 +1002,75 @@ export default function SuperAdminPortal() {
           </button>
         </div>
       </aside>
+
+      {/* ================= RIGHT AREA: TOP NAVBAR + MAIN CONTENT ================= */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top Navbar */}
+        <header className="hidden md:flex sticky top-0 z-30 bg-[#ebebeb] border-b-2 border-slate-900 px-6 py-3 items-center justify-between shadow-[0_2px_0_0_#000]">
+          {/* Left: Breadcrumb / Active Status */}
+          <div className="flex items-center gap-3">
+            <span className="rounded border-2 border-slate-900 bg-white px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider font-mono shadow-[1.5px_1.5px_0px_0px_#000]">
+              CONSOLE
+            </span>
+            <span className="text-xs sm:text-sm font-mono font-black uppercase tracking-tight text-slate-900">
+              {activeTab === 'contacts' && '📬 Client Enquiries & Leads'}
+              {activeTab === 'careers' && '👥 Job Applications & Resumes'}
+              {activeTab === 'create' && (editingProjectId ? '✏️ Edit Project' : '⚡ Add New Project')}
+              {activeTab === 'manage' && '📁 Projects Directory'}
+            </span>
+            <span className="flex items-center gap-1.5 text-[11px] font-mono font-bold text-slate-600 pl-3 border-l-2 border-slate-900/30">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Live
+            </span>
+          </div>
+
+          {/* Right: Quick Floating Logos Toggle + Public Site + User + Sign Out */}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={toggleFloatingLogos}
+              disabled={isUpdatingFloatingLogos}
+              className={`px-3 py-1.5 border-2 border-slate-900 font-mono text-xs font-black uppercase rounded-lg flex items-center gap-2 shadow-[2px_2px_0px_0px_#000] cursor-pointer transition-all hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-60 ${
+                floatingLogosEnabled
+                  ? 'bg-amber-300 text-slate-950 hover:bg-amber-400'
+                  : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+              }`}
+              title="Toggle floating <w> logos globally for all visitors"
+            >
+              <span>
+                {isUpdatingFloatingLogos
+                  ? '⏳ Saving...'
+                  : floatingLogosEnabled
+                  ? '✨ <w> Logos: ON'
+                  : '⚪ <w> Logos: OFF'}
+              </span>
+            </button>
+
+            <Link
+              to="/"
+              target="_blank"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 border-2 border-slate-900 rounded-lg font-mono text-xs font-black uppercase text-slate-900 shadow-[2px_2px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] transition-all"
+            >
+              <span>🌐</span>
+              <span>Public Site ↗</span>
+            </Link>
+
+            <div className="flex items-center gap-2 px-3 py-1 bg-white border-2 border-slate-900 rounded-lg shadow-[2px_2px_0px_0px_#000]">
+              <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+              <div className="text-xs font-mono font-black text-slate-900 truncate max-w-[130px]">
+                {user.name}
+              </div>
+            </div>
+
+            <button
+              onClick={logout}
+              className="px-3.5 py-1.5 bg-rose-500 hover:bg-rose-600 text-white border-2 border-slate-900 rounded-lg font-mono text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] active:translate-y-[2px] transition-all cursor-pointer"
+            >
+              Sign Out
+            </button>
+          </div>
+        </header>
+
 
       {/* ================= MAIN CONTENT AREA (LIGHT NEO-BRUTALIST) ================= */}
       <main className="flex-1 p-4 sm:p-7 lg:p-10 overflow-y-auto max-w-6xl relative z-10">
@@ -1821,6 +1907,7 @@ export default function SuperAdminPortal() {
           </div>
         )}
       </main>
+      </div>
     </div>
   )
 }
