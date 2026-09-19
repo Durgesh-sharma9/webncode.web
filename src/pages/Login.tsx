@@ -4,6 +4,7 @@ import axios from 'axios'
 import { useAuth } from '../contexts/AuthContext'
 import { showSuccessToast, showErrorToast } from '../components/ui/Toast'
 import Logo from '../components/ui/Logo'
+import onlyLogo from '../assets/onlylogoo.png'
 
 interface ProjectItem {
   _id: string
@@ -67,6 +68,75 @@ const CATEGORIES = [
   'Custom'
 ]
 
+interface FloatingLogo {
+  id: number
+  size: number
+  side: 'left' | 'right'
+  offset: string
+  top: string
+  opacity: number
+  anim: string
+  duration: string
+  delay: string
+}
+
+const FLOATING_LOGOS: FloatingLogo[] = [
+  // Left Side — offsets mixed from 15px to 400px, heights random
+  { id: 1,  size: 44, side: 'left', offset: '18px',  top: '73%', opacity: 0.40, anim: 'floatSideA', duration: '5.8s', delay: '0s' },
+  { id: 2,  size: 72, side: 'left', offset: '140px', top: '11%', opacity: 0.30, anim: 'floatSideB', duration: '7.2s', delay: '0.6s' },
+  { id: 3,  size: 36, side: 'left', offset: '280px', top: '47%', opacity: 0.36, anim: 'floatSideC', duration: '5.5s', delay: '1.2s' },
+  { id: 4,  size: 58, side: 'left', offset: '60px',  top: '88%', opacity: 0.38, anim: 'floatSideD', duration: '6.4s', delay: '0.4s' },
+  { id: 5,  size: 90, side: 'left', offset: '22px',  top: '28%', opacity: 0.28, anim: 'floatSideA', duration: '8.0s', delay: '1.0s' },
+  { id: 6,  size: 48, side: 'left', offset: '190px', top: '61%', opacity: 0.34, anim: 'floatSideB', duration: '6.6s', delay: '1.8s' },
+  { id: 7,  size: 30, side: 'left', offset: '380px', top: '4%',  opacity: 0.38, anim: 'floatSideC', duration: '5.2s', delay: '0.2s' },
+  { id: 8,  size: 62, side: 'left', offset: '95px',  top: '38%', opacity: 0.36, anim: 'floatSideD', duration: '6.0s', delay: '2.0s' },
+  { id: 9,  size: 42, side: 'left', offset: '330px', top: '82%', opacity: 0.30, anim: 'floatSideA', duration: '7.4s', delay: '0.8s' },
+  { id: 10, size: 80, side: 'left', offset: '50px',  top: '17%', opacity: 0.26, anim: 'floatSideB', duration: '8.2s', delay: '1.5s' },
+
+  // Right Side — offsets mixed from 15px to 400px, heights random
+  { id: 11, size: 54, side: 'right', offset: '25px',  top: '35%', opacity: 0.38, anim: 'floatSideC', duration: '6.0s', delay: '0.2s' },
+  { id: 12, size: 76, side: 'right', offset: '170px', top: '7%',  opacity: 0.28, anim: 'floatSideD', duration: '7.8s', delay: '0.9s' },
+  { id: 13, size: 38, side: 'right', offset: '310px', top: '69%', opacity: 0.36, anim: 'floatSideA', duration: '5.6s', delay: '1.6s' },
+  { id: 14, size: 66, side: 'right', offset: '15px',  top: '91%', opacity: 0.40, anim: 'floatSideB', duration: '6.5s', delay: '0.5s' },
+  { id: 15, size: 84, side: 'right', offset: '220px', top: '52%', opacity: 0.26, anim: 'floatSideC', duration: '8.4s', delay: '1.3s' },
+  { id: 16, size: 46, side: 'right', offset: '75px',  top: '22%', opacity: 0.38, anim: 'floatSideD', duration: '6.2s', delay: '2.1s' },
+  { id: 17, size: 32, side: 'right', offset: '390px', top: '79%', opacity: 0.34, anim: 'floatSideA', duration: '5.4s', delay: '0.4s' },
+  { id: 18, size: 70, side: 'right', offset: '130px', top: '43%', opacity: 0.30, anim: 'floatSideB', duration: '7.0s', delay: '1.7s' },
+  { id: 19, size: 50, side: 'right', offset: '260px', top: '15%', opacity: 0.36, anim: 'floatSideC', duration: '6.8s', delay: '0.6s' },
+  { id: 20, size: 88, side: 'right', offset: '40px',  top: '58%', opacity: 0.24, anim: 'floatSideD', duration: '8.6s', delay: '1.1s' },
+]
+
+interface ScreenFloatingLogo {
+  id: number
+  size: number
+  top?: string
+  bottom?: string
+  left?: string
+  right?: string
+  opacity: number
+  anim: string
+  duration: string
+  delay: string
+}
+
+// Top Zone Floating Logos (Above the brand header - few, well-spaced)
+const TOP_FLOATING_LOGOS: ScreenFloatingLogo[] = [
+  { id: 201, size: 28, top: '18px', left: '6%',  opacity: 0.38, anim: 'floatTopA', duration: '5.8s', delay: '0s' },
+  { id: 202, size: 44, top: '14px', right: '10%', opacity: 0.35, anim: 'floatTopB', duration: '6.6s', delay: '0.7s' },
+  { id: 203, size: 22, top: '62px', left: '44%', opacity: 0.42, anim: 'floatTopA', duration: '5.2s', delay: '1.2s' },
+  { id: 204, size: 36, top: '60px', right: '5%', opacity: 0.36, anim: 'floatTopB', duration: '6.0s', delay: '0.4s' },
+]
+
+// Bottom Zone Floating Logos (Below the card & trust badge - few, varied sizes)
+const BOTTOM_FLOATING_LOGOS: ScreenFloatingLogo[] = [
+  { id: 301, size: 56, bottom: '18px', left: '5%',  opacity: 0.30, anim: 'floatBottomA', duration: '7.0s', delay: '0.3s' },
+  { id: 302, size: 72, bottom: '16px', right: '6%', opacity: 0.28, anim: 'floatBottomB', duration: '7.6s', delay: '0.8s' },
+  { id: 303, size: 30, bottom: '22px', left: '45%', opacity: 0.42, anim: 'floatBottomA', duration: '5.4s', delay: '1.4s' },
+  { id: 304, size: 46, bottom: '80px', left: '12%', opacity: 0.36, anim: 'floatBottomB', duration: '6.2s', delay: '0.5s' },
+  { id: 305, size: 38, bottom: '86px', right: '14%', opacity: 0.34, anim: 'floatBottomA', duration: '6.6s', delay: '1.9s' },
+  { id: 306, size: 24, bottom: '88px', left: '38%', opacity: 0.44, anim: 'floatBottomB', duration: '5.0s', delay: '0.6s' },
+]
+
 export default function SuperAdminPortal() {
   const { login, user, token, isAuthenticated, logout } = useAuth()
   const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000'
@@ -77,6 +147,61 @@ export default function SuperAdminPortal() {
   const [showPassword, setShowPassword] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const [isLoggingIn, setIsLoggingIn] = useState(false)
+
+  // Global Floating background logos toggle (synced with backend API & cached in localStorage)
+  const [floatingLogosEnabled, setFloatingLogosEnabled] = useState<boolean>(() => {
+    const saved = localStorage.getItem('wnc_login_floating_logos')
+    return saved !== null ? saved === 'true' : true
+  })
+  const [isUpdatingFloatingLogos, setIsUpdatingFloatingLogos] = useState(false)
+
+  // Fetch global setting from backend API on mount
+  useEffect(() => {
+    let isMounted = true
+    const fetchGlobalSetting = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/api/settings/floating-logos`)
+        if (isMounted && res.data && typeof res.data.enabled === 'boolean') {
+          setFloatingLogosEnabled(res.data.enabled)
+          localStorage.setItem('wnc_login_floating_logos', String(res.data.enabled))
+        }
+      } catch (err) {
+        console.warn('Could not fetch global floating logos setting from server:', err)
+      }
+    }
+    fetchGlobalSetting()
+    return () => {
+      isMounted = false
+    }
+  }, [API_BASE])
+
+  const toggleFloatingLogos = async () => {
+    if (isUpdatingFloatingLogos) return
+    const next = !floatingLogosEnabled
+    // Immediate optimistic update
+    setFloatingLogosEnabled(next)
+    localStorage.setItem('wnc_login_floating_logos', String(next))
+    setIsUpdatingFloatingLogos(true)
+
+    try {
+      await axios.post(
+        `${API_BASE}/api/settings/floating-logos`,
+        { enabled: next },
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined
+        }
+      )
+      showSuccessToast(`Global floating <w> logos turned ${next ? 'ON' : 'OFF'} for all visitors!`)
+    } catch (err) {
+      console.error('Failed to sync global setting with server:', err)
+      // Rollback if server failed
+      setFloatingLogosEnabled(!next)
+      localStorage.setItem('wnc_login_floating_logos', String(!next))
+      showErrorToast('Failed to update global setting on server. Please try again.')
+    } finally {
+      setIsUpdatingFloatingLogos(false)
+    }
+  }
 
   // Dashboard navigation state
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -422,32 +547,155 @@ export default function SuperAdminPortal() {
   // ================= UN-AUTHENTICATED: NATURAL PLATFORM SIGN IN SCREEN =================
   if (!isAuthenticated || !user) {
     return (
-      <div className="min-h-screen bg-[#fafafa] text-slate-900 flex flex-col justify-center items-center px-4 py-8 sm:py-12 relative selection:bg-[#ff9e7d]">
+      <div className="min-h-screen bg-[#fafafa] text-slate-900 flex flex-col justify-center items-center px-4 py-6 sm:py-8 relative selection:bg-[#ff9e7d] overflow-x-hidden">
         {/* Subtle Background Micro-Grid */}
         <div
-          className="absolute inset-0 opacity-[0.14] pointer-events-none"
+          className="absolute inset-0 opacity-[0.12] pointer-events-none"
           style={{
             backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)',
             backgroundSize: '24px 24px'
           }}
         />
 
+        {/* Smooth Floating Keyframes for Side Flanks & Top/Bottom Zones */}
+        <style>{`
+          @keyframes floatSideA {
+            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+            33% { transform: translateY(-38px) translateX(16px) rotate(8deg); }
+            66% { transform: translateY(24px) translateX(-12px) rotate(-6deg); }
+          }
+          @keyframes floatSideB {
+            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+            33% { transform: translateY(35px) translateX(-16px) rotate(-8deg); }
+            66% { transform: translateY(-28px) translateX(14px) rotate(6deg); }
+          }
+          @keyframes floatSideC {
+            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+            40% { transform: translateY(-44px) translateX(-14px) rotate(-9deg); }
+            70% { transform: translateY(22px) translateX(16px) rotate(7deg); }
+          }
+          @keyframes floatSideD {
+            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+            40% { transform: translateY(38px) translateX(18px) rotate(9deg); }
+            70% { transform: translateY(-24px) translateX(-12px) rotate(-7deg); }
+          }
+          @keyframes floatTopA {
+            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+            35% { transform: translateY(-10px) translateX(12px) rotate(7deg); }
+            70% { transform: translateY(8px) translateX(-10px) rotate(-6deg); }
+          }
+          @keyframes floatTopB {
+            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+            35% { transform: translateY(10px) translateX(-12px) rotate(-7deg); }
+            70% { transform: translateY(-8px) translateX(10px) rotate(6deg); }
+          }
+          @keyframes floatBottomA {
+            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+            35% { transform: translateY(-16px) translateX(14px) rotate(8deg); }
+            70% { transform: translateY(14px) translateX(-12px) rotate(-7deg); }
+          }
+          @keyframes floatBottomB {
+            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+            35% { transform: translateY(16px) translateX(-14px) rotate(-8deg); }
+            70% { transform: translateY(-14px) translateX(12px) rotate(7deg); }
+          }
+        `}</style>
+
         {/* Top-Left Back Button (Corner of Screen) */}
-        <div className="absolute top-5 left-5 sm:top-7 sm:left-9 z-30">
+        <div className="absolute top-4 left-4 sm:top-6 sm:left-8 z-30">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-mono font-black uppercase tracking-wider text-slate-900 shadow-[2px_2px_0px_0px_#0f172a] hover:bg-[#ff9e7d] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#0f172a] transition-all"
+            className="inline-flex items-center gap-2 px-3.5 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-mono font-black uppercase tracking-wider text-slate-900 shadow-[2px_2px_0px_0px_#0f172a] hover:bg-[#ff9e7d] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#0f172a] transition-all"
           >
             <span>←</span>
             <span>Back</span>
           </Link>
         </div>
 
+        {/* Top & Bottom Floating Logos — mobile only (sm:hidden on desktop) */}
+        {floatingLogosEnabled && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 sm:hidden">
+            {/* Top Zone Logos (Above the header, clear of back button) */}
+            {TOP_FLOATING_LOGOS.map((item) => (
+              <div
+                key={item.id}
+                className="absolute pointer-events-none select-none"
+                style={{
+                  top: item.top,
+                  left: item.left,
+                  right: item.right,
+                  width: `${item.size}px`,
+                  height: `${item.size}px`,
+                  opacity: item.opacity,
+                  animation: `${item.anim} ${item.duration} ease-in-out infinite`,
+                  animationDelay: item.delay,
+                }}
+              >
+                <img
+                  src={onlyLogo}
+                  alt=""
+                  className="w-full h-full object-contain filter contrast-125 drop-shadow-xs"
+                />
+              </div>
+            ))}
+
+            {/* Bottom Zone Logos (In the wide empty space below the card & trust badge) */}
+            {BOTTOM_FLOATING_LOGOS.map((item) => (
+              <div
+                key={item.id}
+                className="absolute pointer-events-none select-none"
+                style={{
+                  bottom: item.bottom,
+                  left: item.left,
+                  right: item.right,
+                  width: `${item.size}px`,
+                  height: `${item.size}px`,
+                  opacity: item.opacity,
+                  animation: `${item.anim} ${item.duration} ease-in-out infinite`,
+                  animationDelay: item.delay,
+                }}
+              >
+                <img
+                  src={onlyLogo}
+                  alt=""
+                  className="w-full h-full object-contain filter contrast-125 drop-shadow-xs"
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Centered Sign In Form Container */}
-        <div className="w-full max-w-md sm:max-w-lg relative z-10 flex flex-col items-center">
-          {/* Logo & Brand Header */}
-          <div className="flex flex-col items-center text-center mb-6 sm:mb-7">
-            <div className="mb-3.5 hover:translate-y-[-1px] transition-transform">
+        <div className="w-full max-w-md sm:max-w-lg relative z-10 flex flex-col items-start">
+          {/* Desktop Floating Logos hugging Left and Right of the Box (hidden on mobile) */}
+          {floatingLogosEnabled &&
+            FLOATING_LOGOS.map((item) => (
+              <div
+                key={item.id}
+                className="absolute pointer-events-none select-none z-0 hidden sm:block"
+                style={{
+                  top: item.top,
+                  ...(item.side === 'left'
+                    ? { right: `calc(100% + ${item.offset})` }
+                    : { left: `calc(100% + ${item.offset})` }),
+                  width: `${item.size}px`,
+                  height: `${item.size}px`,
+                  opacity: item.opacity,
+                  animation: `${item.anim} ${item.duration} ease-in-out infinite`,
+                  animationDelay: item.delay,
+                }}
+              >
+                <img
+                  src={onlyLogo}
+                  alt=""
+                  className="w-full h-full object-contain filter contrast-125 drop-shadow-xs"
+                />
+              </div>
+            ))}
+
+          {/* Logo & Brand Header - Left aligned with card boundary */}
+          <div className="w-full text-left mb-6 relative z-20">
+            <div className="mb-3.5 inline-block hover:translate-y-[-1px] transition-transform">
               <Logo size="lg" />
             </div>
             <h1 className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-slate-900 uppercase leading-tight mt-1">
@@ -458,19 +706,19 @@ export default function SuperAdminPortal() {
             </p>
           </div>
 
-          {/* Form Card (Taller, Substantial & Well-Proportioned) */}
-          <div className="w-full bg-white border-2 border-slate-900 rounded-2xl p-7 sm:p-10 shadow-[6px_6px_0px_0px_#0f172a]">
+          {/* Form Card (Taller / Elongated with Generous Vertical Space, Solid z-20 Above Particles) */}
+          <div className="w-full bg-white border-2 border-slate-900 rounded-2xl p-8 sm:p-12 py-10 sm:py-14 shadow-[6px_6px_0px_0px_#0f172a] min-h-[420px] sm:min-h-[460px] flex flex-col justify-center relative z-20">
             {authError && (
-              <div className="mb-5 p-3.5 bg-rose-50 border-2 border-rose-600 text-rose-900 text-xs sm:text-sm font-mono font-bold rounded-xl flex items-center gap-2.5 shadow-[2px_2px_0px_0px_#e11d48]">
+              <div className="mb-6 p-4 bg-rose-50 border-2 border-rose-600 text-rose-900 text-xs sm:text-sm font-mono font-bold rounded-xl flex items-center gap-2.5 shadow-[2px_2px_0px_0px_#e11d48]">
                 <span>✕</span>
                 <span>{authError}</span>
               </div>
             )}
 
-            <form onSubmit={handleLoginSubmit} className="space-y-6">
+            <form onSubmit={handleLoginSubmit} className="space-y-6 sm:space-y-7">
               {/* Email Input */}
               <div>
-                <label className="block text-xs sm:text-sm font-black font-mono uppercase tracking-wider text-slate-800 mb-2">
+                <label className="block text-xs sm:text-sm font-black font-mono uppercase tracking-wider text-slate-800 mb-2.5">
                   Email Address
                 </label>
                 <input
@@ -479,13 +727,13 @@ export default function SuperAdminPortal() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="w-full px-4 sm:px-5 py-3.5 sm:py-4 bg-[#fafafa] border-2 border-slate-900 rounded-xl text-sm sm:text-base text-slate-900 font-bold font-mono shadow-[2px_2px_0px_0px_#000] focus:bg-white focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] outline-none transition-all"
+                  className="w-full px-4 sm:px-5 py-3.5 sm:py-4 bg-[#fcfcfd] border-2 border-slate-900 rounded-xl text-sm sm:text-base text-slate-900 font-bold font-mono shadow-[2px_2px_0px_0px_#000] focus:bg-white focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] outline-none transition-all"
                 />
               </div>
 
               {/* Password Input with Show/Hide Toggle */}
               <div>
-                <label className="block text-xs sm:text-sm font-black font-mono uppercase tracking-wider text-slate-800 mb-2">
+                <label className="block text-xs sm:text-sm font-black font-mono uppercase tracking-wider text-slate-800 mb-2.5">
                   Password
                 </label>
                 <div className="relative">
@@ -495,12 +743,12 @@ export default function SuperAdminPortal() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full px-4 sm:px-5 py-3.5 sm:py-4 pr-16 bg-[#fafafa] border-2 border-slate-900 rounded-xl text-sm sm:text-base text-slate-900 font-bold font-mono shadow-[2px_2px_0px_0px_#000] focus:bg-white focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] outline-none transition-all"
+                    className="w-full px-4 sm:px-5 py-3.5 sm:py-4 pr-16 bg-[#fcfcfd] border-2 border-slate-900 rounded-xl text-sm sm:text-base text-slate-900 font-bold font-mono shadow-[2px_2px_0px_0px_#000] focus:bg-white focus:translate-y-[1px] focus:shadow-[1px_1px_0px_0px_#000] outline-none transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-900 font-mono text-xs font-black uppercase px-2.5 py-1 bg-white border border-slate-400 rounded-md cursor-pointer select-none"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-700 hover:text-slate-900 font-mono text-xs font-black uppercase px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-400 rounded-lg cursor-pointer transition-colors select-none"
                     title={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? 'Hide' : 'Show'}
@@ -509,7 +757,7 @@ export default function SuperAdminPortal() {
               </div>
 
               {/* Submit Button */}
-              <div className="pt-2">
+              <div className="pt-3 sm:pt-4">
                 <button
                   type="submit"
                   disabled={isLoggingIn}
@@ -521,7 +769,7 @@ export default function SuperAdminPortal() {
                       <span>Signing In...</span>
                     </>
                   ) : (
-                    <span>Sign In to Dashboard →</span>
+                    <span>Sign In</span>
                   )}
                 </button>
               </div>
@@ -529,8 +777,8 @@ export default function SuperAdminPortal() {
           </div>
 
           {/* Security & System Trust Badge */}
-          <div className="mt-5 text-center">
-            <div className="inline-flex items-center gap-2 text-[11px] font-mono font-bold text-slate-500 bg-white border border-slate-300 px-3.5 py-1.5 rounded-full shadow-xs">
+          <div className="mt-4 text-center w-full relative z-20">
+            <div className="inline-flex items-center gap-2 text-[11px] font-mono font-bold text-slate-500 bg-white border border-slate-200 px-3.5 py-1 rounded-full shadow-xs">
               <span className="text-emerald-600">●</span>
               <span>256-Bit Encrypted Secure Connection • Web n Code</span>
             </div>
@@ -566,8 +814,10 @@ export default function SuperAdminPortal() {
       {/* ================= DEDICATED LEFT SIDEBAR (LIGHT THEME) ================= */}
       <aside
         className={`${
-          sidebarOpen ? 'block' : 'hidden'
-        } md:flex flex-col justify-between w-full md:w-64 shrink-0 bg-[#ebebeb] border-r-2 border-slate-900 p-5 z-40 md:min-h-screen sticky md:top-0 h-auto`}
+          sidebarOpen
+            ? 'fixed inset-0 z-50 flex flex-col justify-between w-full bg-[#ebebeb] border-r-2 border-slate-900 p-5 overflow-y-auto'
+            : 'hidden'
+        } md:relative md:flex md:flex-col md:justify-between md:w-64 md:shrink-0 md:bg-[#ebebeb] md:border-r-2 md:border-slate-900 md:p-5 md:z-40 md:min-h-screen md:sticky md:top-0`}
       >
         <div>
           {/* Brand Header */}
@@ -686,6 +936,32 @@ export default function SuperAdminPortal() {
               <span>🌐</span>
               <span>Public Website ↗</span>
             </Link>
+
+            {/* Floating Logos Toggle in SuperAdmin Sidebar */}
+            <div className="p-3 bg-white rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_#000] mt-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-[9px] font-mono font-bold text-slate-500 uppercase">
+                    Login Visuals (Global)
+                  </div>
+                  <div className="text-xs font-mono font-black text-slate-900">
+                    &lt;w&gt; Floating Logos
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={toggleFloatingLogos}
+                  disabled={isUpdatingFloatingLogos}
+                  className={`px-3 py-1 rounded-lg border-2 border-slate-900 font-mono text-xs font-black uppercase transition-all shadow-[1px_1px_0px_0px_#000] cursor-pointer disabled:opacity-60 ${
+                    floatingLogosEnabled
+                      ? 'bg-emerald-400 text-slate-950 hover:bg-emerald-500'
+                      : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                  }`}
+                >
+                  {isUpdatingFloatingLogos ? '...' : floatingLogosEnabled ? 'ON' : 'OFF'}
+                </button>
+              </div>
+            </div>
           </nav>
         </div>
 
@@ -736,7 +1012,28 @@ export default function SuperAdminPortal() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center gap-2.5 self-start sm:self-auto">
+            {/* Quick Floating Logos Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleFloatingLogos}
+              disabled={isUpdatingFloatingLogos}
+              className={`px-3 py-1.5 border-2 border-slate-900 font-mono text-xs font-black uppercase rounded-lg flex items-center gap-2 shadow-[2px_2px_0px_0px_#000] cursor-pointer transition-all hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-60 ${
+                floatingLogosEnabled
+                  ? 'bg-amber-300 text-slate-950 hover:bg-amber-400'
+                  : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+              }`}
+              title="Toggle floating <w> logos globally for all visitors"
+            >
+              <span>
+                {isUpdatingFloatingLogos
+                  ? '⏳ Saving...'
+                  : floatingLogosEnabled
+                  ? '✨ <w> Logos (Global): ON'
+                  : '⚪ <w> Logos (Global): OFF'}
+              </span>
+            </button>
+
             <span className="px-3.5 py-1.5 bg-emerald-100 border-2 border-slate-900 text-emerald-950 font-mono text-xs font-black rounded-lg flex items-center gap-2 shadow-[2px_2px_0px_0px_#000]">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
               Connected & Live
