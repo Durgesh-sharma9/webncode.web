@@ -57,6 +57,7 @@ export default function ProjectsTab() {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchProjects()
     void fetchCategories()
   }, [])
