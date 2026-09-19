@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import axios from 'axios'
 import { useAuth } from '../../contexts/AuthContext'
 import { showSuccessToast, showErrorToast } from '../../components/ui/Toast'
@@ -62,9 +62,10 @@ export default function CategoryModal({
         setNewCatName('')
         onUpdated()
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to create category:', err)
-      showErrorToast(err.response?.data?.message || 'Failed to create category')
+      const msg = axios.isAxiosError(err) ? err.response?.data?.message : undefined
+      showErrorToast(msg || 'Failed to create category')
     } finally {
       setIsSubmitting(false)
     }
@@ -100,9 +101,10 @@ export default function CategoryModal({
         setEditingName('')
         onUpdated()
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to update category:', err)
-      showErrorToast(err.response?.data?.message || 'Failed to update category')
+      const msg = axios.isAxiosError(err) ? err.response?.data?.message : undefined
+      showErrorToast(msg || 'Failed to update category')
     } finally {
       setIsEditingSaving(false)
     }
@@ -124,9 +126,10 @@ export default function CategoryModal({
         showSuccessToast(`Category "${cat.name}" deleted`)
         onUpdated()
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to delete category:', err)
-      showErrorToast(err.response?.data?.message || 'Failed to delete category')
+      const msg = axios.isAxiosError(err) ? err.response?.data?.message : undefined
+      showErrorToast(msg || 'Failed to delete category')
     }
   }
 
