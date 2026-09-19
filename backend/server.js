@@ -7,6 +7,7 @@ const careerRoutes = require('./routes/careerRoutes');
 const authRoutes = require('./routes/authRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
+const developerRoutes = require('./routes/developerRoutes');
 
 // Load environment variables from .env file
 dotenv.config();
@@ -50,6 +51,9 @@ app.use('/api/careers', careerRoutes);
 
 // Mount settings routes at /api/settings
 app.use('/api/settings', settingsRoutes);
+
+// Mount developers routes at /api/developers
+app.use('/api/developers', developerRoutes);
 
 // Root endpoint for health check
 app.get('/', (req, res) => {

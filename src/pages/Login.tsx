@@ -56,6 +56,25 @@ interface ApplicationItem {
   createdAt: string
 }
 
+interface DeveloperItem {
+  _id: string
+  name: string
+  role: string
+  bio: string
+  image: string
+  hoverImage?: string
+  location?: string
+  flag?: string
+  team?: string
+  linkedin?: string
+  github?: string
+  twitter?: string
+  instagram?: string
+  email?: string
+  order?: number
+  createdAt?: string
+}
+
 const CATEGORIES = [
   'Education',
   'Operations',
@@ -205,7 +224,27 @@ export default function SuperAdminPortal() {
 
   // Dashboard navigation state
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<'contacts' | 'careers' | 'create' | 'manage'>('contacts')
+  const [activeTab, setActiveTab] = useState<'contacts' | 'careers' | 'developers' | 'create' | 'manage'>('contacts')
+
+  // Developers state
+  const [developers, setDevelopers] = useState<DeveloperItem[]>([])
+  const [isLoadingDevelopers, setIsLoadingDevelopers] = useState(false)
+  const [developerSearch, setDeveloperSearch] = useState('')
+  const [editingDeveloperId, setEditingDeveloperId] = useState<string | null>(null)
+  const [devName, setDevName] = useState('')
+  const [devRole, setDevRole] = useState('FULL STACK DEVELOPER')
+  const [devBio, setDevBio] = useState('')
+  const [devLocation, setDevLocation] = useState('JAIPUR, INDIA')
+  const [devTeam, setDevTeam] = useState('WnC TEAM')
+  const [devLinkedin, setDevLinkedin] = useState('')
+  const [devGithub, setDevGithub] = useState('')
+  const [devTwitter, setDevTwitter] = useState('')
+  const [devInstagram, setDevInstagram] = useState('')
+  const [devEmail, setDevEmail] = useState('')
+  const [devPhotoFile, setDevPhotoFile] = useState<File | null>(null)
+  const [devPhotoPreview, setDevPhotoPreview] = useState<string>('')
+  const [isSubmittingDeveloper, setIsSubmittingDeveloper] = useState(false)
+  const [showDeveloperModal, setShowDeveloperModal] = useState(false)
 
   // Projects state
   const [projects, setProjects] = useState<ProjectItem[]>([])
@@ -240,6 +279,7 @@ export default function SuperAdminPortal() {
       fetchProjects()
       fetchContacts()
       fetchApplications()
+      fetchDevelopers()
     }
   }, [isAuthenticated, token])
 
@@ -287,6 +327,20 @@ export default function SuperAdminPortal() {
       console.error('Error loading applications:', err)
     } finally {
       setIsLoadingApplications(false)
+    }
+  }
+
+  const fetchDevelopers = async () => {
+    setIsLoadingDevelopers(true)
+    try {
+      const res = await axios.get(`${API_BASE}/api/developers`)
+      if (res.data?.success) {
+        setDevelopers(res.data.data || [])
+      }
+    } catch (err) {
+      console.error('Error loading developers:', err)
+    } finally {
+      setIsLoadingDevelopers(false)
     }
   }
 
@@ -543,6 +597,126 @@ export default function SuperAdminPortal() {
       (a.currentCompany && a.currentCompany.toLowerCase().includes(q))
     return matchesPos && matchesSearch
   })
+
+  // Filtered developers
+  const filteredDevelopers = developers.filter((d) => {
+    const q = developerSearch.toLowerCase().trim()
+    if (!q) return true
+    return (
+      d.name.toLowerCase().includes(q) ||
+      d.role.toLowerCase().includes(q) ||
+      d.bio.toLowerCase().includes(q) ||
+      (d.location && d.location.toLowerCase().includes(q))
+    )
+  })
+
+  // ================= DEVELOPER MANAGEMENT HANDLERS =================
+  const handleOpenAddDeveloper = () => {
+    setEditingDeveloperId(null)
+    setDevName('')
+    setDevRole('FULL STACK DEVELOPER')
+    setDevBio('')
+    setDevLocation('JAIPUR, INDIA')
+    setDevTeam('WnC TEAM')
+    setDevLinkedin('')
+    setDevGithub('')
+    setDevTwitter('')
+    setDevInstagram('')
+    setDevEmail('')
+    setDevPhotoFile(null)
+    setDevPhotoPreview('')
+    setShowDeveloperModal(true)
+  }
+
+  const handleEditDeveloper = (dev: DeveloperItem) => {
+    setEditingDeveloperId(dev._id)
+    setDevName(dev.name)
+    setDevRole(dev.role)
+    setDevBio(dev.bio)
+    setDevLocation(dev.location || 'JAIPUR, INDIA')
+    setDevTeam(dev.team || 'WnC TEAM')
+    setDevLinkedin(dev.linkedin || '')
+    setDevGithub(dev.github || '')
+    setDevTwitter(dev.twitter || '')
+    setDevInstagram(dev.instagram || '')
+    setDevEmail(dev.email || '')
+    setDevPhotoFile(null)
+    setDevPhotoPreview(dev.image || '')
+    setShowDeveloperModal(true)
+  }
+
+  const handleSaveDeveloper = async (e: FormEvent) => {
+    e.preventDefault()
+    if (!devName.trim() || !devRole.trim() || !devBio.trim()) {
+      showErrorToast('Name, Role, and Bio are required')
+      return
+    }
+
+    try {
+      setIsSubmittingDeveloper(true)
+      const formData = new FormData()
+      formData.append('name', devName.trim())
+      formData.append('role', devRole.trim())
+      formData.append('bio', devBio.trim())
+      formData.append('location', devLocation.trim())
+      formData.append('team', devTeam.trim())
+      formData.append('linkedin', devLinkedin.trim())
+      formData.append('github', devGithub.trim())
+      formData.append('twitter', devTwitter.trim())
+      formData.append('instagram', devInstagram.trim())
+      formData.append('email', devEmail.trim())
+
+      if (devPhotoFile) {
+        formData.append('photo', devPhotoFile)
+      } else if (devPhotoPreview && !devPhotoPreview.startsWith('blob:')) {
+        formData.append('imageUrl', devPhotoPreview)
+      }
+
+      if (editingDeveloperId) {
+        await axios.put(`${API_BASE}/api/developers/${editingDeveloperId}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`
+          }
+        })
+        showSuccessToast('Developer updated successfully!')
+      } else {
+        await axios.post(`${API_BASE}/api/developers`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`
+          }
+        })
+        showSuccessToast('Developer added! Now live on About page.')
+      }
+
+      setShowDeveloperModal(false)
+      fetchDevelopers()
+    } catch (err: any) {
+      console.error('Error saving developer:', err)
+      showErrorToast(err.response?.data?.message || 'Failed to save developer')
+    } finally {
+      setIsSubmittingDeveloper(false)
+    }
+  }
+
+  const handleDeleteDeveloper = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to remove ${name}?`)) {
+      return
+    }
+    try {
+      const res = await axios.delete(`${API_BASE}/api/developers/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      if (res.data?.success) {
+        showSuccessToast(`${name} removed successfully`)
+        setDevelopers((prev) => prev.filter((d) => d._id !== id))
+      }
+    } catch (err: any) {
+      console.error('Error deleting developer:', err)
+      showErrorToast('Failed to delete developer')
+    }
+  }
 
   // ================= UN-AUTHENTICATED: NATURAL PLATFORM SIGN IN SCREEN =================
   if (!isAuthenticated || !user) {
@@ -906,7 +1080,35 @@ export default function SuperAdminPortal() {
               </span>
             </button>
 
-            {/* 3. Add Project */}
+            {/* 3. Developers & Team (NEW) */}
+            <button
+              onClick={() => {
+                setActiveTab('developers')
+                fetchDevelopers()
+                setSidebarOpen(false)
+              }}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-lg font-mono text-xs font-black uppercase tracking-wider transition-all border-2 border-slate-900 cursor-pointer ${
+                activeTab === 'developers'
+                  ? 'bg-[#fde047] text-slate-900 shadow-[3px_3px_0px_0px_#000] translate-y-[-1px]'
+                  : 'bg-white text-slate-800 hover:bg-[#fefce8] shadow-[2px_2px_0px_0px_rgba(0,0,0,0.15)]'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="text-base">👨‍💻</span>
+                <span>Developers</span>
+              </div>
+              <span
+                className={`px-2 py-0.5 rounded-full text-[10px] font-black border border-slate-900 ${
+                  activeTab === 'developers'
+                    ? 'bg-slate-900 text-white'
+                    : 'bg-[#fefce8] text-slate-900'
+                }`}
+              >
+                {developers.length}
+              </span>
+            </button>
+
+            {/* 4. Add Project */}
             <button
               onClick={() => {
                 resetProjectForm()
@@ -1015,6 +1217,7 @@ export default function SuperAdminPortal() {
             <span className="text-xs sm:text-sm font-mono font-black uppercase tracking-tight text-slate-900">
               {activeTab === 'contacts' && '📬 Client Enquiries & Leads'}
               {activeTab === 'careers' && '👥 Job Applications & Resumes'}
+              {activeTab === 'developers' && '👨‍💻 Developers & Team'}
               {activeTab === 'create' && (editingProjectId ? '✏️ Edit Project' : '⚡ Add New Project')}
               {activeTab === 'manage' && '📁 Projects Directory'}
             </span>
@@ -1075,23 +1278,26 @@ export default function SuperAdminPortal() {
       {/* ================= MAIN CONTENT AREA (LIGHT NEO-BRUTALIST) ================= */}
       <main className="flex-1 p-4 sm:p-7 lg:p-10 overflow-y-auto max-w-6xl relative z-10">
         {/* Top Header Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-8 border-b-2 border-slate-900">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-5 border-b-2 border-slate-900">
           <div>
-            <span className="rounded border-2 border-slate-900 bg-white px-3 py-0.5 text-[10px] font-black uppercase tracking-wider font-mono shadow-[2px_2px_0px_0px_#0f172a]">
+            <span className="rounded border-2 border-slate-900 bg-white px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider font-mono shadow-[1.5px_1.5px_0px_0px_#0f172a]">
               SUPERADMIN DASHBOARD
             </span>
 
-            <h1 className="mt-2 text-2xl sm:text-4xl font-black font-mono uppercase tracking-tight text-slate-900 flex items-center gap-3">
+            <h1 className="mt-1.5 text-xl sm:text-3xl font-black font-mono uppercase tracking-tight text-slate-900 flex items-center gap-2.5">
               {activeTab === 'contacts' && 'Client Enquiries & Leads'}
               {activeTab === 'careers' && 'Job Applications & Resumes'}
+              {activeTab === 'developers' && 'Our Developers & Team'}
               {activeTab === 'create' && (editingProjectId ? 'Edit Project' : 'Project Studio')}
               {activeTab === 'manage' && 'Projects Directory'}
             </h1>
-            <p className="text-xs sm:text-sm font-mono font-bold text-slate-600 mt-1">
+            <p className="text-xs font-mono font-bold text-slate-600 mt-0.5">
               {activeTab === 'contacts' &&
                 `Real-time lead messages received from website visitors (${contacts.length} total)`}
               {activeTab === 'careers' &&
                 `Job applications, candidate profiles & PDF resumes submitted (${applications.length} total)`}
+              {activeTab === 'developers' &&
+                `Manage team members showcased live on the About Us page (${developers.length} total)`}
               {activeTab === 'create' &&
                 'Create and publish projects with automated ImageKit cloud hosting'}
               {activeTab === 'manage' && `Managing all ${projects.length} portfolio items`}
@@ -1127,24 +1333,111 @@ export default function SuperAdminPortal() {
           </div>
         </div>
 
-        {/* ================= TAB 1: CLIENT ENQUIRIES / LEADS ================= */}
+        {/* ================= COMPACT QUICK KPI STATS BAR ================= */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+          <button
+            type="button"
+            onClick={() => setActiveTab('contacts')}
+            className={`p-3 rounded-xl border-2 border-slate-900 transition-all text-left cursor-pointer ${
+              activeTab === 'contacts'
+                ? 'bg-[#ff9e7d] shadow-[3px_3px_0px_0px_#000] translate-y-[-1px]'
+                : 'bg-white hover:bg-[#fff7ed] shadow-[2px_2px_0px_0px_#000]'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-mono font-black text-slate-700 uppercase">Leads</span>
+              <span className="text-sm">📬</span>
+            </div>
+            <div className="mt-1 text-2xl font-mono font-black text-slate-950">
+              {contacts.length}
+            </div>
+            <div className="text-[10px] font-mono text-slate-600 font-bold mt-0.5">
+              Client Enquiries
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('careers')}
+            className={`p-3 rounded-xl border-2 border-slate-900 transition-all text-left cursor-pointer ${
+              activeTab === 'careers'
+                ? 'bg-[#c084fc] shadow-[3px_3px_0px_0px_#000] translate-y-[-1px]'
+                : 'bg-white hover:bg-[#faf5ff] shadow-[2px_2px_0px_0px_#000]'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-mono font-black text-slate-700 uppercase">Applicants</span>
+              <span className="text-sm">👥</span>
+            </div>
+            <div className="mt-1 text-2xl font-mono font-black text-slate-950">
+              {applications.length}
+            </div>
+            <div className="text-[10px] font-mono text-slate-600 font-bold mt-0.5">
+              Job Resumes
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('developers')}
+            className={`p-3 rounded-xl border-2 border-slate-900 transition-all text-left cursor-pointer ${
+              activeTab === 'developers'
+                ? 'bg-[#fde047] shadow-[3px_3px_0px_0px_#000] translate-y-[-1px]'
+                : 'bg-white hover:bg-[#fefce8] shadow-[2px_2px_0px_0px_#000]'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-mono font-black text-slate-700 uppercase">Developers</span>
+              <span className="text-sm">👨‍💻</span>
+            </div>
+            <div className="mt-1 text-2xl font-mono font-black text-slate-950">
+              {developers.length}
+            </div>
+            <div className="text-[10px] font-mono text-slate-600 font-bold mt-0.5">
+              Live on /about
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('manage')}
+            className={`p-3 rounded-xl border-2 border-slate-900 transition-all text-left cursor-pointer ${
+              activeTab === 'manage'
+                ? 'bg-[#86efac] shadow-[3px_3px_0px_0px_#000] translate-y-[-1px]'
+                : 'bg-white hover:bg-[#f0fdf4] shadow-[2px_2px_0px_0px_#000]'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-mono font-black text-slate-700 uppercase">Projects</span>
+              <span className="text-sm">📁</span>
+            </div>
+            <div className="mt-1 text-2xl font-mono font-black text-slate-950">
+              {projects.length}
+            </div>
+            <div className="text-[10px] font-mono text-slate-600 font-bold mt-0.5">
+              Portfolio Items
+            </div>
+          </button>
+        </div>
+
+        {/* ================= TAB 1: CLIENT ENQUIRIES / LEADS (COMPACT DENSE) ================= */}
         {activeTab === 'contacts' && (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Filter & Actions Bar */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white border-2 border-slate-900 p-4 rounded-xl shadow-[4px_4px_0px_0px_#0f172a]">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 bg-white border-2 border-slate-900 p-3 rounded-xl shadow-[3px_3px_0px_0px_#0f172a]">
               <div className="relative flex-1">
                 <input
                   type="text"
                   value={contactSearch}
                   onChange={(e) => setContactSearch(e.target.value)}
-                  placeholder="Search by client name, email, phone or message keywords..."
-                  className="w-full pl-9 pr-4 py-2.5 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-xs font-mono font-bold text-slate-900 focus:bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)] outline-none"
+                  placeholder="Search leads by name, email, phone, requirements..."
+                  className="w-full pl-8 pr-7 py-2 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-xs font-mono font-bold text-slate-900 focus:bg-white shadow-[1px_1px_0px_0px_rgba(0,0,0,0.1)] outline-none"
                 />
-                <span className="absolute left-3 top-2.5 text-slate-500 text-xs">🔍</span>
+                <span className="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
                 {contactSearch && (
                   <button
                     onClick={() => setContactSearch('')}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-900 text-xs font-bold cursor-pointer"
+                    className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-900 text-xs font-bold cursor-pointer"
                   >
                     ✕
                   </button>
@@ -1152,61 +1445,78 @@ export default function SuperAdminPortal() {
               </div>
 
               <div className="flex items-center gap-2">
+                <span className="text-[11px] font-mono font-bold text-slate-500 hidden sm:inline">
+                  Showing {filteredContacts.length} of {contacts.length}
+                </span>
                 <button
                   onClick={fetchContacts}
-                  className="px-4 py-2.5 bg-[#7dd3fc] hover:bg-[#38bdf8] border-2 border-slate-900 text-slate-900 font-mono text-xs font-black uppercase rounded-lg flex items-center gap-1.5 transition-all shadow-[2px_2px_0px_0px_#000] cursor-pointer"
+                  className="px-3 py-2 bg-[#7dd3fc] hover:bg-[#38bdf8] border-2 border-slate-900 text-slate-900 font-mono text-xs font-black uppercase rounded-lg flex items-center gap-1.5 transition-all shadow-[2px_2px_0px_0px_#000] cursor-pointer"
                 >
-                  🔄 Refresh Leads
+                  🔄 Refresh
                 </button>
               </div>
             </div>
 
             {/* Leads List */}
             {isLoadingContacts ? (
-              <div className="py-20 text-center text-slate-600 font-mono text-sm font-bold">
+              <div className="py-14 text-center text-slate-600 font-mono text-xs font-bold">
                 Fetching latest inquiries...
               </div>
             ) : filteredContacts.length === 0 ? (
-              <div className="bg-white border-2 border-slate-900 rounded-2xl p-12 text-center font-mono shadow-[4px_4px_0px_0px_#0f172a]">
-                <div className="text-4xl mb-3">📬</div>
-                <h3 className="text-base font-black text-slate-900 uppercase">No Enquiries Found</h3>
+              <div className="bg-white border-2 border-slate-900 rounded-xl p-8 text-center font-mono shadow-[3px_3px_0px_0px_#0f172a]">
+                <div className="text-3xl mb-2">📬</div>
+                <h3 className="text-sm font-black text-slate-900 uppercase">No Enquiries Found</h3>
                 <p className="text-xs text-slate-600 mt-1 max-w-sm mx-auto font-bold">
                   {contactSearch
                     ? 'No enquiries match your search query.'
-                    : 'When visitors fill out the Contact Us form on your website, their messages will immediately appear here!'}
+                    : 'When visitors fill out the Contact form on your website, leads will appear here immediately!'}
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-5">
+              <div className="grid grid-cols-1 gap-3">
                 {filteredContacts.map((item) => (
                   <div
                     key={item._id}
-                    className="bg-white border-2 border-slate-900 rounded-2xl p-5 sm:p-6 shadow-[5px_5px_0px_0px_#0f172a] hover:translate-y-[-2px] hover:shadow-[7px_7px_0px_0px_#0f172a] transition-all"
+                    className="bg-white border-2 border-slate-900 rounded-xl p-3.5 sm:p-4 shadow-[3px_3px_0px_0px_#0f172a] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_0px_#0f172a] transition-all"
                   >
-                    {/* Header Row */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b-2 border-slate-900/15">
-                      <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-xl bg-[#7dd3fc] text-slate-900 font-black font-mono flex items-center justify-center text-base shrink-0 border-2 border-slate-900 shadow-[2px_2px_0px_0px_#000]">
+                    {/* Header Row: Avatar, Name, Date, Quick Actions */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-slate-900/20">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-[#ff9e7d] text-slate-900 font-black font-mono flex items-center justify-center text-xs shrink-0 border-2 border-slate-900 shadow-[1.5px_1.5px_0px_0px_#000]">
                           {item.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <h3 className="text-lg font-mono font-black text-slate-900 uppercase tracking-tight">
-                            {item.name}
-                          </h3>
-                          <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-slate-500 font-bold mt-0.5">
-                            <span>🕒 {new Date(item.createdAt).toLocaleString()}</span>
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-sm font-mono font-black text-slate-900 uppercase tracking-tight">
+                              {item.name}
+                            </h3>
+                            <span className="text-[10px] font-mono text-slate-500 font-bold">
+                              {new Date(item.createdAt).toLocaleString([], {
+                                dateStyle: 'short',
+                                timeStyle: 'short'
+                              })}
+                            </span>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono text-slate-700 mt-0.5">
+                            <span className="font-bold">📧 {item.email}</span>
+                            {item.phone && (
+                              <>
+                                <span className="text-slate-400">•</span>
+                                <span className="font-bold">📱 {item.phone}</span>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
 
-                      {/* Quick Communication Action Buttons */}
-                      <div className="flex flex-wrap items-center gap-2">
+                      {/* Quick Communication Actions */}
+                      <div className="flex flex-wrap items-center gap-1.5 self-start sm:self-center">
                         {item.phone && (
                           <a
                             href={getWhatsAppLink(item.phone, item.name)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-3.5 py-1.5 bg-[#86efac] hover:bg-[#4ade80] text-slate-900 font-mono text-xs font-black uppercase rounded-lg border-2 border-slate-900 shadow-[2px_2px_0px_0px_#000] flex items-center gap-1.5 transition-all"
+                            className="px-2.5 py-1 bg-[#86efac] hover:bg-[#4ade80] text-slate-900 font-mono text-[11px] font-black uppercase rounded-lg border-2 border-slate-900 shadow-[1.5px_1.5px_0px_0px_#000] flex items-center gap-1 transition-all"
                           >
                             <span>💬 WhatsApp</span>
                           </a>
@@ -1215,7 +1525,7 @@ export default function SuperAdminPortal() {
                         {item.phone && (
                           <a
                             href={`tel:${item.phone}`}
-                            className="px-3 py-1.5 bg-white hover:bg-slate-100 border-2 border-slate-900 text-slate-900 font-mono text-xs font-bold rounded-lg shadow-[2px_2px_0px_0px_#000] flex items-center gap-1.5 transition-all"
+                            className="px-2.5 py-1 bg-white hover:bg-slate-100 border-2 border-slate-900 text-slate-900 font-mono text-[11px] font-bold rounded-lg shadow-[1.5px_1.5px_0px_0px_#000] flex items-center gap-1 transition-all"
                           >
                             <span>📞 Call</span>
                           </a>
@@ -1223,54 +1533,27 @@ export default function SuperAdminPortal() {
 
                         <a
                           href={`mailto:${item.email}?subject=Web%20n%20Code%20Technologies%20-%20Enquiry%20Response`}
-                          className="px-3 py-1.5 bg-[#7dd3fc] hover:bg-[#38bdf8] border-2 border-slate-900 text-slate-900 font-mono text-xs font-bold rounded-lg shadow-[2px_2px_0px_0px_#000] flex items-center gap-1.5 transition-all"
+                          className="px-2.5 py-1 bg-[#7dd3fc] hover:bg-[#38bdf8] border-2 border-slate-900 text-slate-900 font-mono text-[11px] font-bold rounded-lg shadow-[1.5px_1.5px_0px_0px_#000] flex items-center gap-1 transition-all"
                         >
                           <span>✉️ Email</span>
                         </a>
 
                         <button
                           onClick={() => handleDeleteContact(item._id, item.name)}
-                          className="px-2.5 py-1.5 bg-rose-100 border-2 border-rose-600 hover:bg-rose-200 text-rose-900 font-mono text-xs font-bold rounded-lg transition-all cursor-pointer"
-                          title="Delete Enquiry"
+                          className="px-2 py-1 bg-rose-100 border-2 border-rose-600 hover:bg-rose-200 text-rose-900 font-mono text-[11px] font-bold rounded-lg transition-all cursor-pointer"
+                          title="Delete Lead"
                         >
                           🗑️
                         </button>
                       </div>
                     </div>
 
-                    {/* Contact Info Pills */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-4">
-                      <div className="p-3 bg-[#fafafa] rounded-xl border-2 border-slate-900/30 font-mono text-xs">
-                        <span className="text-slate-500 uppercase block font-black text-[10px]">
-                          Client Email
-                        </span>
-                        <a
-                          href={`mailto:${item.email}`}
-                          className="text-slate-900 font-bold hover:text-[#ff9e7d] transition-colors"
-                        >
-                          {item.email}
-                        </a>
+                    {/* Compact Message Box */}
+                    <div className="mt-2.5 p-2.5 bg-[#fefce8] border border-slate-900/50 rounded-lg">
+                      <div className="text-[10px] font-mono uppercase font-black tracking-wider text-amber-800 mb-0.5">
+                        Requirements / Message:
                       </div>
-
-                      <div className="p-3 bg-[#fafafa] rounded-xl border-2 border-slate-900/30 font-mono text-xs">
-                        <span className="text-slate-500 uppercase block font-black text-[10px]">
-                          Phone Number
-                        </span>
-                        <a
-                          href={`tel:${item.phone}`}
-                          className="text-slate-900 font-bold hover:text-[#ff9e7d] transition-colors"
-                        >
-                          {item.phone}
-                        </a>
-                      </div>
-                    </div>
-
-                    {/* Message Box */}
-                    <div className="p-4 bg-[#fefce8] border-2 border-slate-900 rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]">
-                      <span className="text-[10px] font-mono uppercase font-black tracking-wider text-amber-800 block mb-1">
-                        Client Message / Project Requirements:
-                      </span>
-                      <p className="text-sm font-mono text-slate-900 font-medium leading-relaxed whitespace-pre-wrap">
+                      <p className="text-xs font-mono text-slate-900 font-medium leading-relaxed whitespace-pre-wrap">
                         {item.message}
                       </p>
                     </div>
@@ -1281,24 +1564,24 @@ export default function SuperAdminPortal() {
           </div>
         )}
 
-        {/* ================= TAB 2: JOB APPLICATIONS & RESUMES ================= */}
+        {/* ================= TAB 2: JOB APPLICATIONS & RESUMES (COMPACT DENSE) ================= */}
         {activeTab === 'careers' && (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Filter & Search Bar */}
-            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white border-2 border-slate-900 p-4 rounded-xl shadow-[4px_4px_0px_0px_#0f172a]">
+            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5 bg-white border-2 border-slate-900 p-3 rounded-xl shadow-[3px_3px_0px_0px_#0f172a]">
               <div className="relative flex-1">
                 <input
                   type="text"
                   value={careerSearch}
                   onChange={(e) => setCareerSearch(e.target.value)}
                   placeholder="Search candidate name, email, mobile, position, company..."
-                  className="w-full pl-9 pr-4 py-2.5 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-xs font-mono font-bold text-slate-900 focus:bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)] outline-none"
+                  className="w-full pl-8 pr-7 py-2 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-xs font-mono font-bold text-slate-900 focus:bg-white shadow-[1px_1px_0px_0px_rgba(0,0,0,0.1)] outline-none"
                 />
-                <span className="absolute left-3 top-2.5 text-slate-500 text-xs">🔍</span>
+                <span className="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
                 {careerSearch && (
                   <button
                     onClick={() => setCareerSearch('')}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-900 text-xs font-bold cursor-pointer"
+                    className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-900 text-xs font-bold cursor-pointer"
                   >
                     ✕
                   </button>
@@ -1309,7 +1592,7 @@ export default function SuperAdminPortal() {
                 <select
                   value={careerFilterPosition}
                   onChange={(e) => setCareerFilterPosition(e.target.value)}
-                  className="px-3 py-2.5 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-xs font-mono font-bold text-slate-900 focus:bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)] cursor-pointer outline-none"
+                  className="px-2.5 py-2 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-xs font-mono font-bold text-slate-900 focus:bg-white shadow-[1px_1px_0px_0px_rgba(0,0,0,0.1)] cursor-pointer outline-none"
                 >
                   <option value="All">All Roles / Positions</option>
                   <option value="Frontend">Frontend Roles</option>
@@ -1322,7 +1605,7 @@ export default function SuperAdminPortal() {
 
                 <button
                   onClick={fetchApplications}
-                  className="px-4 py-2.5 bg-[#c084fc] hover:bg-[#a855f7] border-2 border-slate-900 text-slate-900 font-mono text-xs font-black uppercase rounded-lg flex items-center gap-1.5 transition-all shadow-[2px_2px_0px_0px_#000] cursor-pointer"
+                  className="px-3 py-2 bg-[#c084fc] hover:bg-[#a855f7] border-2 border-slate-900 text-slate-900 font-mono text-xs font-black uppercase rounded-lg flex items-center gap-1.5 transition-all shadow-[2px_2px_0px_0px_#000] cursor-pointer"
                 >
                   🔄 Refresh
                 </button>
@@ -1331,13 +1614,13 @@ export default function SuperAdminPortal() {
 
             {/* Applications List */}
             {isLoadingApplications ? (
-              <div className="py-20 text-center text-slate-600 font-mono text-sm font-bold">
+              <div className="py-14 text-center text-slate-600 font-mono text-xs font-bold">
                 Loading applicant records...
               </div>
             ) : filteredApplications.length === 0 ? (
-              <div className="bg-white border-2 border-slate-900 rounded-2xl p-12 text-center font-mono shadow-[4px_4px_0px_0px_#0f172a]">
-                <div className="text-4xl mb-3">👥</div>
-                <h3 className="text-base font-black text-slate-900 uppercase">No Applications Found</h3>
+              <div className="bg-white border-2 border-slate-900 rounded-xl p-8 text-center font-mono shadow-[3px_3px_0px_0px_#0f172a]">
+                <div className="text-3xl mb-2">👥</div>
+                <h3 className="text-sm font-black text-slate-900 uppercase">No Applications Found</h3>
                 <p className="text-xs text-slate-600 mt-1 max-w-sm mx-auto font-bold">
                   {careerSearch || careerFilterPosition !== 'All'
                     ? 'No candidates match your filters.'
@@ -1345,32 +1628,31 @@ export default function SuperAdminPortal() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-5">
+              <div className="grid grid-cols-1 gap-3.5">
                 {filteredApplications.map((app) => (
                   <div
                     key={app._id}
-                    className="bg-white border-2 border-slate-900 rounded-2xl p-5 sm:p-6 shadow-[5px_5px_0px_0px_#0f172a] hover:translate-y-[-2px] hover:shadow-[7px_7px_0px_0px_#0f172a] transition-all"
+                    className="bg-white border-2 border-slate-900 rounded-xl p-3.5 sm:p-4 shadow-[3px_3px_0px_0px_#0f172a] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_0px_#0f172a] transition-all"
                   >
-                    {/* Header Row */}
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b-2 border-slate-900/15">
+                    {/* Header Row: Name, Position, Experience, Actions */}
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 pb-2.5 border-b border-slate-900/20">
                       <div>
-                        <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                          <span className="px-3 py-1 bg-[#c084fc] text-slate-900 font-mono font-black text-xs uppercase rounded-md border-2 border-slate-900 shadow-[2px_2px_0px_0px_#000]">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="px-2 py-0.5 bg-[#c084fc] text-slate-900 font-mono font-black text-[10px] uppercase rounded border border-slate-900 shadow-[1px_1px_0px_0px_#000]">
                             {app.position}
                           </span>
-                          <span className="px-2.5 py-0.5 bg-[#fafafa] border-2 border-slate-900/30 text-slate-800 font-mono text-[11px] font-bold rounded">
+                          <h3 className="text-base font-mono font-black text-slate-900 uppercase">
+                            {app.fullName}
+                          </h3>
+                          <span className="px-1.5 py-0.5 bg-[#fafafa] border border-slate-900/40 text-slate-700 font-mono text-[10px] font-bold rounded">
                             Exp: {app.experience}
                           </span>
-                          <span className="px-2.5 py-0.5 bg-[#fafafa] border-2 border-slate-900/30 text-slate-800 font-mono text-[11px] font-bold rounded">
+                          <span className="px-1.5 py-0.5 bg-[#fafafa] border border-slate-900/40 text-slate-700 font-mono text-[10px] font-bold rounded">
                             Notice: {app.noticePeriod}
                           </span>
                         </div>
 
-                        <h3 className="text-xl font-mono font-black text-slate-900 uppercase">
-                          {app.fullName}
-                        </h3>
-
-                        <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-slate-600 font-bold mt-1">
+                        <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono text-slate-600 font-bold mt-1">
                           <span>📍 {app.city}, {app.state}</span>
                           <span>•</span>
                           <span>Gender: {app.gender}</span>
@@ -1379,14 +1661,14 @@ export default function SuperAdminPortal() {
                         </div>
                       </div>
 
-                      {/* Direct Actions (WhatsApp, Call, Email, Delete) */}
-                      <div className="flex flex-wrap items-center gap-2">
+                      {/* Direct Actions */}
+                      <div className="flex flex-wrap items-center gap-1.5">
                         {app.mobile && (
                           <a
                             href={getWhatsAppLink(app.mobile, app.fullName)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-3.5 py-2 bg-[#86efac] hover:bg-[#4ade80] text-slate-900 font-mono text-xs font-black uppercase rounded-lg border-2 border-slate-900 shadow-[2px_2px_0px_0px_#000] flex items-center gap-1.5 transition-all"
+                            className="px-2.5 py-1 bg-[#86efac] hover:bg-[#4ade80] text-slate-900 font-mono text-[11px] font-black uppercase rounded-lg border-2 border-slate-900 shadow-[1.5px_1.5px_0px_0px_#000] flex items-center gap-1 transition-all"
                           >
                             <span>💬 WhatsApp</span>
                           </a>
@@ -1395,7 +1677,7 @@ export default function SuperAdminPortal() {
                         {app.mobile && (
                           <a
                             href={`tel:${app.mobile}`}
-                            className="px-3 py-2 bg-white hover:bg-slate-100 border-2 border-slate-900 text-slate-900 font-mono text-xs font-bold rounded-lg shadow-[2px_2px_0px_0px_#000]"
+                            className="px-2.5 py-1 bg-white hover:bg-slate-100 border-2 border-slate-900 text-slate-900 font-mono text-[11px] font-bold rounded-lg shadow-[1.5px_1.5px_0px_0px_#000]"
                           >
                             <span>📞 Call</span>
                           </a>
@@ -1403,14 +1685,25 @@ export default function SuperAdminPortal() {
 
                         <a
                           href={`mailto:${app.email}?subject=Web%20n%20Code%20Application%20Update%20-%20${encodeURIComponent(app.position)}`}
-                          className="px-3 py-2 bg-[#7dd3fc] hover:bg-[#38bdf8] border-2 border-slate-900 text-slate-900 font-mono text-xs font-bold rounded-lg shadow-[2px_2px_0px_0px_#000]"
+                          className="px-2.5 py-1 bg-[#7dd3fc] hover:bg-[#38bdf8] border-2 border-slate-900 text-slate-900 font-mono text-[11px] font-bold rounded-lg shadow-[1.5px_1.5px_0px_0px_#000]"
                         >
                           <span>✉️ Email</span>
                         </a>
 
+                        {app.resumeUrl && (
+                          <a
+                            href={app.resumeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-2.5 py-1 bg-[#ff9e7d] hover:bg-[#ff8a65] border-2 border-slate-900 text-slate-900 font-mono text-[11px] font-black uppercase rounded-lg shadow-[1.5px_1.5px_0px_0px_#000] flex items-center gap-1 transition-all"
+                          >
+                            <span>📥 PDF Resume ↗</span>
+                          </a>
+                        )}
+
                         <button
                           onClick={() => handleDeleteApplication(app._id, app.fullName)}
-                          className="px-3 py-2 bg-rose-100 border-2 border-rose-600 hover:bg-rose-200 text-rose-900 font-mono text-xs font-bold rounded-lg cursor-pointer"
+                          className="px-2 py-1 bg-rose-100 border-2 border-rose-600 hover:bg-rose-200 text-rose-900 font-mono text-[11px] font-bold rounded-lg cursor-pointer"
                           title="Delete Application"
                         >
                           🗑️
@@ -1418,47 +1711,47 @@ export default function SuperAdminPortal() {
                       </div>
                     </div>
 
-                    {/* Contact & Links Bar */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 my-4">
-                      <div className="p-3 bg-[#fafafa] rounded-xl border-2 border-slate-900/30 font-mono text-xs">
-                        <span className="text-slate-500 uppercase block font-black text-[10px]">Email</span>
+                    {/* Compact Contact & Candidate Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 my-2.5 font-mono text-[11px]">
+                      <div className="p-2 bg-[#fafafa] rounded-lg border border-slate-900/30">
+                        <span className="text-slate-500 uppercase block font-black text-[9px]">Email</span>
                         <a href={`mailto:${app.email}`} className="text-slate-900 font-bold truncate block hover:underline">
                           {app.email}
                         </a>
                       </div>
 
-                      <div className="p-3 bg-[#fafafa] rounded-xl border-2 border-slate-900/30 font-mono text-xs">
-                        <span className="text-slate-500 uppercase block font-black text-[10px]">Mobile</span>
+                      <div className="p-2 bg-[#fafafa] rounded-lg border border-slate-900/30">
+                        <span className="text-slate-500 uppercase block font-black text-[9px]">Mobile</span>
                         <a href={`tel:${app.mobile}`} className="text-slate-900 font-bold block hover:underline">
                           {app.mobile}
                         </a>
                       </div>
 
-                      <div className="p-3 bg-[#fafafa] rounded-xl border-2 border-slate-900/30 font-mono text-xs">
-                        <span className="text-slate-500 uppercase block font-black text-[10px]">Current Company</span>
+                      <div className="p-2 bg-[#fafafa] rounded-lg border border-slate-900/30">
+                        <span className="text-slate-500 uppercase block font-black text-[9px]">Current Org</span>
                         <span className="text-slate-900 font-bold truncate block">
                           {app.currentCompany || 'N/A'} {app.currentRole ? `(${app.currentRole})` : ''}
                         </span>
                       </div>
 
-                      <div className="p-3 bg-[#fafafa] rounded-xl border-2 border-slate-900/30 font-mono text-xs">
-                        <span className="text-slate-500 uppercase block font-black text-[10px]">Academic Details</span>
+                      <div className="p-2 bg-[#fafafa] rounded-lg border border-slate-900/30">
+                        <span className="text-slate-500 uppercase block font-black text-[9px]">Academics</span>
                         <span className="text-slate-900 font-bold truncate block">
-                          {app.college ? `${app.college} - ${app.course || ''} (${app.graduationYear || ''})` : 'N/A'}
+                          {app.college ? `${app.college} (${app.graduationYear || ''})` : 'N/A'}
                         </span>
                       </div>
                     </div>
 
-                    {/* Social & Portfolio Links */}
-                    <div className="flex flex-wrap items-center gap-2 mb-4">
+                    {/* Social & Portfolio Links + Builder Notes */}
+                    <div className="flex flex-wrap items-center gap-1.5 mb-2">
                       {app.linkedin && (
                         <a
                           href={app.linkedin.startsWith('http') ? app.linkedin : `https://${app.linkedin}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-3 py-1 bg-white hover:bg-[#7dd3fc] border-2 border-slate-900 text-slate-900 font-mono text-xs font-bold rounded-lg shadow-[2px_2px_0px_0px_#000] flex items-center gap-1.5 transition-colors"
+                          className="px-2 py-0.5 bg-white hover:bg-[#7dd3fc] border border-slate-900 text-slate-900 font-mono text-[10px] font-bold rounded shadow-[1px_1px_0px_0px_#000] flex items-center gap-1"
                         >
-                          <span>🔗 LinkedIn Profile ↗</span>
+                          <span>🔗 LinkedIn ↗</span>
                         </a>
                       )}
                       {app.github && (
@@ -1466,9 +1759,9 @@ export default function SuperAdminPortal() {
                           href={app.github.startsWith('http') ? app.github : `https://${app.github}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-3 py-1 bg-white hover:bg-slate-200 border-2 border-slate-900 text-slate-900 font-mono text-xs font-bold rounded-lg shadow-[2px_2px_0px_0px_#000] flex items-center gap-1.5 transition-colors"
+                          className="px-2 py-0.5 bg-white hover:bg-slate-200 border border-slate-900 text-slate-900 font-mono text-[10px] font-bold rounded shadow-[1px_1px_0px_0px_#000] flex items-center gap-1"
                         >
-                          <span>🐙 GitHub Profile ↗</span>
+                          <span>🐙 GitHub ↗</span>
                         </a>
                       )}
                       {app.portfolio && (
@@ -1476,64 +1769,201 @@ export default function SuperAdminPortal() {
                           href={app.portfolio.startsWith('http') ? app.portfolio : `https://${app.portfolio}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-3 py-1 bg-white hover:bg-[#c084fc] border-2 border-slate-900 text-slate-900 font-mono text-xs font-bold rounded-lg shadow-[2px_2px_0px_0px_#000] flex items-center gap-1.5 transition-colors"
+                          className="px-2 py-0.5 bg-white hover:bg-[#c084fc] border border-slate-900 text-slate-900 font-mono text-[10px] font-bold rounded shadow-[1px_1px_0px_0px_#000] flex items-center gap-1"
                         >
-                          <span>🎨 Portfolio Website ↗</span>
+                          <span>🎨 Portfolio ↗</span>
                         </a>
                       )}
                     </div>
 
-                    {/* Product Builder Responses */}
-                    <div className="space-y-3 p-4 bg-[#f8fafc] border-2 border-slate-900 rounded-xl font-mono text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]">
-                      <div>
-                        <span className="text-slate-500 font-black uppercase text-[10px] block">
-                          Built a Software Product Before?
-                        </span>
-                        <span className="text-slate-900 font-black text-sm">{app.builtProduct || 'N/A'}</span>
+                    {/* Product Builder Responses Preview */}
+                    <div className="p-2.5 bg-[#f8fafc] border border-slate-900/40 rounded-lg font-mono text-xs">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <span className="text-slate-500 font-black uppercase text-[10px]">Built Product:</span>
+                        <span className="text-slate-900 font-black">{app.builtProduct || 'N/A'}</span>
+                        {app.projectLinks && (
+                          <>
+                            <span className="text-slate-400">•</span>
+                            <span className="text-slate-700 truncate max-w-sm">🔗 {app.projectLinks}</span>
+                          </>
+                        )}
+                      </div>
+                      <p className="text-slate-800 text-[11px] leading-relaxed line-clamp-2">
+                        <span className="font-bold text-slate-500">Why WnC: </span>
+                        {app.whyJoin}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ================= TAB 3: DEVELOPERS & TEAM (COMPACT DENSE) ================= */}
+        {activeTab === 'developers' && (
+          <div className="space-y-4">
+            {/* Filter, Count & Add Developer Button */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 bg-white border-2 border-slate-900 p-3 rounded-xl shadow-[3px_3px_0px_0px_#0f172a]">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={developerSearch}
+                  onChange={(e) => setDeveloperSearch(e.target.value)}
+                  placeholder="Search developers by name, role, bio, location..."
+                  className="w-full pl-8 pr-7 py-2 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-xs font-mono font-bold text-slate-900 focus:bg-white shadow-[1px_1px_0px_0px_rgba(0,0,0,0.1)] outline-none"
+                />
+                <span className="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
+                {developerSearch && (
+                  <button
+                    onClick={() => setDeveloperSearch('')}
+                    className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-900 text-xs font-bold cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={fetchDevelopers}
+                  className="px-3 py-2 bg-slate-100 hover:bg-slate-200 border-2 border-slate-900 text-slate-900 font-mono text-xs font-bold rounded-lg transition-all shadow-[2px_2px_0px_0px_#000] cursor-pointer"
+                  title="Refresh team members"
+                >
+                  🔄 Refresh
+                </button>
+
+                <button
+                  onClick={handleOpenAddDeveloper}
+                  className="px-4 py-2 bg-[#fde047] hover:bg-[#facc15] border-2 border-slate-900 text-slate-900 font-mono text-xs font-black uppercase rounded-lg flex items-center gap-1.5 transition-all shadow-[2px_2px_0px_0px_#000] cursor-pointer"
+                >
+                  <span>➕</span>
+                  <span>Add Developer</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Developers Grid */}
+            {isLoadingDevelopers ? (
+              <div className="py-14 text-center text-slate-600 font-mono text-xs font-bold">
+                Loading team members...
+              </div>
+            ) : filteredDevelopers.length === 0 ? (
+              <div className="bg-white border-2 border-slate-900 rounded-xl p-8 text-center font-mono shadow-[3px_3px_0px_0px_#0f172a]">
+                <div className="text-3xl mb-2">👨‍💻</div>
+                <h3 className="text-sm font-black text-slate-900 uppercase">No Developers Found</h3>
+                <p className="text-xs text-slate-600 mt-1 max-w-sm mx-auto font-bold mb-4">
+                  {developerSearch
+                    ? 'No team members match your search.'
+                    : 'Add your engineers, designers and leads so they appear live on the /about page!'}
+                </p>
+                <button
+                  onClick={handleOpenAddDeveloper}
+                  className="px-4 py-2 bg-[#fde047] hover:bg-[#facc15] border-2 border-slate-900 text-slate-900 font-mono text-xs font-black uppercase rounded-lg shadow-[2px_2px_0px_0px_#000]"
+                >
+                  + Add First Developer
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                {filteredDevelopers.map((dev) => (
+                  <div
+                    key={dev._id}
+                    className="bg-white border-2 border-slate-900 rounded-xl p-3.5 flex flex-col justify-between shadow-[3px_3px_0px_0px_#0f172a] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_0px_#0f172a] transition-all"
+                  >
+                    <div>
+                      {/* Top Bar: Avatar + Name + Role + Team */}
+                      <div className="flex items-start gap-3 mb-2.5">
+                        {dev.image ? (
+                          <img
+                            src={dev.image}
+                            alt={dev.name}
+                            className="w-12 h-12 rounded-xl object-cover border-2 border-slate-900 shrink-0 shadow-[2px_2px_0px_0px_#000]"
+                            onError={(e) => {
+                              // fallback
+                              ;(e.target as HTMLElement).style.display = 'none'
+                            }}
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-xl bg-[#fde047] border-2 border-slate-900 text-slate-900 font-black font-mono flex items-center justify-center text-base shrink-0 shadow-[2px_2px_0px_0px_#000]">
+                            {dev.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-sm font-mono font-black text-slate-900 uppercase truncate">
+                            {dev.name}
+                          </h4>
+                          <span className="inline-block mt-0.5 px-2 py-0.5 bg-[#fef08a] border border-slate-900 text-slate-950 font-mono text-[10px] font-black uppercase rounded shadow-[1px_1px_0px_0px_#000] truncate max-w-full">
+                            {dev.role}
+                          </span>
+                          <div className="text-[10px] font-mono text-slate-500 font-bold mt-1 truncate">
+                            📍 {dev.location || 'JAIPUR, INDIA'}
+                          </div>
+                        </div>
                       </div>
 
-                      {app.projectLinks && (
-                        <div>
-                          <span className="text-slate-500 font-black uppercase text-[10px] block">
-                            Project Links:
-                          </span>
-                          <p className="text-slate-800 font-semibold whitespace-pre-wrap">{app.projectLinks}</p>
-                        </div>
-                      )}
+                      {/* Bio */}
+                      <p className="text-xs font-mono text-slate-700 line-clamp-2 mb-3 bg-[#fafafa] p-2 rounded-lg border border-slate-900/20">
+                        {dev.bio}
+                      </p>
 
-                      <div>
-                        <span className="text-slate-500 font-black uppercase text-[10px] block">
-                          Why join Web n Code?
-                        </span>
-                        <p className="text-slate-800 font-semibold whitespace-pre-wrap leading-relaxed">
-                          {app.whyJoin}
-                        </p>
+                      {/* Social Links Row */}
+                      <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                        {dev.github && (
+                          <a
+                            href={dev.github.startsWith('http') ? dev.github : `https://${dev.github}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 border border-slate-900 text-[10px] font-mono font-bold rounded"
+                            title="GitHub"
+                          >
+                            🐙 GitHub
+                          </a>
+                        )}
+                        {dev.linkedin && (
+                          <a
+                            href={dev.linkedin.startsWith('http') ? dev.linkedin : `https://${dev.linkedin}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-2 py-0.5 bg-sky-50 hover:bg-sky-100 border border-slate-900 text-[10px] font-mono font-bold rounded text-sky-900"
+                            title="LinkedIn"
+                          >
+                            🔗 LinkedIn
+                          </a>
+                        )}
+                        {dev.email && (
+                          <a
+                            href={`mailto:${dev.email}`}
+                            className="px-2 py-0.5 bg-amber-50 hover:bg-amber-100 border border-slate-900 text-[10px] font-mono font-bold rounded text-amber-900"
+                            title="Email"
+                          >
+                            ✉️ Email
+                          </a>
+                        )}
                       </div>
                     </div>
 
-                    {/* Resume Card with Direct Download/View Link */}
-                    <div className="mt-4 pt-4 border-t-2 border-slate-900/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <div className="flex items-center gap-2 font-mono text-xs text-slate-700 font-bold">
-                        <span className="text-base">📄</span>
-                        <span>Candidate Resume:</span>
-                        <span className="text-slate-900 underline">{app.resumeName || 'resume.pdf'}</span>
-                      </div>
+                    {/* Bottom Row: Status + Edit/Delete */}
+                    <div className="pt-2.5 border-t border-slate-900/20 flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-emerald-700">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Live on /about
+                      </span>
 
-                      <div>
-                        {app.resumeUrl ? (
-                          <a
-                            href={app.resumeUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-4 py-2 bg-[#ff9e7d] hover:bg-[#ff8a65] border-2 border-slate-900 text-slate-900 font-mono text-xs font-black uppercase rounded-lg shadow-[3px_3px_0px_0px_#000] flex items-center gap-2 transition-all cursor-pointer"
-                          >
-                            <span>📥 View / Download Resume (PDF) ↗</span>
-                          </a>
-                        ) : (
-                          <span className="text-[11px] font-mono text-slate-600 border-2 border-slate-900/40 bg-[#fafafa] px-3 py-1.5 rounded-lg font-bold">
-                            Attached in HR notification email
-                          </span>
-                        )}
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => handleEditDeveloper(dev)}
+                          className="px-2.5 py-1 bg-[#7dd3fc] hover:bg-[#38bdf8] border-2 border-slate-900 text-slate-900 font-mono text-[11px] font-bold rounded-lg shadow-[1.5px_1.5px_0px_0px_#000] cursor-pointer"
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteDeveloper(dev._id, dev.name)}
+                          className="px-2 py-1 bg-rose-100 hover:bg-rose-200 border-2 border-rose-600 text-rose-900 font-mono text-[11px] font-bold rounded-lg cursor-pointer"
+                        >
+                          🗑️
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -1543,7 +1973,7 @@ export default function SuperAdminPortal() {
           </div>
         )}
 
-        {/* ================= TAB 3: CREATE / EDIT PROJECT STUDIO (LIGHT THEME) ================= */}
+        {/* ================= TAB 4: CREATE / EDIT PROJECT STUDIO (LIGHT THEME) ================= */}
         {activeTab === 'create' && (
           <div className="bg-white border-2 border-slate-900 rounded-2xl p-6 sm:p-8 shadow-[6px_6px_0px_0px_#0f172a]">
             <div className="flex items-center justify-between mb-6 pb-4 border-b-2 border-slate-900/15">
@@ -1908,6 +2338,214 @@ export default function SuperAdminPortal() {
         )}
       </main>
       </div>
+
+      {/* ================= ADD / EDIT DEVELOPER MODAL ================= */}
+      {showDeveloperModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white border-2 border-slate-900 rounded-2xl p-5 sm:p-6 w-full max-w-2xl shadow-[6px_6px_0px_0px_#000] my-8 max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3.5 mb-4 border-b-2 border-slate-900/15">
+              <div>
+                <span className="px-2 py-0.5 bg-[#fde047] border border-slate-900 text-slate-900 font-mono text-[10px] font-black uppercase rounded shadow-[1px_1px_0px_0px_#000]">
+                  TEAM PROFILE
+                </span>
+                <h3 className="text-lg sm:text-xl font-mono font-black text-slate-900 uppercase tracking-tight mt-1">
+                  {editingDeveloperId ? '✏️ Edit Developer' : '➕ Add New Developer'}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowDeveloperModal(false)}
+                className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 border-2 border-slate-900 text-slate-900 font-mono font-bold flex items-center justify-center text-sm shadow-[1.5px_1.5px_0px_0px_#000] cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSaveDeveloper} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-[11px] font-mono font-black uppercase tracking-wider text-slate-800 mb-1">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={devName}
+                    onChange={(e) => setDevName(e.target.value)}
+                    placeholder="e.g. Aryan Sharma"
+                    className="w-full px-3 py-2 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-xs font-mono font-bold text-slate-900 focus:bg-white shadow-[1.5px_1.5px_0px_0px_#000] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-mono font-black uppercase tracking-wider text-slate-800 mb-1">
+                    Role / Title *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={devRole}
+                    onChange={(e) => setDevRole(e.target.value)}
+                    placeholder="e.g. FULL STACK DEVELOPER"
+                    className="w-full px-3 py-2 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-xs font-mono font-bold text-slate-900 focus:bg-white shadow-[1.5px_1.5px_0px_0px_#000] outline-none"
+                  />
+                  {/* Quick role suggestions */}
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {['FULL STACK DEVELOPER', 'FRONTEND ENGINEER', 'BACKEND ENGINEER', 'UI/UX DESIGNER'].map((r) => (
+                      <button
+                        key={r}
+                        type="button"
+                        onClick={() => setDevRole(r)}
+                        className="text-[9px] font-mono font-bold px-1.5 py-0.5 bg-slate-100 hover:bg-amber-100 border border-slate-900 rounded text-slate-700 cursor-pointer"
+                      >
+                        {r}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-mono font-black uppercase tracking-wider text-slate-800 mb-1">
+                  Bio / One-liner Description *
+                </label>
+                <textarea
+                  rows={2}
+                  required
+                  value={devBio}
+                  onChange={(e) => setDevBio(e.target.value)}
+                  placeholder="e.g. Architecting high-performance cloud applications, scalable APIs, and reactive interfaces."
+                  className="w-full px-3 py-2 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-xs font-mono font-bold text-slate-900 focus:bg-white shadow-[1.5px_1.5px_0px_0px_#000] outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-[11px] font-mono font-black uppercase tracking-wider text-slate-800 mb-1">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    value={devLocation}
+                    onChange={(e) => setDevLocation(e.target.value)}
+                    placeholder="e.g. JAIPUR, INDIA"
+                    className="w-full px-3 py-2 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-xs font-mono font-bold text-slate-900 focus:bg-white shadow-[1.5px_1.5px_0px_0px_#000] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-mono font-black uppercase tracking-wider text-slate-800 mb-1">
+                    Team Tag / Category
+                  </label>
+                  <input
+                    type="text"
+                    value={devTeam}
+                    onChange={(e) => setDevTeam(e.target.value)}
+                    placeholder="e.g. WnC TEAM"
+                    className="w-full px-3 py-2 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-xs font-mono font-bold text-slate-900 focus:bg-white shadow-[1.5px_1.5px_0px_0px_#000] outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Photo Upload with ImageKit */}
+              <div className="p-3 bg-[#fafafa] border-2 border-slate-900 rounded-xl">
+                <label className="block text-[11px] font-mono font-black uppercase tracking-wider text-slate-800 mb-1">
+                  📸 Profile Photo (Direct ImageKit Upload)
+                </label>
+                <div className="flex items-center gap-3 mt-2">
+                  {devPhotoPreview ? (
+                    <img
+                      src={devPhotoPreview}
+                      alt="Preview"
+                      className="w-14 h-14 rounded-xl object-cover border-2 border-slate-900 shadow-[2px_2px_0px_0px_#000]"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-xl bg-slate-200 border-2 border-slate-900 flex items-center justify-center text-xs font-mono text-slate-500 font-bold">
+                      No Photo
+                    </div>
+                  )}
+
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          setDevPhotoFile(file)
+                          setDevPhotoPreview(URL.createObjectURL(file))
+                        }
+                      }}
+                      className="block w-full text-xs font-mono text-slate-700 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-2 file:border-slate-900 file:text-xs file:font-black file:font-mono file:uppercase file:bg-[#fde047] file:text-slate-900 hover:file:bg-[#facc15] file:shadow-[1.5px_1.5px_0px_0px_#000] cursor-pointer"
+                    />
+                    <span className="text-[10px] font-mono text-slate-500 mt-1 block">
+                      PNG, JPG, or WEBP (Max 5MB). Uploaded automatically to ImageKit.
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Social Links Accordion / Section */}
+              <div>
+                <div className="text-[11px] font-mono font-black uppercase text-slate-700 mb-2">
+                  🌐 Social Profiles & Links (Optional)
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <input
+                    type="text"
+                    value={devLinkedin}
+                    onChange={(e) => setDevLinkedin(e.target.value)}
+                    placeholder="LinkedIn URL (e.g. linkedin.com/in/...)"
+                    className="px-3 py-2 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-xs font-mono text-slate-900 focus:bg-white outline-none"
+                  />
+                  <input
+                    type="text"
+                    value={devGithub}
+                    onChange={(e) => setDevGithub(e.target.value)}
+                    placeholder="GitHub URL (e.g. github.com/...)"
+                    className="px-3 py-2 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-xs font-mono text-slate-900 focus:bg-white outline-none"
+                  />
+                  <input
+                    type="text"
+                    value={devTwitter}
+                    onChange={(e) => setDevTwitter(e.target.value)}
+                    placeholder="Twitter / X handle or URL"
+                    className="px-3 py-2 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-xs font-mono text-slate-900 focus:bg-white outline-none"
+                  />
+                  <input
+                    type="email"
+                    value={devEmail}
+                    onChange={(e) => setDevEmail(e.target.value)}
+                    placeholder="Contact Email"
+                    className="px-3 py-2 bg-[#fafafa] border-2 border-slate-900 rounded-lg text-xs font-mono text-slate-900 focus:bg-white outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Modal Footer Buttons */}
+              <div className="pt-3 border-t-2 border-slate-900/15 flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setShowDeveloperModal(false)}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 border-2 border-slate-900 rounded-lg text-xs font-mono font-bold text-slate-900 shadow-[1.5px_1.5px_0px_0px_#000] cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingDeveloper}
+                  className="px-5 py-2 bg-[#fde047] hover:bg-[#facc15] border-2 border-slate-900 text-slate-900 font-mono text-xs font-black uppercase rounded-lg shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1.5px_1.5px_0px_0px_#000] transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  {isSubmittingDeveloper ? 'Saving Developer...' : editingDeveloperId ? 'Save Changes' : 'Add to /about Page'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
+

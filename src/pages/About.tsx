@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import axios from 'axios'
 import { CheckIcon } from '../components/ui/Icons'
 
 // Premium Asset Imports
@@ -254,6 +255,46 @@ function CollectibleCard({ member, themeIndex, isFounder }: { member: ProfileMem
 }
 
 export default function About() {
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+  const [devsList, setDevsList] = useState<ProfileMember[]>(developers)
+
+  useEffect(() => {
+    let isMounted = true
+    const fetchDevelopers = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/api/developers`)
+        if (isMounted && res.data && res.data.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
+          const mapped: ProfileMember[] = res.data.data.map((d: any, idx: number) => {
+            const staticDev = developers.find(s => s.name.trim().toLowerCase() === d.name.trim().toLowerCase())
+            return {
+              id: d._id || `dev-${idx}`,
+              name: d.name,
+              role: d.role,
+              bio: d.bio,
+              image: d.image || staticDev?.image || aryan1,
+              hoverImage: d.hoverImage || d.image || staticDev?.hoverImage || aryan2,
+              location: d.location || 'JAIPUR, INDIA',
+              flag: d.flag || '🇮🇳',
+              team: d.team || 'WnC TEAM',
+              linkedin: d.linkedin,
+              github: d.github,
+              twitter: d.twitter,
+              instagram: d.instagram,
+              email: d.email
+            }
+          })
+          setDevsList(mapped)
+        }
+      } catch (err) {
+        console.warn('Could not fetch dynamic developers:', err)
+      }
+    }
+    fetchDevelopers()
+    return () => {
+      isMounted = false
+    }
+  }, [API_BASE])
+
   return (
     <div className="min-h-screen bg-[#ebebeb] text-slate-900 antialiased selection:bg-slate-900 selection:text-white">
       
@@ -403,7 +444,7 @@ export default function About() {
           {/* Developers Row (UPDATED TO 4 COLUMNS ON DESKTOP) */}
           <div>
             <div className="grid gap-x-6 gap-y-12 sm:gap-y-16 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-7xl mx-auto">
-              {developers.map((member, i) => (
+              {devsList.map((member, i) => (
                 <CollectibleCard key={member.id} member={member} themeIndex={founders.length + i} isFounder={false} />
               ))}
             </div>
