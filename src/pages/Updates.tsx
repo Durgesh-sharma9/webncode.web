@@ -59,12 +59,10 @@ export default function UpdatesPage() {
   const [filter, setFilter] = useState<string>('All')
   const [selected, setSelected] = useState<Update | null>(null)
   const [items, setItems] = useState<Update[]>(fallbackUpdates)
-  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const fetchUpdates = async () => {
       try {
-        setIsLoading(true)
         const res = await axios.get(`${API_BASE}/api/updates`)
         if (res.data?.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
           const mapped: Update[] = res.data.data.map((u: any) => ({
@@ -81,8 +79,6 @@ export default function UpdatesPage() {
         }
       } catch (err) {
         console.warn('Could not fetch dynamic updates, using fallback seed data:', err)
-      } finally {
-        setIsLoading(false)
       }
     }
     fetchUpdates()
