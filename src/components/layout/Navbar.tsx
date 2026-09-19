@@ -45,7 +45,7 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Permanent Neo-Brutalist CTA Button */}
+        {/* Permanent Neo-Brutalist CTA Buttons */}
         <div className="hidden lg:flex items-center gap-3">
           <Button 
             to="/products" 
@@ -53,6 +53,13 @@ export default function Navbar() {
             className="!bg-[#7dd3fc] !text-slate-900 border-2 border-slate-900 font-mono font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] transition-all"
           >
             Explore Products
+          </Button>
+          <Button 
+            to="/login" 
+            size="sm" 
+            className="!bg-white !text-slate-900 border-2 border-slate-900 font-mono font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] hover:bg-[#ff9e7d] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(15,23,42,1)] transition-all"
+          >
+            Sign In
           </Button>
         </div>
 
@@ -96,13 +103,20 @@ export default function Navbar() {
                 </NavLink>
               ))}
               
-              <div className="mt-4 pt-4 border-t border-slate-300">
+              <div className="mt-4 pt-4 border-t border-slate-300 flex flex-col gap-2.5">
                 <Button 
                   to="/products" 
                   className="w-full !bg-[#7dd3fc] !text-slate-900 border-2 border-slate-900 font-mono font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]" 
                   onClick={() => setMobileOpen(false)}
                 >
                   Explore Products
+                </Button>
+                <Button 
+                  to="/login" 
+                  className="w-full !bg-white !text-slate-900 border-2 border-slate-900 font-mono font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] hover:bg-[#ff9e7d]" 
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Sign In
                 </Button>
               </div>
             </div>
