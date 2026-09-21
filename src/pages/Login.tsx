@@ -212,6 +212,17 @@ export default function Login() {
         </Link>
       </div>
 
+      {/* Top-Right Login to Code Pilot Button (Corner of Screen) */}
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-8 z-30">
+        <a
+          href="https://codepilot.webncode.in"
+          className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider text-slate-900 shadow-[2px_2px_0px_0px_#0f172a] hover:bg-[#67e8f9] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#0f172a] transition-all"
+        >
+          <span>Login to Code Pilot</span>
+          <span className="text-sm font-black">→</span>
+        </a>
+      </div>
+
       {/* Top & Bottom Floating Logos — mobile only (sm:hidden on desktop) */}
       {floatingLogosEnabled && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 sm:hidden">
@@ -370,24 +381,6 @@ export default function Login() {
                   <span>Sign In</span>
                 )}
               </button>
-            </div>
-
-            {/* Divider */}
-            <div className="relative flex py-1 items-center justify-center">
-              <div className="flex-grow border-t-2 border-slate-200"></div>
-              <span className="flex-shrink mx-3 text-xs font-black uppercase tracking-widest text-slate-400">or</span>
-              <div className="flex-grow border-t-2 border-slate-200"></div>
-            </div>
-
-            {/* Login to Code Pilot Button */}
-            <div>
-              <a
-                href="https://codepilot.webncode.in"
-                className="w-full py-3.5 sm:py-4 bg-[#f0f9ff] hover:bg-[#e0f2fe] border-2 border-slate-900 text-slate-900 font-black uppercase tracking-wider text-xs sm:text-sm rounded-xl shadow-[4px_4px_0px_0px_#0f172a] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_#0f172a] active:translate-y-[2px] active:shadow-[1px_1px_0px_0px_#0f172a] transition-all cursor-pointer flex items-center justify-center gap-2 text-center decoration-transparent"
-              >
-                <span>Login to Code Pilot</span>
-                <span className="text-base font-bold">→</span>
-              </a>
             </div>
           </form>
         </div>
