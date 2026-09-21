@@ -371,6 +371,24 @@ export default function Login() {
                 )}
               </button>
             </div>
+
+            {/* Divider */}
+            <div className="relative flex py-1 items-center justify-center">
+              <div className="flex-grow border-t-2 border-slate-200"></div>
+              <span className="flex-shrink mx-3 text-xs font-black uppercase tracking-widest text-slate-400">or</span>
+              <div className="flex-grow border-t-2 border-slate-200"></div>
+            </div>
+
+            {/* Login to Code Pilot Button */}
+            <div>
+              <a
+                href="https://codepilot.webncode.in"
+                className="w-full py-3.5 sm:py-4 bg-[#f0f9ff] hover:bg-[#e0f2fe] border-2 border-slate-900 text-slate-900 font-black uppercase tracking-wider text-xs sm:text-sm rounded-xl shadow-[4px_4px_0px_0px_#0f172a] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_#0f172a] active:translate-y-[2px] active:shadow-[1px_1px_0px_0px_#0f172a] transition-all cursor-pointer flex items-center justify-center gap-2 text-center decoration-transparent"
+              >
+                <span>Login to Code Pilot</span>
+                <span className="text-base font-bold">→</span>
+              </a>
+            </div>
           </form>
         </div>
 
