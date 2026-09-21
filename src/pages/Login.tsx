@@ -212,17 +212,6 @@ export default function Login() {
         </Link>
       </div>
 
-      {/* Top-Right Login to Code Pilot Button (Corner of Screen) */}
-      <div className="absolute top-4 right-4 sm:top-6 sm:right-8 z-30">
-        <a
-          href="https://codepilot.webncode.in"
-          className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 bg-white border-2 border-slate-900 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider text-slate-900 shadow-[2px_2px_0px_0px_#0f172a] hover:bg-[#67e8f9] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#0f172a] transition-all"
-        >
-          <span>Login to Code Pilot</span>
-          <span className="text-sm font-black">→</span>
-        </a>
-      </div>
-
       {/* Top & Bottom Floating Logos — mobile only (sm:hidden on desktop) */}
       {floatingLogosEnabled && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 sm:hidden">
@@ -317,6 +306,25 @@ export default function Login() {
 
         {/* Form Card */}
         <div className="w-full bg-white border-2 border-slate-900 rounded-2xl p-8 sm:p-12 py-10 sm:py-14 shadow-[6px_6px_0px_0px_#0f172a] min-h-[420px] sm:min-h-[460px] flex flex-col justify-center relative z-20">
+          {/* Top-Right Button on Box with CodePilot Icon */}
+          <div className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-10">
+            <a
+              href="https://codepilot.webncode.in"
+              title="Go to Code Pilot"
+              className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 bg-[#f0f9ff] hover:bg-[#e0f2fe] border-2 border-slate-900 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider text-slate-900 shadow-[2px_2px_0px_0px_#0f172a] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#0f172a] transition-all cursor-pointer select-none"
+            >
+              <img
+                src="https://codepilot.webncode.in/logo.jpg"
+                alt="CodePilot"
+                className="w-4 h-4 sm:w-5 sm:h-5 rounded-md object-cover border border-slate-900"
+                onError={(e) => {
+                  (e.currentTarget as HTMLElement).style.display = 'none';
+                }}
+              />
+              <span>Login to Code Pilot</span>
+              <span className="text-xs sm:text-sm font-black">→</span>
+            </a>
+          </div>
           {authError && (
             <div className="mb-6 p-4 bg-rose-50 border-2 border-rose-600 text-rose-900 text-xs sm:text-sm font-bold rounded-xl flex items-center gap-2.5 shadow-[2px_2px_0px_0px_#e11d48]">
               <span>✕</span>
