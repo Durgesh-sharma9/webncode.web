@@ -18,7 +18,7 @@ export default function Products() {
   useEffect(() => {
     const fetchDynamicCategories = async () => {
       try {
-        const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+        const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:5000')
         const res = await axios.get(`${API_BASE}/api/categories`)
         if (res.data?.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
           const names = res.data.data.map((c: any) => c.name)
@@ -46,7 +46,7 @@ export default function Products() {
   useEffect(() => {
     const fetchDynamicProjects = async () => {
       try {
-        const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+        const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:5000')
         const res = await axios.get(`${API_BASE}/api/projects`)
         if (res.data?.success && Array.isArray(res.data.data)) {
           const mapped: Product[] = res.data.data.map((proj: any) => ({

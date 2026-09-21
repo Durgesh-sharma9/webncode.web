@@ -6,7 +6,7 @@ import SectionHeading from '../ui/SectionHeading'
 import { updates as fallbackUpdates, formatDate, type Update } from '../../data/updates'
 import { ArrowRightIcon } from '../ui/Icons'
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000'
+const API_BASE = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? '' : 'http://localhost:5000')
 
 // Strict Neo-brutalist solid tone tracking cards mapping
 const categoryColors: Record<string, string> = {

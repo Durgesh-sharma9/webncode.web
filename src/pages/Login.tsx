@@ -75,7 +75,7 @@ const BOTTOM_FLOATING_LOGOS: ScreenFloatingLogo[] = [
   { id: 306, size: 24, bottom: '88px', left: '38%', opacity: 0.44, anim: 'floatBottomB', duration: '5.0s', delay: '0.6s' },
 ]
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:5000')
 
 export default function Login() {
   const { login, isAuthenticated, isLoading } = useAuth()
