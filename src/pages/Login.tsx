@@ -81,8 +81,8 @@ export default function Login() {
   const { login, isAuthenticated, isLoading } = useAuth()
   const navigate = useNavigate()
 
-  const [email, setEmail] = useState('admin@gmail.com')
-  const [password, setPassword] = useState('123456')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const [isLoggingIn, setIsLoggingIn] = useState(false)
