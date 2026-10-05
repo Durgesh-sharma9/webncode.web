@@ -21,12 +21,14 @@ interface DashboardData {
     bankDetails?: any
   }
   stats: {
-    clicks: number
-    totalLeads: number
-    dealsWon: number
-    totalEarned: number
-    totalPaid: number
-    pendingPayout: number
+    clicks?: number
+    totalLeads?: number
+    dealsWon?: number
+    totalEarned?: number
+    totalPaid?: number
+    pendingPayout?: number
+    pendingWithdrawal?: number
+    availableBalance?: number
   }
   recentLeads: AffiliateLeadItem[]
 }
@@ -71,14 +73,20 @@ export default function AffiliateDashboard() {
     )
   }
 
-  const stats = data?.stats || {
+  const stats = {
     clicks: 0,
     totalLeads: 0,
     dealsWon: 0,
     totalEarned: 0,
     totalPaid: 0,
-    pendingPayout: 0
+    pendingPayout: 0,
+    pendingWithdrawal: 0,
+    availableBalance: 0,
+    ...(data?.stats || {})
   }
+
+  const availableBalance = stats.availableBalance ?? Math.max(0, (stats.totalEarned || 0) - (stats.totalPaid || 0) - (stats.pendingWithdrawal || 0))
+  const pendingSettlement = stats.pendingWithdrawal ?? stats.pendingPayout ?? 0
 
   return (
     <div className="space-y-6 font-mono text-slate-900">
@@ -94,7 +102,7 @@ export default function AffiliateDashboard() {
           </h1>
           <p className="text-xs text-slate-600 font-bold mt-0.5">
             {payoutType === 'fixed' ? (
-              <>Your reward model is <span className="text-emerald-700 font-black">₹{fixedAmount.toLocaleString('en-IN')} Flat</span> per closed project.</>
+              <>Your reward model is <span className="text-emerald-700 font-black">₹{(fixedAmount || 0).toLocaleString('en-IN')} Flat</span> per closed project.</>
             ) : (
               <>Your personal commission rate is <span className="text-emerald-700 font-black">{commissionRate}%</span> per closed deal.</>
             )}
@@ -110,35 +118,42 @@ export default function AffiliateDashboard() {
         </button>
       </div>
 
-      {/* KPI Cards (4 Clean Cards) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-xs">
+      {/* KPI Cards (Clean Responsive Grid) */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 text-xs">
         
         {/* Total Leads */}
         <div className="bg-white border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_0px_#000]">
           <span className="text-[10px] font-black uppercase text-slate-500">Leads Submitted</span>
-          <p className="text-2xl sm:text-3xl font-black mt-1 text-slate-900">{stats.totalLeads}</p>
+          <p className="text-2xl sm:text-3xl font-black mt-1 text-slate-900">{stats.totalLeads ?? 0}</p>
           <span className="text-[10px] text-slate-400 font-bold">In client pipeline</span>
         </div>
 
         {/* Closed Deals */}
         <div className="bg-white border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_0px_#000]">
           <span className="text-[10px] font-black uppercase text-slate-500">Deals Won</span>
-          <p className="text-2xl sm:text-3xl font-black mt-1 text-emerald-700">{stats.dealsWon}</p>
+          <p className="text-2xl sm:text-3xl font-black mt-1 text-emerald-700">{stats.dealsWon ?? 0}</p>
           <span className="text-[10px] text-slate-400 font-bold">Converted clients</span>
         </div>
 
-        {/* Total Earned */}
-        <div className="bg-white border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_0px_#000]">
-          <span className="text-[10px] font-black uppercase text-slate-500">Total Earned</span>
-          <p className="text-2xl sm:text-3xl font-black mt-1 text-slate-900">₹{stats.totalEarned.toLocaleString('en-IN')}</p>
-          <span className="text-[10px] text-slate-400 font-bold">Paid: ₹{stats.totalPaid.toLocaleString('en-IN')}</span>
+        {/* Available Balance */}
+        <div className="bg-[#f0fdf4] border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_0px_#000]">
+          <span className="text-[10px] font-black uppercase text-slate-500">Available Balance</span>
+          <p className="text-2xl sm:text-3xl font-black mt-1 text-emerald-700">₹{availableBalance.toLocaleString('en-IN')}</p>
+          <span className="text-[10px] text-emerald-700 font-bold">Ready to withdraw</span>
         </div>
 
-        {/* Pending Payout */}
+        {/* Pending Settlement */}
         <div className="bg-[#fffbeb] border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_0px_#000]">
           <span className="text-[10px] font-black uppercase text-slate-500">Pending Settlement</span>
-          <p className="text-2xl sm:text-3xl font-black mt-1 text-rose-600">₹{stats.pendingPayout.toLocaleString('en-IN')}</p>
-          <span className="text-[10px] text-slate-500 font-bold">Disbursed to your UPI/Bank</span>
+          <p className="text-2xl sm:text-3xl font-black mt-1 text-amber-700">₹{pendingSettlement.toLocaleString('en-IN')}</p>
+          <span className="text-[10px] text-slate-500 font-bold">Under admin verification</span>
+        </div>
+
+        {/* Total Earned */}
+        <div className="bg-white border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_0px_#000] col-span-2 sm:col-span-2 md:col-span-1">
+          <span className="text-[10px] font-black uppercase text-slate-500">Total Earned</span>
+          <p className="text-2xl sm:text-3xl font-black mt-1 text-slate-900">₹{(stats.totalEarned ?? 0).toLocaleString('en-IN')}</p>
+          <span className="text-[10px] text-slate-400 font-bold">Paid: ₹{(stats.totalPaid ?? 0).toLocaleString('en-IN')}</span>
         </div>
 
       </div>

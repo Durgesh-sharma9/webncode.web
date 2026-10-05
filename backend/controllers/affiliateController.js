@@ -502,6 +502,7 @@ exports.getAffiliateDashboard = async (req, res) => {
           totalEarned,
           totalPaid,
           pendingWithdrawal,
+          pendingPayout: pendingWithdrawal,
           availableBalance
         },
         recentLeads: leads.slice(0, 5)
