@@ -181,7 +181,7 @@ export default function AddLeadModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
-                Product Interested *
+                Product Sold / Pitched *
               </label>
               <select
                 value={formData.product}
