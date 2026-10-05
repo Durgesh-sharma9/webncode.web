@@ -76,8 +76,8 @@ export default function AffiliateLayout() {
         {/* SIDEBAR NAVIGATION */}
         {/* ========================================================= */}
         <aside
-          className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r-2 border-slate-900 flex flex-col justify-between transform transition-transform duration-200 ease-in-out md:static md:translate-x-0 ${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-0 md:translate-x-0 max-md:-translate-x-full'
+          className={`fixed md:sticky top-0 left-0 h-screen w-72 shrink-0 bg-white border-r-2 border-slate-900 z-40 flex flex-col justify-between overflow-y-auto transition-transform duration-200 ease-in-out ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
           }`}
         >
           <div>
