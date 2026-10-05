@@ -96,7 +96,7 @@ export default function AffiliateEarnings() {
 
         <button
           onClick={() => setIsWithdrawModalOpen(true)}
-          className="px-5 py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] transition-all flex items-center gap-2 cursor-pointer self-start sm:self-auto"
+          className="w-full sm:w-auto px-5 py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
         >
           <span>💸</span>
           <span>Request Payout</span>
@@ -180,70 +180,141 @@ export default function AffiliateEarnings() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto border-2 border-slate-900 rounded-lg shadow-[3px_3px_0px_0px_#000] bg-white">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#f1f5f9] border-b-2 border-slate-900 uppercase font-black tracking-wider text-slate-700">
-                <tr>
-                  <th className="p-3">Request Date</th>
-                  <th className="p-3">Amount</th>
-                  <th className="p-3">Destination</th>
-                  <th className="p-3">Status</th>
-                  <th className="p-3">Reference / UTR ID</th>
-                  <th className="p-3">Remarks / Reason</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y-2 divide-slate-100 font-medium">
-                {payouts.map((pay) => (
-                  <tr key={pay._id} className="hover:bg-slate-50 transition-colors">
-                    <td className="p-3 whitespace-nowrap font-bold text-slate-800">
-                      {new Date(pay.requestedAt || pay.createdAt || pay.paidAt || Date.now()).toLocaleDateString('en-IN', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric'
-                      })}
-                    </td>
-                    <td className="p-3 font-mono font-black text-emerald-700 text-sm">
-                      ₹{pay.amount.toLocaleString('en-IN')}
-                    </td>
-                    <td className="p-3 font-bold text-slate-700">
-                      <div>{pay.paymentMethod || 'UPI'}</div>
-                      {pay.payoutDetails && (
-                        <div className="text-[10px] text-slate-500 font-mono">{pay.payoutDetails}</div>
-                      )}
-                    </td>
-                    <td className="p-3">
-                      {pay.status === 'Paid' ? (
-                        <span className="px-2 py-0.5 bg-emerald-100 border border-emerald-600 text-emerald-900 rounded font-black text-[10px]">
-                          ✓ Paid Out
-                        </span>
-                      ) : pay.status === 'Rejected' ? (
-                        <span className="px-2 py-0.5 bg-rose-100 border border-rose-600 text-rose-900 rounded font-black text-[10px]">
-                          ✕ Rejected
-                        </span>
-                      ) : (
-                        <span className="px-2 py-0.5 bg-amber-100 border border-amber-600 text-amber-900 rounded font-black text-[10px]">
-                          🕒 Under 24h Review
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-3 font-mono text-slate-900">
-                      {pay.transactionReference ? (
-                        <span className="font-bold text-blue-700">{pay.transactionReference}</span>
-                      ) : (
-                        <span className="text-slate-400 italic">Processing...</span>
-                      )}
-                    </td>
-                    <td className="p-3 text-slate-600">
-                      {pay.status === 'Rejected' && pay.rejectionReason ? (
-                        <span className="text-rose-700 font-bold">Reason: {pay.rejectionReason}</span>
-                      ) : (
-                        pay.notes || '—'
-                      )}
-                    </td>
+          <div>
+            {/* Mobile Card List (< md) */}
+            <div className="block md:hidden space-y-3">
+              {payouts.map((pay) => (
+                <div
+                  key={pay._id}
+                  className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-[3px_3px_0px_0px_#000] space-y-2.5 text-xs"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold block uppercase">Amount</span>
+                      <span className="text-xl font-mono font-black text-emerald-700">
+                        ₹{pay.amount.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                    {pay.status === 'Paid' ? (
+                      <span className="px-2 py-0.5 bg-emerald-100 border border-emerald-600 text-emerald-900 rounded font-black text-[10px]">
+                        ✓ Paid Out
+                      </span>
+                    ) : pay.status === 'Rejected' ? (
+                      <span className="px-2 py-0.5 bg-rose-100 border border-rose-600 text-rose-900 rounded font-black text-[10px]">
+                        ✕ Rejected
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 bg-amber-100 border border-amber-600 text-amber-900 rounded font-black text-[10px]">
+                        🕒 Under 24h Review
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="bg-[#f8fafc] border border-slate-200 rounded-lg p-2.5 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase">Method:</span>
+                      <span className="text-[10px] font-black text-slate-800">{pay.paymentMethod || 'UPI'}</span>
+                    </div>
+                    {pay.payoutDetails && (
+                      <div className="text-[10px] font-mono text-slate-700 break-all">
+                        {pay.payoutDetails}
+                      </div>
+                    )}
+                  </div>
+
+                  {pay.transactionReference && (
+                    <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100">
+                      <span className="text-slate-500 font-bold uppercase text-[10px]">Bank UTR:</span>
+                      <span className="font-mono font-black text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                        {pay.transactionReference}
+                      </span>
+                    </div>
+                  )}
+
+                  {pay.status === 'Rejected' && pay.rejectionReason && (
+                    <div className="text-[10px] text-rose-800 bg-rose-50 border border-rose-200 rounded p-1.5 font-bold">
+                      Reason: {pay.rejectionReason}
+                    </div>
+                  )}
+
+                  <div className="text-[10px] text-slate-400 text-right">
+                    Requested:{' '}
+                    {new Date(pay.requestedAt || pay.createdAt || pay.paidAt || Date.now()).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric'
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table (>= md) */}
+            <div className="hidden md:block overflow-x-auto border-2 border-slate-900 rounded-lg shadow-[3px_3px_0px_0px_#000] bg-white">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#f1f5f9] border-b-2 border-slate-900 uppercase font-black tracking-wider text-slate-700">
+                  <tr>
+                    <th className="p-3">Request Date</th>
+                    <th className="p-3">Amount</th>
+                    <th className="p-3">Destination</th>
+                    <th className="p-3">Status</th>
+                    <th className="p-3">Reference / UTR ID</th>
+                    <th className="p-3">Remarks / Reason</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y-2 divide-slate-100 font-medium">
+                  {payouts.map((pay) => (
+                    <tr key={pay._id} className="hover:bg-slate-50 transition-colors">
+                      <td className="p-3 whitespace-nowrap font-bold text-slate-800">
+                        {new Date(pay.requestedAt || pay.createdAt || pay.paidAt || Date.now()).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric'
+                        })}
+                      </td>
+                      <td className="p-3 font-mono font-black text-emerald-700 text-sm">
+                        ₹{pay.amount.toLocaleString('en-IN')}
+                      </td>
+                      <td className="p-3 font-bold text-slate-700">
+                        <div>{pay.paymentMethod || 'UPI'}</div>
+                        {pay.payoutDetails && (
+                          <div className="text-[10px] text-slate-500 font-mono">{pay.payoutDetails}</div>
+                        )}
+                      </td>
+                      <td className="p-3">
+                        {pay.status === 'Paid' ? (
+                          <span className="px-2 py-0.5 bg-emerald-100 border border-emerald-600 text-emerald-900 rounded font-black text-[10px]">
+                            ✓ Paid Out
+                          </span>
+                        ) : pay.status === 'Rejected' ? (
+                          <span className="px-2 py-0.5 bg-rose-100 border border-rose-600 text-rose-900 rounded font-black text-[10px]">
+                            ✕ Rejected
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 bg-amber-100 border border-amber-600 text-amber-900 rounded font-black text-[10px]">
+                            🕒 Under 24h Review
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3 font-mono text-slate-900">
+                        {pay.transactionReference ? (
+                          <span className="font-bold text-blue-700">{pay.transactionReference}</span>
+                        ) : (
+                          <span className="text-slate-400 italic">Processing...</span>
+                        )}
+                      </td>
+                      <td className="p-3 text-slate-600">
+                        {pay.status === 'Rejected' && pay.rejectionReason ? (
+                          <span className="text-rose-700 font-bold">Reason: {pay.rejectionReason}</span>
+                        ) : (
+                          pay.notes || '—'
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
@@ -272,41 +343,88 @@ export default function AffiliateEarnings() {
             <p className="text-slate-500 mt-1">When leads are marked as 'Deal Won' by the admin, your commission appears here.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto border-2 border-slate-900 rounded-lg shadow-[3px_3px_0px_0px_#000] bg-white">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#f1f5f9] border-b-2 border-slate-900 uppercase font-black tracking-wider text-slate-700">
-                <tr>
-                  <th className="p-3">Client Organization</th>
-                  <th className="p-3">Product</th>
-                  <th className="p-3">Deal Value</th>
-                  <th className="p-3">Your Commission</th>
-                  <th className="p-3">Settlement Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y-2 divide-slate-100 font-medium">
-                {wonLeads.map((lead) => (
-                  <tr key={lead._id} className="hover:bg-slate-50 transition-colors">
-                    <td className="p-3 font-black text-slate-900">{lead.organizationName}</td>
-                    <td className="p-3 font-bold text-slate-700">{lead.product}</td>
-                    <td className="p-3 font-mono font-bold text-slate-900">
-                      ₹{(lead.dealValue || 0).toLocaleString('en-IN')}
-                    </td>
-                    <td className="p-3 font-mono font-black text-emerald-700">
-                      ₹{(lead.commissionAmount || 0).toLocaleString('en-IN')}
-                    </td>
-                    <td className="p-3">
-                      <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase border ${
+          <div>
+            {/* Mobile Card View (< md) */}
+            <div className="block md:hidden space-y-3">
+              {wonLeads.map((lead) => (
+                <div
+                  key={lead._id}
+                  className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-[3px_3px_0px_0px_#000] space-y-2 text-xs"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-black text-slate-900 text-sm leading-snug">
+                      {lead.organizationName}
+                    </h3>
+                    <span
+                      className={`shrink-0 px-2 py-0.5 rounded text-[9px] font-black uppercase border ${
                         lead.commissionStatus === 'Paid'
                           ? 'bg-emerald-100 text-emerald-800 border-emerald-400'
                           : 'bg-amber-100 text-amber-800 border-amber-400'
-                      }`}>
-                        {lead.commissionStatus || 'Approved'}
+                      }`}
+                    >
+                      {lead.commissionStatus || 'Approved'}
+                    </span>
+                  </div>
+
+                  <div className="text-[11px] font-bold text-slate-600">
+                    Product: <span className="text-slate-900 font-black">{lead.product}</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 bg-[#f8fafc] border border-slate-200 rounded-lg p-2.5 font-mono text-center">
+                    <div>
+                      <span className="text-[9px] font-sans font-black uppercase text-slate-400 block">Deal Closed</span>
+                      <span className="text-xs font-black text-slate-900">
+                        ₹{(lead.dealValue || 0).toLocaleString('en-IN')}
                       </span>
-                    </td>
+                    </div>
+                    <div>
+                      <span className="text-[9px] font-sans font-black uppercase text-slate-400 block">Commission</span>
+                      <span className="text-xs font-black text-emerald-700">
+                        ₹{(lead.commissionAmount || 0).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table (>= md) */}
+            <div className="hidden md:block overflow-x-auto border-2 border-slate-900 rounded-lg shadow-[3px_3px_0px_0px_#000] bg-white">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#f1f5f9] border-b-2 border-slate-900 uppercase font-black tracking-wider text-slate-700">
+                  <tr>
+                    <th className="p-3">Client Organization</th>
+                    <th className="p-3">Product</th>
+                    <th className="p-3">Deal Value</th>
+                    <th className="p-3">Your Commission</th>
+                    <th className="p-3">Settlement Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y-2 divide-slate-100 font-medium">
+                  {wonLeads.map((lead) => (
+                    <tr key={lead._id} className="hover:bg-slate-50 transition-colors">
+                      <td className="p-3 font-black text-slate-900">{lead.organizationName}</td>
+                      <td className="p-3 font-bold text-slate-700">{lead.product}</td>
+                      <td className="p-3 font-mono font-bold text-slate-900">
+                        ₹{(lead.dealValue || 0).toLocaleString('en-IN')}
+                      </td>
+                      <td className="p-3 font-mono font-black text-emerald-700">
+                        ₹{(lead.commissionAmount || 0).toLocaleString('en-IN')}
+                      </td>
+                      <td className="p-3">
+                        <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase border ${
+                          lead.commissionStatus === 'Paid'
+                            ? 'bg-emerald-100 text-emerald-800 border-emerald-400'
+                            : 'bg-amber-100 text-amber-800 border-amber-400'
+                        }`}>
+                          {lead.commissionStatus || 'Approved'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

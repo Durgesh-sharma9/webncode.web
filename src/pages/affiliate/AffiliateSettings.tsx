@@ -104,7 +104,7 @@ export default function AffiliateSettings() {
       </div>
 
       {/* Form Card */}
-      <div className="bg-white border-2 border-slate-900 rounded-xl p-6 sm:p-8 shadow-[4px_4px_0px_0px_#000]">
+      <div className="bg-white border-2 border-slate-900 rounded-xl p-4 sm:p-8 shadow-[4px_4px_0px_0px_#000]">
         <h2 className="text-base font-black uppercase tracking-tight text-slate-900 mb-4 border-b-2 border-slate-900 pb-2 inline-block">
           Payout Account Information
         </h2>
@@ -192,7 +192,7 @@ export default function AffiliateSettings() {
             <button
               type="submit"
               disabled={isSaving}
-              className="px-6 py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-50 transition-all"
+              className="w-full sm:w-auto px-6 py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-50 transition-all text-center cursor-pointer"
             >
               {isSaving ? 'Saving...' : 'Save Payout Details'}
             </button>

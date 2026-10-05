@@ -91,8 +91,8 @@ export default function RequestWithdrawalModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs font-mono">
-      <div className="relative w-full max-w-md bg-white border-2 border-slate-900 rounded-xl p-6 sm:p-7 shadow-[6px_6px_0px_0px_#0f172a]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-3 sm:p-4 backdrop-blur-xs font-mono">
+      <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-white border-2 border-slate-900 rounded-xl p-5 sm:p-7 shadow-[6px_6px_0px_0px_#0f172a]">
         
         {/* Header */}
         <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-4">
@@ -234,18 +234,18 @@ export default function RequestWithdrawalModal({
             </div>
 
             {/* Buttons */}
-            <div className="flex items-center justify-end gap-3 pt-3 border-t-2 border-slate-900 mt-4">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-3 border-t-2 border-slate-900 mt-4">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 bg-white border-2 border-slate-900 rounded-md font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2 bg-white border-2 border-slate-900 rounded-md font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors text-center cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting || availableBalance < 100}
-                className="px-5 py-2 bg-[#86efac] border-2 border-slate-900 rounded-md font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-50 transition-all cursor-pointer"
+                className="w-full sm:w-auto px-5 py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-50 transition-all text-center cursor-pointer"
               >
                 {isSubmitting ? 'Submitting...' : 'Submit Request'}
               </button>

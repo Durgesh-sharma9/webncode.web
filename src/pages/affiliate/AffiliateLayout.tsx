@@ -194,12 +194,32 @@ export default function AffiliateLayout() {
           </header>
 
           {/* Sub-page Outlet */}
-          <main className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">
+          <main className="flex-1 p-3.5 sm:p-8 pb-24 md:pb-8 max-w-7xl w-full mx-auto min-w-0 overflow-x-hidden">
             <Outlet />
           </main>
         </div>
 
       </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t-2 border-slate-900 grid grid-cols-4 py-1.5 px-2 shadow-[0_-4px_12px_rgba(0,0,0,0.1)] font-mono">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) =>
+              `flex flex-col items-center justify-center py-1.5 px-1 rounded-lg text-[10px] font-black uppercase tracking-tight transition-all ${
+                isActive
+                  ? 'bg-slate-900 text-white shadow-[2px_2px_0px_0px_#ff9e7d]'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`
+            }
+          >
+            <span className="text-base leading-none mb-1">{item.icon}</span>
+            <span className="truncate max-w-[70px] text-[9px]">{item.label.split(' ')[0]}</span>
+          </NavLink>
+        ))}
+      </nav>
     </div>
   )
 }
