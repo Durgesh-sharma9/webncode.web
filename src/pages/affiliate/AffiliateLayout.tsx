@@ -144,17 +144,10 @@ export default function AffiliateLayout() {
               <p className="text-[10px] text-slate-500 truncate">{user?.email}</p>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Link
-                to="/"
-                target="_blank"
-                className="flex-1 py-1.5 px-2 bg-white border border-slate-900 rounded font-bold text-[10px] uppercase text-center hover:bg-slate-100"
-              >
-                View Website ↗
-              </Link>
+            <div>
               <button
                 onClick={handleLogout}
-                className="py-1.5 px-3 bg-rose-50 border border-rose-500 text-rose-700 rounded font-black text-[10px] uppercase hover:bg-rose-100"
+                className="w-full py-2 px-3 bg-rose-50 border-2 border-slate-900 text-rose-700 rounded-md font-black text-xs uppercase hover:bg-rose-100 transition-colors shadow-[2px_2px_0px_0px_#000] cursor-pointer text-center"
               >
                 Logout
               </button>
