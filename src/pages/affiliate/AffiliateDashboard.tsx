@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { API_BASE, type AffiliateLeadItem } from '../admin/types'
 import { showErrorToast } from '../../components/ui/Toast'
 import AddLeadModal from './AddLeadModal'
+import RequestWithdrawalModal from './RequestWithdrawalModal'
 
 interface DashboardData {
   profile: {
@@ -38,6 +39,7 @@ export default function AffiliateDashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false)
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
 
   const fetchDashboard = async () => {
     setIsLoading(true)
@@ -109,13 +111,43 @@ export default function AffiliateDashboard() {
           </p>
         </div>
 
-        <button
-          onClick={() => setIsLeadModalOpen(true)}
-          className="px-5 py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] transition-all flex items-center justify-center gap-2 cursor-pointer self-start sm:self-auto"
-        >
-          <span className="text-base leading-none">+</span>
-          <span>Submit Client Lead</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          {availableBalance > 0 && (
+            <button
+              onClick={() => setIsWithdrawModalOpen(true)}
+              className="px-4 py-2.5 bg-[#fef08a] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <span>💸</span>
+              <span>Withdraw ₹{availableBalance.toLocaleString('en-IN')}</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => setIsLeadModalOpen(true)}
+            className="px-5 py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <span className="text-base leading-none">+</span>
+            <span>Submit Client Lead</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 24-48 Hours Verification Notice Banner */}
+      <div className="bg-[#fef08a] border-2 border-slate-900 rounded-xl p-4 shadow-[4px_4px_0px_0px_#000] flex items-start gap-3">
+        <span className="text-2xl leading-none">🕒</span>
+        <div className="text-xs">
+          <div className="flex items-center gap-2">
+            <span className="font-black uppercase text-slate-900 tracking-wider text-sm">
+              24 se 48 Ghante (24-48 Hours) Payout Policy
+            </span>
+            <span className="px-2 py-0.5 bg-white border border-slate-900 rounded text-[10px] font-black text-slate-900 uppercase">
+              Fast Settlement
+            </span>
+          </div>
+          <p className="text-slate-800 font-bold mt-1 leading-relaxed">
+            Jab aap withdrawal request bhejte hain, admin team aapki deals verify karke <strong>24 se 48 ghante (24-48 Hours) ke andar</strong> aapke UPI ya Bank account me paise transfer kar deti hai.
+          </p>
+        </div>
       </div>
 
       {/* KPI Cards (Clean Responsive Grid) */}
@@ -136,10 +168,21 @@ export default function AffiliateDashboard() {
         </div>
 
         {/* Available Balance */}
-        <div className="bg-[#f0fdf4] border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_0px_#000]">
-          <span className="text-[10px] font-black uppercase text-slate-500">Available Balance</span>
-          <p className="text-2xl sm:text-3xl font-black mt-1 text-emerald-700">₹{availableBalance.toLocaleString('en-IN')}</p>
-          <span className="text-[10px] text-emerald-700 font-bold">Ready to withdraw</span>
+        <div className="bg-[#f0fdf4] border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_0px_#000] flex flex-col justify-between">
+          <div>
+            <span className="text-[10px] font-black uppercase text-slate-500">Available Balance</span>
+            <p className="text-2xl sm:text-3xl font-black mt-1 text-emerald-700">₹{availableBalance.toLocaleString('en-IN')}</p>
+          </div>
+          {availableBalance > 0 ? (
+            <button
+              onClick={() => setIsWithdrawModalOpen(true)}
+              className="mt-2 text-[10px] bg-emerald-100 hover:bg-emerald-200 border border-emerald-700 text-emerald-950 font-black py-1 px-2 rounded cursor-pointer uppercase tracking-wider text-center"
+            >
+              Withdraw ➔
+            </button>
+          ) : (
+            <span className="text-[10px] text-emerald-700 font-bold mt-1">Ready to withdraw</span>
+          )}
         </div>
 
         {/* Pending Settlement */}
@@ -275,6 +318,16 @@ export default function AffiliateDashboard() {
         fixedAmount={fixedAmount}
         allowedProducts={allowedProducts}
         onLeadAdded={fetchDashboard}
+      />
+
+      {/* Request Withdrawal Modal */}
+      <RequestWithdrawalModal
+        isOpen={isWithdrawModalOpen}
+        onClose={() => setIsWithdrawModalOpen(false)}
+        availableBalance={availableBalance}
+        bankDetails={data?.profile?.bankDetails}
+        token={token}
+        onRequestSubmitted={fetchDashboard}
       />
 
     </div>

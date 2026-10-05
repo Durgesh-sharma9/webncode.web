@@ -1,5 +1,4 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { API_BASE } from '../admin/types'
 import { showSuccessToast, showErrorToast } from '../../components/ui/Toast'
@@ -33,7 +32,8 @@ export default function RequestWithdrawalModal({
   const hasBank = Boolean(bankDetails?.accountNumber && bankDetails.accountNumber.trim())
   const isConfigured = hasUpi || hasBank
 
-  const [amount, setAmount] = useState<string>(availableBalance > 0 ? String(availableBalance) : '500')
+  const [amount, setAmount] = useState<string>(availableBalance > 0 ? String(availableBalance) : '100')
+  const [inlineUpi, setInlineUpi] = useState<string>('')
   const [notes, setNotes] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submittedSuccess, setSubmittedSuccess] = useState(false)
@@ -47,13 +47,18 @@ export default function RequestWithdrawalModal({
       return
     }
 
-    if (numAmount < 500) {
-      showErrorToast('Minimum withdrawal amount is ₹500')
+    if (numAmount < 100) {
+      showErrorToast('Minimum withdrawal amount is ₹100')
       return
     }
 
     if (numAmount > availableBalance) {
       showErrorToast(`Amount cannot exceed available balance of ₹${availableBalance.toLocaleString('en-IN')}`)
+      return
+    }
+
+    if (!isConfigured && !inlineUpi.trim()) {
+      showErrorToast('Please enter your UPI ID or Bank account to receive payout')
       return
     }
 
@@ -67,14 +72,15 @@ export default function RequestWithdrawalModal({
         `${API_BASE}/api/affiliate-portal/request-payout`,
         {
           amount: numAmount,
-          paymentMethod: hasUpi ? 'UPI' : 'Bank Transfer',
+          paymentMethod: hasUpi || inlineUpi.trim() ? 'UPI' : 'Bank Transfer',
+          upiId: inlineUpi.trim() || undefined,
           notes
         },
         config
       )
 
       setSubmittedSuccess(true)
-      showSuccessToast('Withdrawal request submitted! Verification within 24 hours.')
+      showSuccessToast('Withdrawal request submitted! Verification within 24-48 hours.')
       onRequestSubmitted()
     } catch (err: any) {
       console.error('Request payout error:', err)
@@ -100,7 +106,7 @@ export default function RequestWithdrawalModal({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center border-2 border-slate-900 rounded-md font-black text-slate-900 hover:bg-[#ff9e7d] transition-colors"
+            className="w-8 h-8 flex items-center justify-center border-2 border-slate-900 rounded-md font-black text-slate-900 hover:bg-[#ff9e7d] transition-colors cursor-pointer"
           >
             ×
           </button>
@@ -108,36 +114,39 @@ export default function RequestWithdrawalModal({
 
         {submittedSuccess ? (
           <div className="text-center py-6 space-y-4">
-            <div className="w-16 h-16 bg-emerald-100 border-2 border-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl font-black text-emerald-800">
+            <div className="w-16 h-16 bg-[#86efac] border-2 border-slate-900 rounded-full flex items-center justify-center mx-auto text-2xl font-black text-slate-900 shadow-[3px_3px_0px_0px_#000]">
               ✓
             </div>
             <div>
-              <h3 className="text-base font-black uppercase text-slate-900">Request Submitted Successfully!</h3>
-              <div className="mt-3 p-3.5 bg-emerald-50 border-2 border-emerald-500 rounded-lg text-xs text-emerald-950 font-bold leading-relaxed text-left">
-                🕒 <span className="underline">24 Hours Guarantee:</span> Hum aapki closed deals aur bank details verify karke <span className="text-emerald-800 font-black">24 hours ke andar</span> aapke account me amount transfer kar denge.
+              <h3 className="text-base font-black uppercase text-slate-900">Payout Request Submitted!</h3>
+              <div className="mt-3 p-4 bg-[#f0fdf4] border-2 border-slate-900 rounded-lg text-xs text-slate-900 font-bold leading-relaxed text-left shadow-[2px_2px_0px_0px_#000]">
+                🕒 <span className="font-black underline text-emerald-800">24-48 Hours Verification Policy:</span>
+                <p className="mt-1 text-slate-700">
+                  Admin team aapki request aur deals verify karke <span className="font-black text-emerald-800">24 se 48 ghante (24-48 Hours) me</span> paise aapke account me transfer kar degi.
+                </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-slate-900 text-white rounded-md font-black uppercase text-xs shadow-[2px_2px_0px_0px_#ff9e7d] hover:bg-slate-800 transition-colors"
+              className="px-6 py-2.5 bg-slate-900 text-white rounded-md font-black uppercase text-xs shadow-[2px_2px_0px_0px_#ff9e7d] hover:bg-slate-800 transition-colors cursor-pointer"
             >
-              Close Window
+              Done / Close
             </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             
             {/* Balance Overview */}
-            <div className="bg-[#f8fafc] border-2 border-slate-900 rounded-lg p-3 flex items-center justify-between">
+            <div className="bg-[#f0fdf4] border-2 border-slate-900 rounded-lg p-3 flex items-center justify-between shadow-[2px_2px_0px_0px_#000]">
               <div>
                 <span className="text-[10px] uppercase font-black text-slate-500 block">Available to Withdraw</span>
-                <span className="text-xl font-black text-emerald-700">₹{availableBalance.toLocaleString('en-IN')}</span>
+                <span className="text-2xl font-black text-emerald-700">₹{availableBalance.toLocaleString('en-IN')}</span>
               </div>
               {availableBalance > 0 && (
                 <button
                   type="button"
                   onClick={() => setAmount(String(availableBalance))}
-                  className="px-2 py-1 bg-emerald-100 hover:bg-emerald-200 border border-emerald-700 text-emerald-900 rounded font-black text-[10px] uppercase cursor-pointer"
+                  className="px-3 py-1.5 bg-[#86efac] hover:bg-[#6ee7b7] border-2 border-slate-900 text-slate-900 rounded-md font-black text-[10px] uppercase cursor-pointer shadow-[1px_1px_0px_0px_#000]"
                 >
                   Withdraw All
                 </button>
@@ -160,11 +169,18 @@ export default function RequestWithdrawalModal({
                   <div className="text-[11px] text-slate-600">A/C: {bankDetails?.accountNumber} | IFSC: {bankDetails?.ifscCode}</div>
                 </div>
               ) : (
-                <div className="text-rose-700 font-bold bg-rose-50 border border-rose-200 rounded p-2 text-[11px]">
-                  ⚠️ No UPI or Bank account found.{' '}
-                  <Link to="/affiliate/settings" onClick={onClose} className="underline font-black text-blue-700">
-                    Add Details in Settings
-                  </Link>
+                <div className="space-y-1.5">
+                  <div className="text-amber-800 font-bold bg-amber-50 border border-amber-300 rounded p-2 text-[11px]">
+                    Enter your UPI ID below to receive this payment:
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={inlineUpi}
+                    onChange={(e) => setInlineUpi(e.target.value)}
+                    placeholder="e.g. yourname@okhdfcbank or 9876543210@paytm"
+                    className="w-full border-2 border-slate-900 rounded-md px-3 py-1.5 font-bold text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
+                  />
                 </div>
               )}
             </div>
@@ -178,18 +194,18 @@ export default function RequestWithdrawalModal({
                 <span className="font-black text-sm text-slate-900">₹</span>
                 <input
                   type="number"
-                  min="500"
+                  min="100"
                   max={availableBalance}
-                  step="100"
+                  step="any"
                   required
-                  disabled={!isConfigured || availableBalance < 500}
+                  disabled={availableBalance < 100}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-black text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none disabled:bg-slate-100"
-                  placeholder="e.g. 5000"
+                  placeholder="e.g. 750"
                 />
               </div>
-              <p className="text-[10px] text-slate-500 mt-1">Minimum withdrawal amount is ₹500.</p>
+              <p className="text-[10px] text-slate-500 mt-1">Minimum withdrawal amount is ₹100.</p>
             </div>
 
             {/* Notes */}
@@ -206,9 +222,15 @@ export default function RequestWithdrawalModal({
               />
             </div>
 
-            {/* 24-Hour Assurance Alert Box */}
-            <div className="p-3 bg-amber-50 border-2 border-amber-400 rounded-lg text-amber-950 text-xs font-bold leading-relaxed">
-              🕒 <span className="font-black uppercase">24 Hours Transfer Policy:</span> Admin aapki request verify karke 24 ghante ke andar aapke UPI / Bank me paise transfer kar dega.
+            {/* 24 - 48 Hours Prominent Assurance Notice */}
+            <div className="p-3 bg-[#fef08a] border-2 border-slate-900 rounded-lg text-slate-950 text-xs font-bold leading-relaxed shadow-[2px_2px_0px_0px_#000]">
+              <div className="flex items-center gap-1.5 text-xs font-black uppercase text-slate-900 mb-0.5">
+                <span>🕒</span>
+                <span>24 se 48 Hours Transfer Guarantee</span>
+              </div>
+              <p className="text-[11px] text-slate-800">
+                Aapki request receive hote hi admin team closed deals verify karke <strong>24 se 48 ghante (24-48 Hours) me</strong> aapke account me paise bhej degi.
+              </p>
             </div>
 
             {/* Buttons */}
@@ -216,13 +238,13 @@ export default function RequestWithdrawalModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 bg-white border-2 border-slate-900 rounded-md font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors"
+                className="px-4 py-2 bg-white border-2 border-slate-900 rounded-md font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting || !isConfigured || availableBalance < 500}
+                disabled={isSubmitting || availableBalance < 100}
                 className="px-5 py-2 bg-[#86efac] border-2 border-slate-900 rounded-md font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-50 transition-all cursor-pointer"
               >
                 {isSubmitting ? 'Submitting...' : 'Submit Request'}

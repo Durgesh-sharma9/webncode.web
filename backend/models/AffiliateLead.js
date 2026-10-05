@@ -40,6 +40,9 @@ const affiliateLeadSchema = new mongoose.Schema(
       type: String,
       default: 'School ERP Pro'
     },
+    products: [{
+      type: String
+    }],
     status: {
       type: String,
       enum: ['New', 'Contacted', 'Demo Scheduled', 'In Negotiation', 'Deal Won', 'Lost'],

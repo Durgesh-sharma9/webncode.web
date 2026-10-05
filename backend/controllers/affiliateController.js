@@ -557,7 +557,7 @@ exports.createAffiliateLead = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Affiliate profile not found' });
     }
 
-    const { organizationName, contactPerson, phone, email, city, product, notes, estimatedValue } = req.body;
+    const { organizationName, contactPerson, phone, email, city, product, products, notes, estimatedValue } = req.body;
 
     if (!organizationName || !contactPerson || !phone) {
       return res.status(400).json({
@@ -569,6 +569,11 @@ exports.createAffiliateLead = async (req, res) => {
     const estValue = Number(estimatedValue) || 0;
     const projectedCommission = estValue > 0 ? Math.round((estValue * affiliate.commissionRate) / 100) : 0;
 
+    const productList = Array.isArray(products) && products.length > 0
+      ? products
+      : (product ? String(product).split(',').map(p => p.trim()).filter(Boolean) : ['School ERP Pro']);
+    const productDisplay = productList.length > 0 ? productList.join(', ') : 'School ERP Pro';
+
     const lead = await AffiliateLead.create({
       affiliate: affiliate._id,
       organizationName: organizationName.trim(),
@@ -576,7 +581,8 @@ exports.createAffiliateLead = async (req, res) => {
       phone: phone.trim(),
       email: email ? email.trim().toLowerCase() : '',
       city: city ? city.trim() : '',
-      product: product || 'School ERP Pro',
+      product: productDisplay,
+      products: productList,
       dealValue: estValue,
       commissionAmount: projectedCommission,
       status: 'New',
@@ -708,15 +714,28 @@ exports.requestPayoutByAffiliate = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Affiliate profile not found' });
     }
 
-    const { amount, paymentMethod, notes } = req.body;
+    const { amount, paymentMethod, notes, upiId, accountNumber, ifscCode, accountHolder, bankName } = req.body;
     const reqAmount = Number(amount);
 
     if (!reqAmount || reqAmount <= 0) {
       return res.status(400).json({ success: false, message: 'Please enter a valid withdrawal amount' });
     }
 
-    if (reqAmount < 500) {
-      return res.status(400).json({ success: false, message: 'Minimum withdrawal amount is ₹500' });
+    if (reqAmount < 100) {
+      return res.status(400).json({ success: false, message: 'Minimum withdrawal amount is ₹100' });
+    }
+
+    // If affiliate passed bank/upi details inline, save them to profile
+    if (!affiliate.bankDetails) affiliate.bankDetails = {};
+    if (upiId && upiId.trim()) affiliate.bankDetails.upiId = upiId.trim();
+    if (accountNumber && accountNumber.trim()) {
+      affiliate.bankDetails.accountNumber = accountNumber.trim();
+      if (ifscCode) affiliate.bankDetails.ifscCode = ifscCode.trim().toUpperCase();
+      if (accountHolder) affiliate.bankDetails.accountHolder = accountHolder.trim();
+      if (bankName) affiliate.bankDetails.bankName = bankName.trim();
+    }
+    if (upiId || accountNumber) {
+      await affiliate.save();
     }
 
     // Check bank / UPI configuration
@@ -726,7 +745,7 @@ exports.requestPayoutByAffiliate = async (req, res) => {
     if (!hasUpi && !hasBank) {
       return res.status(400).json({
         success: false,
-        message: 'Please configure your UPI ID or Bank Account in "Bank & UPI Settings" before requesting withdrawal.'
+        message: 'Please provide your UPI ID or Bank Account to receive payment.'
       });
     }
 
@@ -796,7 +815,7 @@ exports.requestPayoutByAffiliate = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Withdrawal request submitted! We will verify your details and disburse payment within 24 hours.',
+      message: 'Withdrawal request submitted! Verify karke 24-48 ghante me paise aapke account me daal diye jayenge.',
       data: payout
     });
   } catch (error) {

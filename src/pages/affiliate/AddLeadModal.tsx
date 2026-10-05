@@ -39,13 +39,16 @@ export default function AddLeadModal({
         'Custom Software / App'
       ]
 
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([availableList[0] || 'School ERP Pro'])
+  const [customProduct, setCustomProduct] = useState('')
+  const [showCustomInput, setShowCustomInput] = useState(false)
+
   const [formData, setFormData] = useState({
     organizationName: '',
     contactPerson: '',
     phone: '',
     email: '',
     city: '',
-    product: availableList[0] || 'School ERP Pro',
     estimatedValue: '',
     notes: ''
   })
@@ -54,8 +57,36 @@ export default function AddLeadModal({
   const estVal = Number(formData.estimatedValue) || 0
   const projectedCommission = estVal > 0 ? Math.round((estVal * commissionRate) / 100) : 0
 
+  const toggleProduct = (prod: string) => {
+    if (selectedProducts.includes(prod)) {
+      if (selectedProducts.length > 1) {
+        setSelectedProducts(selectedProducts.filter((p) => p !== prod))
+      } else {
+        showErrorToast('Kam se kam ek product chunein')
+      }
+    } else {
+      setSelectedProducts([...selectedProducts, prod])
+    }
+  }
+
+  const handleAddCustomProduct = () => {
+    const val = customProduct.trim()
+    if (!val) return
+    if (!selectedProducts.includes(val)) {
+      setSelectedProducts([...selectedProducts, val])
+    }
+    setCustomProduct('')
+    setShowCustomInput(false)
+  }
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+
+    if (selectedProducts.length === 0) {
+      showErrorToast('Kripya kam se kam ek product ya project select karein')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -63,7 +94,18 @@ export default function AddLeadModal({
         headers: token ? { Authorization: `Bearer ${token}` } : undefined
       }
 
-      await axios.post(`${API_BASE}/api/affiliate-portal/leads`, formData, config)
+      const productSummary = selectedProducts.join(', ')
+
+      await axios.post(
+        `${API_BASE}/api/affiliate-portal/leads`,
+        {
+          ...formData,
+          product: productSummary,
+          products: selectedProducts
+        },
+        config
+      )
+
       showSuccessToast('Client lead submitted successfully! Our team will contact them.')
       onLeadAdded()
       onClose()
@@ -94,7 +136,7 @@ export default function AddLeadModal({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center border-2 border-slate-900 rounded-md font-black text-slate-900 hover:bg-[#ff9e7d] transition-colors"
+            className="w-8 h-8 flex items-center justify-center border-2 border-slate-900 rounded-md font-black text-slate-900 hover:bg-[#ff9e7d] transition-colors cursor-pointer"
           >
             ×
           </button>
@@ -177,36 +219,152 @@ export default function AddLeadModal({
             </div>
           </div>
 
-          {/* Product Interested & Estimated Value */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
-                Product Sold / Pitched *
+          {/* Multiple Products Selection */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block font-black uppercase tracking-wider text-slate-700">
+                Products Pitched / Sold (Select 1 or Multiple) *
               </label>
-              <select
-                value={formData.product}
-                onChange={(e) => setFormData({ ...formData, product: e.target.value })}
-                className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-bold text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-              >
-                {availableList.map((prod) => (
-                  <option key={prod} value={prod}>{prod}</option>
-                ))}
-              </select>
+              <span className="text-[10px] text-blue-700 font-bold">
+                {selectedProducts.length} Selected
+              </span>
             </div>
 
-            <div>
-              <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
-                Estimated Deal Value (₹ Optional)
-              </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 bg-slate-50 border-2 border-slate-900 rounded-lg max-h-52 overflow-y-auto">
+              {availableList.map((prod) => {
+                const isSelected = selectedProducts.includes(prod)
+                return (
+                  <label
+                    key={prod}
+                    className={`flex items-center gap-2.5 p-2 rounded-md border-2 cursor-pointer select-none transition-all ${
+                      isSelected
+                        ? 'bg-[#86efac] border-slate-900 font-black text-slate-900 shadow-[2px_2px_0px_0px_#000]'
+                        : 'bg-white border-slate-300 font-bold text-slate-700 hover:border-slate-500'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleProduct(prod)}
+                      className="w-4 h-4 accent-slate-900 rounded cursor-pointer"
+                    />
+                    <span className="text-xs">{prod}</span>
+                  </label>
+                )
+              })}
+
+              {/* Any custom products added by affiliate */}
+              {selectedProducts
+                .filter((p) => !availableList.includes(p))
+                .map((custom) => (
+                  <label
+                    key={custom}
+                    className="flex items-center justify-between p-2 rounded-md border-2 bg-blue-100 border-slate-900 font-black text-slate-900 shadow-[2px_2px_0px_0px_#000]"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs">★ {custom}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => toggleProduct(custom)}
+                      className="text-rose-700 hover:text-rose-900 font-black text-xs px-1 cursor-pointer"
+                      title="Remove"
+                    >
+                      ×
+                    </button>
+                  </label>
+                ))}
+            </div>
+
+            {/* Custom product adder */}
+            <div className="mt-2">
+              {!showCustomInput ? (
+                <button
+                  type="button"
+                  onClick={() => setShowCustomInput(true)}
+                  className="text-[11px] font-black text-blue-700 hover:underline cursor-pointer flex items-center gap-1"
+                >
+                  <span>+</span>
+                  <span>Add Another / Custom Software Product</span>
+                </button>
+              ) : (
+                <div className="flex items-center gap-2 mt-1">
+                  <input
+                    type="text"
+                    value={customProduct}
+                    onChange={(e) => setCustomProduct(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        handleAddCustomProduct()
+                      }
+                    }}
+                    placeholder="Enter custom product/service name..."
+                    className="flex-1 border-2 border-slate-900 rounded-md px-3 py-1.5 text-xs font-bold text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddCustomProduct}
+                    className="px-3 py-1.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000] hover:bg-[#6ee7b7] cursor-pointer"
+                  >
+                    Add
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCustomInput(false)
+                      setCustomProduct('')
+                    }}
+                    className="px-2 py-1.5 text-slate-600 hover:text-slate-900 text-xs font-bold cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Chips of chosen products */}
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {selectedProducts.map((p) => (
+                <span
+                  key={p}
+                  className="px-2 py-0.5 bg-[#fef08a] border border-slate-900 rounded font-black text-[10px] text-slate-900 flex items-center gap-1"
+                >
+                  <span>✓ {p}</span>
+                  {selectedProducts.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => toggleProduct(p)}
+                      className="hover:text-rose-700 cursor-pointer text-xs leading-none"
+                    >
+                      ×
+                    </button>
+                  )}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Estimated Value */}
+          <div>
+            <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
+              Estimated Total Deal Value (₹ Optional)
+            </label>
+            <div className="flex items-center gap-2">
+              <span className="font-black text-sm text-slate-900">₹</span>
               <input
                 type="number"
                 min="0"
+                step="any"
                 value={formData.estimatedValue}
                 onChange={(e) => setFormData({ ...formData, estimatedValue: e.target.value })}
                 className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-bold text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
                 placeholder="e.g. 50000"
               />
             </div>
+            <p className="text-[10px] text-slate-500 mt-1">
+              If client wants multiple products bundled together, enter estimated total package cost.
+            </p>
           </div>
 
           {/* Projected Commission / Reward Badge */}
@@ -234,7 +392,7 @@ export default function AddLeadModal({
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-medium text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-              placeholder="e.g. Principal requested demo on Thursday at 11 AM"
+              placeholder="e.g. School needs ERP + Attendance System. Principal requested demo on Thursday at 11 AM"
             />
           </div>
 
@@ -242,14 +400,14 @@ export default function AddLeadModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-white border-2 border-slate-900 rounded-md font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors"
+              className="px-4 py-2 bg-white border-2 border-slate-900 rounded-md font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 bg-[#86efac] border-2 border-slate-900 rounded-md font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-50 transition-all"
+              className="px-5 py-2 bg-[#86efac] border-2 border-slate-900 rounded-md font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-50 transition-all cursor-pointer"
             >
               {isSubmitting ? 'Submitting...' : 'Submit Lead'}
             </button>

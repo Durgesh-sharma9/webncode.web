@@ -103,14 +103,16 @@ export default function AffiliateEarnings() {
         </button>
       </div>
 
-      {/* 24-Hour Assurance Banner */}
-      <div className="bg-[#f0fdf4] border-2 border-slate-900 rounded-xl p-3.5 shadow-[3px_3px_0px_0px_#000] flex items-center justify-between gap-3 text-xs">
+      {/* 24-48 Hours Assurance Banner */}
+      <div className="bg-[#fef08a] border-2 border-slate-900 rounded-xl p-3.5 sm:p-4 shadow-[3px_3px_0px_0px_#000] flex items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2.5">
           <span className="text-xl">🕒</span>
           <div>
-            <span className="font-black text-slate-900 uppercase tracking-tight block">24-Hour Settlement Policy</span>
-            <span className="text-slate-600 text-[11px] font-bold">
-              Jab aap payout request karte hain, Admin aapki closed deals verify karke 24 ghante ke andar aapke UPI / Bank me paise transfer kar deta hai.
+            <span className="font-black text-slate-900 uppercase tracking-tight block">
+              24 se 48 Ghante (24-48 Hours) Settlement Guarantee
+            </span>
+            <span className="text-slate-800 text-[11px] font-bold">
+              Jab aap payout request karte hain, Admin team aapki deals verify karke <strong>24 se 48 ghante (24-48 Hours) ke andar</strong> aapke UPI / Bank me paise transfer kar deti hai.
             </span>
           </div>
         </div>
