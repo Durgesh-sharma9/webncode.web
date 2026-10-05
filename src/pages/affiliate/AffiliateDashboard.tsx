@@ -110,23 +110,6 @@ export default function AffiliateDashboard() {
         </button>
       </div>
 
-      {/* Authorized Products Banner */}
-      <div className="bg-white border-2 border-slate-900 rounded-lg p-3.5 shadow-[3px_3px_0px_0px_#000] flex flex-wrap items-center justify-between gap-2.5 text-xs">
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] font-black uppercase text-slate-500">Your Product Access:</span>
-          <span className="px-2 py-0.5 bg-blue-50 border border-blue-600 text-blue-800 rounded font-black text-[11px]">
-            {allowedProducts.length > 0 ? `${allowedProducts.length} Products Assigned` : 'All Products Allowed'}
-          </span>
-        </div>
-        <div className="flex flex-wrap items-center gap-1.5">
-          {(allowedProducts.length > 0 ? allowedProducts : ['School ERP Pro', 'Timetable Pro', 'Attendance System', 'Result System', 'Web Builder Pro']).map((p) => (
-            <span key={p} className="px-2 py-0.5 bg-slate-100 border border-slate-300 rounded text-[10px] font-bold text-slate-700">
-              ✓ {p}
-            </span>
-          ))}
-        </div>
-      </div>
-
       {/* KPI Cards (4 Clean Cards) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-xs">
         
