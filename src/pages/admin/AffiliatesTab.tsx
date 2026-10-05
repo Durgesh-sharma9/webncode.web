@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useAuth } from '../../contexts/AuthContext'
-import { API_BASE, type AffiliateItem, type AffiliateLeadItem } from './types'
+import { API_BASE, type AffiliateItem, type AffiliateLeadItem, type AffiliatePayoutItem } from './types'
 import { showSuccessToast, showErrorToast } from '../../components/ui/Toast'
 import AffiliateModal from './AffiliateModal'
 import RecordPayoutModal from './RecordPayoutModal'
 import ReviewLeadModal from './ReviewLeadModal'
+import ConfirmPayoutModal from './ConfirmPayoutModal'
 
 export default function AffiliatesTab() {
   const { token } = useAuth()
-  const [activeSubTab, setActiveSubTab] = useState<'partners' | 'leads'>('partners')
+  const [activeSubTab, setActiveSubTab] = useState<'partners' | 'leads' | 'payouts'>('partners')
 
   // Affiliates state
   const [affiliates, setAffiliates] = useState<AffiliateItem[]>([])
@@ -20,6 +21,12 @@ export default function AffiliatesTab() {
   const [leads, setLeads] = useState<AffiliateLeadItem[]>([])
   const [isLoadingLeads, setIsLoadingLeads] = useState(false)
   const [leadStatusFilter, setLeadStatusFilter] = useState('All')
+
+  // Payout requests state
+  const [payoutRequests, setPayoutRequests] = useState<AffiliatePayoutItem[]>([])
+  const [isLoadingPayoutRequests, setIsLoadingPayoutRequests] = useState(false)
+  const [confirmPayoutModalData, setConfirmPayoutModalData] = useState<AffiliatePayoutItem | null>(null)
+  const [confirmPayoutModalMode, setConfirmPayoutModalMode] = useState<'confirm' | 'reject' | null>(null)
 
   // Modals state
   const [isAffiliateModalOpen, setIsAffiliateModalOpen] = useState(false)
@@ -67,13 +74,33 @@ export default function AffiliatesTab() {
     }
   }
 
+  const fetchPayoutRequests = async () => {
+    setIsLoadingPayoutRequests(true)
+    try {
+      const res = await axios.get(`${API_BASE}/api/affiliates/payout-requests`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined
+      })
+      if (res.data?.success && Array.isArray(res.data.data)) {
+        setPayoutRequests(res.data.data)
+      }
+    } catch (err) {
+      console.error('Failed to fetch payout requests:', err)
+      showErrorToast('Failed to load payout requests')
+    } finally {
+      setIsLoadingPayoutRequests(false)
+    }
+  }
+
   useEffect(() => {
     fetchAffiliates()
+    fetchPayoutRequests()
   }, [token])
 
   useEffect(() => {
     if (activeSubTab === 'leads') {
       fetchLeads()
+    } else if (activeSubTab === 'payouts') {
+      fetchPayoutRequests()
     }
   }, [activeSubTab, token])
 
@@ -207,6 +234,22 @@ export default function AffiliatesTab() {
           }`}
         >
           🎯 Referred Leads Pipeline ({leads.length})
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('payouts')}
+          className={`px-4 py-2 text-xs font-black uppercase tracking-wider border-2 border-b-0 border-slate-900 rounded-t-md transition-all flex items-center gap-2 ${
+            activeSubTab === 'payouts'
+              ? 'bg-slate-900 text-white shadow-[2px_2px_0px_0px_#fff]'
+              : 'bg-white text-slate-700 hover:bg-slate-100'
+          }`}
+        >
+          <span>💸 Payout Requests ({payoutRequests.length})</span>
+          {payoutRequests.filter((p) => p.status === 'Pending').length > 0 && (
+            <span className="px-1.5 py-0.5 bg-amber-400 text-slate-950 font-black rounded-full text-[10px]">
+              {payoutRequests.filter((p) => p.status === 'Pending').length} Pending
+            </span>
+          )}
         </button>
       </div>
 
@@ -574,6 +617,155 @@ export default function AffiliatesTab() {
         </div>
       )}
 
+      {/* ======================================================== */}
+      {/* SUBTAB 3: PAYOUT REQUESTS */}
+      {/* ======================================================== */}
+      {activeSubTab === 'payouts' && (
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-black uppercase text-slate-800">Partner Withdrawal Requests</h2>
+              <p className="text-xs text-slate-500 font-bold">
+                Review withdrawal requests, copy beneficiary UPI/bank details, transfer funds and record UTR to confirm.
+              </p>
+            </div>
+          </div>
+
+          {isLoadingPayoutRequests ? (
+            <div className="p-8 text-center text-xs font-bold uppercase text-slate-500">
+              Loading payout requests...
+            </div>
+          ) : payoutRequests.length === 0 ? (
+            <div className="bg-white border-2 border-slate-900 rounded-lg p-8 text-center">
+              <p className="text-sm font-black uppercase text-slate-600">No payout requests found</p>
+              <p className="text-xs text-slate-500 mt-1">
+                When affiliates submit withdrawal requests from their portal, they will appear here for 24h verification.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto border-2 border-slate-900 rounded-lg shadow-[4px_4px_0px_0px_#000] bg-white">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#f1f5f9] border-b-2 border-slate-900 uppercase font-black tracking-wider text-slate-700">
+                  <tr>
+                    <th className="p-3">Partner Details</th>
+                    <th className="p-3">Amount Requested</th>
+                    <th className="p-3">Beneficiary Account</th>
+                    <th className="p-3">Requested At</th>
+                    <th className="p-3">Status</th>
+                    <th className="p-3">UTR / Ref</th>
+                    <th className="p-3 text-right">Quick Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y-2 divide-slate-100 font-medium">
+                  {payoutRequests.map((pay) => (
+                    <tr key={pay._id} className="hover:bg-slate-50 transition-colors">
+                      {/* Partner Details */}
+                      <td className="p-3">
+                        <div className="font-black text-slate-900">{pay.affiliate?.name || 'Unknown Partner'}</div>
+                        <div className="text-[11px] text-slate-500">{pay.affiliate?.phone || pay.affiliate?.email}</div>
+                      </td>
+
+                      {/* Amount */}
+                      <td className="p-3 font-mono font-black text-emerald-700 text-sm">
+                        ₹{pay.amount.toLocaleString('en-IN')}
+                      </td>
+
+                      {/* Beneficiary details */}
+                      <td className="p-3 font-mono">
+                        <div className="font-bold text-slate-900 text-xs">
+                          {pay.payoutDetails || 'No details specified'}
+                        </div>
+                        {pay.paymentMethod && (
+                          <span className="text-[10px] text-slate-500 font-sans block">
+                            Method: {pay.paymentMethod}
+                          </span>
+                        )}
+                        {pay.notes && (
+                          <div className="text-[10px] text-slate-500 italic mt-0.5">"{pay.notes}"</div>
+                        )}
+                      </td>
+
+                      {/* Request Date */}
+                      <td className="p-3 whitespace-nowrap text-slate-700">
+                        {new Date(pay.requestedAt || pay.createdAt || Date.now()).toLocaleString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </td>
+
+                      {/* Status */}
+                      <td className="p-3">
+                        {pay.status === 'Paid' ? (
+                          <span className="px-2 py-0.5 bg-emerald-100 border border-emerald-600 text-emerald-900 rounded font-black text-[10px]">
+                            ✓ Paid Out
+                          </span>
+                        ) : pay.status === 'Rejected' ? (
+                          <div>
+                            <span className="px-2 py-0.5 bg-rose-100 border border-rose-600 text-rose-900 rounded font-black text-[10px]">
+                              ✕ Rejected
+                            </span>
+                            {pay.rejectionReason && (
+                              <div className="text-[10px] text-rose-700 font-bold mt-0.5">
+                                Reason: {pay.rejectionReason}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="px-2 py-0.5 bg-amber-100 border border-amber-600 text-amber-900 rounded font-black text-[10px]">
+                            🕒 Under Review (24h)
+                          </span>
+                        )}
+                      </td>
+
+                      {/* UTR */}
+                      <td className="p-3 font-mono">
+                        {pay.transactionReference ? (
+                          <span className="font-bold text-blue-700">{pay.transactionReference}</span>
+                        ) : (
+                          <span className="text-slate-400 italic">—</span>
+                        )}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="p-3 text-right">
+                        {pay.status === 'Pending' ? (
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={() => {
+                                setConfirmPayoutModalData(pay)
+                                setConfirmPayoutModalMode('confirm')
+                              }}
+                              className="px-2.5 py-1 bg-[#86efac] border-2 border-slate-900 rounded font-black text-[10px] shadow-[2px_2px_0px_0px_#000] hover:bg-[#6ee7b7] cursor-pointer flex items-center gap-1 active:translate-y-0.5"
+                            >
+                              <span>✓</span>
+                              <span>Pay & Confirm</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setConfirmPayoutModalData(pay)
+                                setConfirmPayoutModalMode('reject')
+                              }}
+                              className="px-2 py-1 bg-rose-100 border border-slate-900 rounded font-bold text-[10px] shadow-[1px_1px_0px_0px_#000] text-rose-900 hover:bg-rose-200 cursor-pointer flex items-center gap-0.5"
+                            >
+                              <span>✕</span>
+                              <span>Reject</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 text-[11px] font-bold">Done</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Onboard / Edit Affiliate Modal */}
       <AffiliateModal
         isOpen={isAffiliateModalOpen}
@@ -592,6 +784,7 @@ export default function AffiliatesTab() {
         onPaid={() => {
           fetchAffiliates()
           if (activeSubTab === 'leads') fetchLeads()
+          if (activeSubTab === 'payouts') fetchPayoutRequests()
         }}
       />
 
@@ -607,6 +800,23 @@ export default function AffiliatesTab() {
         token={token}
         onSuccess={() => {
           fetchLeads()
+          fetchAffiliates()
+          fetchPayoutRequests()
+        }}
+      />
+
+      {/* Confirm / Reject Payout Modal */}
+      <ConfirmPayoutModal
+        isOpen={Boolean(confirmPayoutModalData && confirmPayoutModalMode)}
+        onClose={() => {
+          setConfirmPayoutModalData(null)
+          setConfirmPayoutModalMode(null)
+        }}
+        payout={confirmPayoutModalData}
+        mode={confirmPayoutModalMode}
+        token={token}
+        onSuccess={() => {
+          fetchPayoutRequests()
           fetchAffiliates()
         }}
       />

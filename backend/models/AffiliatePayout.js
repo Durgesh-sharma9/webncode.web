@@ -18,8 +18,16 @@ const affiliatePayoutSchema = new mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ['UPI', 'Bank Transfer (IMPS/NEFT)', 'Cash', 'Cheque', 'Other'],
       default: 'UPI'
+    },
+    payoutDetails: {
+      type: String,
+      default: ''
+    },
+    status: {
+      type: String,
+      enum: ['Pending', 'Paid', 'Rejected'],
+      default: 'Pending'
     },
     transactionReference: {
       type: String,
@@ -30,9 +38,16 @@ const affiliatePayoutSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
-    paidAt: {
+    rejectionReason: {
+      type: String,
+      default: ''
+    },
+    requestedAt: {
       type: Date,
       default: Date.now
+    },
+    paidAt: {
+      type: Date
     }
   },
   {

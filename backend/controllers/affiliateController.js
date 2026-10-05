@@ -455,8 +455,9 @@ exports.getAffiliateDashboard = async (req, res) => {
     // Commission calculations
     const totalEarned = wonLeads.reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
     const payouts = await AffiliatePayout.find({ affiliate: affiliate._id });
-    const totalPaid = payouts.reduce((acc, curr) => acc + (curr.amount || 0), 0);
-    const pendingPayout = Math.max(0, totalEarned - totalPaid);
+    const totalPaid = payouts.filter((p) => p.status === 'Paid').reduce((acc, curr) => acc + (curr.amount || 0), 0);
+    const pendingWithdrawal = payouts.filter((p) => p.status === 'Pending').reduce((acc, curr) => acc + (curr.amount || 0), 0);
+    const availableBalance = Math.max(0, totalEarned - totalPaid - pendingWithdrawal);
 
     res.status(200).json({
       success: true,
@@ -480,7 +481,8 @@ exports.getAffiliateDashboard = async (req, res) => {
           dealsWon,
           totalEarned,
           totalPaid,
-          pendingPayout
+          pendingWithdrawal,
+          availableBalance
         },
         recentLeads: leads.slice(0, 5)
       }
@@ -625,7 +627,7 @@ exports.getAffiliatePayouts = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Affiliate profile not found' });
     }
 
-    const payouts = await AffiliatePayout.find({ affiliate: affiliate._id }).sort({ paidAt: -1 });
+    const payouts = await AffiliatePayout.find({ affiliate: affiliate._id }).sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -637,6 +639,196 @@ exports.getAffiliatePayouts = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch payout history',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Affiliate: Request a payout withdrawal
+ * POST /api/affiliate-portal/request-payout
+ */
+exports.requestPayoutByAffiliate = async (req, res) => {
+  try {
+    const affiliate = await getAffiliateForUser(req.user.id);
+    if (!affiliate) {
+      return res.status(404).json({ success: false, message: 'Affiliate profile not found' });
+    }
+
+    const { amount, paymentMethod, notes } = req.body;
+    const reqAmount = Number(amount);
+
+    if (!reqAmount || reqAmount <= 0) {
+      return res.status(400).json({ success: false, message: 'Please enter a valid withdrawal amount' });
+    }
+
+    if (reqAmount < 500) {
+      return res.status(400).json({ success: false, message: 'Minimum withdrawal amount is ₹500' });
+    }
+
+    // Check bank / UPI configuration
+    const hasUpi = affiliate.bankDetails && affiliate.bankDetails.upiId && affiliate.bankDetails.upiId.trim();
+    const hasBank = affiliate.bankDetails && affiliate.bankDetails.accountNumber && affiliate.bankDetails.accountNumber.trim();
+
+    if (!hasUpi && !hasBank) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please configure your UPI ID or Bank Account in "Bank & UPI Settings" before requesting withdrawal.'
+      });
+    }
+
+    // Calculate available balance
+    const wonLeads = await AffiliateLead.find({ affiliate: affiliate._id, status: 'Deal Won' });
+    const totalEarned = wonLeads.reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
+
+    const allPayouts = await AffiliatePayout.find({ affiliate: affiliate._id });
+    const totalPaid = allPayouts.filter((p) => p.status === 'Paid').reduce((acc, curr) => acc + (curr.amount || 0), 0);
+    const pendingRequests = allPayouts.filter((p) => p.status === 'Pending').reduce((acc, curr) => acc + (curr.amount || 0), 0);
+    const availableBalance = Math.max(0, totalEarned - totalPaid - pendingRequests);
+
+    if (reqAmount > availableBalance) {
+      return res.status(400).json({
+        success: false,
+        message: `Requested amount exceeds your available balance of ₹${availableBalance.toLocaleString('en-IN')}`
+      });
+    }
+
+    const payoutDetails = hasUpi
+      ? `UPI: ${affiliate.bankDetails.upiId}`
+      : `Bank: ${affiliate.bankDetails.bankName || 'Bank'} A/C: ${affiliate.bankDetails.accountNumber} (IFSC: ${affiliate.bankDetails.ifscCode})`;
+
+    const payout = await AffiliatePayout.create({
+      affiliate: affiliate._id,
+      amount: reqAmount,
+      paymentMethod: paymentMethod || (hasUpi ? 'UPI' : 'Bank Transfer'),
+      payoutDetails,
+      status: 'Pending',
+      notes: notes || '',
+      requestedAt: new Date()
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Withdrawal request submitted! We will verify your details and disburse payment within 24 hours.',
+      data: payout
+    });
+  } catch (error) {
+    console.error('Request payout error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to submit payout request',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * SuperAdmin: Get all payout requests across all partners
+ * GET /api/affiliates/payout-requests
+ */
+exports.getAllPayoutRequestsForAdmin = async (req, res) => {
+  try {
+    const { status } = req.query;
+    const filter = {};
+    if (status && status !== 'All') filter.status = status;
+
+    const payouts = await AffiliatePayout.find(filter)
+      .populate('affiliate', 'name email phone bankDetails payoutType commissionRate fixedAmount')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: payouts.length,
+      data: payouts
+    });
+  } catch (error) {
+    console.error('Get all payout requests error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch payout requests',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * SuperAdmin: Confirm and disburse a payout request
+ * PUT /api/affiliates/payout-requests/:payoutId/confirm
+ */
+exports.confirmPayoutRequestByAdmin = async (req, res) => {
+  try {
+    const { payoutId } = req.params;
+    const { transactionReference, paymentMethod, notes } = req.body;
+
+    const payout = await AffiliatePayout.findById(payoutId).populate('affiliate');
+    if (!payout) {
+      return res.status(404).json({ success: false, message: 'Payout request not found' });
+    }
+
+    if (payout.status === 'Paid') {
+      return res.status(400).json({ success: false, message: 'This payout has already been marked as Paid' });
+    }
+
+    payout.status = 'Paid';
+    payout.paidAt = new Date();
+    if (transactionReference) payout.transactionReference = transactionReference.trim();
+    if (paymentMethod) payout.paymentMethod = paymentMethod;
+    if (notes) payout.notes = notes;
+    await payout.save();
+
+    // Mark approved leads for this affiliate as Paid
+    await AffiliateLead.updateMany(
+      { affiliate: payout.affiliate?._id || payout.affiliate, status: 'Deal Won', commissionStatus: 'Approved' },
+      { commissionStatus: 'Paid' }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Payment of ₹${payout.amount.toLocaleString('en-IN')} confirmed successfully!`,
+      data: payout
+    });
+  } catch (error) {
+    console.error('Confirm payout error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to confirm payout',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * SuperAdmin: Reject a payout request
+ * PUT /api/affiliates/payout-requests/:payoutId/reject
+ */
+exports.rejectPayoutRequestByAdmin = async (req, res) => {
+  try {
+    const { payoutId } = req.params;
+    const { rejectionReason } = req.body;
+
+    if (!rejectionReason || !rejectionReason.trim()) {
+      return res.status(400).json({ success: false, message: 'Rejection reason is required' });
+    }
+
+    const payout = await AffiliatePayout.findById(payoutId).populate('affiliate');
+    if (!payout) {
+      return res.status(404).json({ success: false, message: 'Payout request not found' });
+    }
+
+    payout.status = 'Rejected';
+    payout.rejectionReason = rejectionReason.trim();
+    await payout.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Payout request has been rejected and amount released back to partner balance.',
+      data: payout
+    });
+  } catch (error) {
+    console.error('Reject payout error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to reject payout request',
       error: error.message
     });
   }

@@ -159,6 +159,36 @@ export interface AffiliateLeadItem {
   createdAt: string
 }
 
+export interface AffiliatePayoutItem {
+  _id: string
+  affiliate?: {
+    _id: string
+    name: string
+    email: string
+    phone?: string
+    bankDetails?: {
+      upiId?: string
+      accountHolder?: string
+      accountNumber?: string
+      ifscCode?: string
+      bankName?: string
+    }
+    payoutType?: 'percentage' | 'fixed'
+    commissionRate?: number
+    fixedAmount?: number
+  }
+  amount: number
+  paymentMethod: string
+  payoutDetails?: string
+  status: 'Pending' | 'Paid' | 'Rejected'
+  transactionReference?: string
+  notes?: string
+  rejectionReason?: string
+  requestedAt?: string
+  paidAt?: string
+  createdAt: string
+}
+
 export const CATEGORIES = [
   'Education',
   'Operations',
