@@ -1,5 +1,6 @@
 const Contact = require('../models/Contact');
 const nodemailer = require('nodemailer');
+const { createTransporter, getFromAddress } = require('../config/mailer');
 
 /**
  * Create a new contact submission
@@ -8,7 +9,7 @@ const nodemailer = require('nodemailer');
 exports.createContact = async (req, res) => {
   try {
     // Extract form data from request body
-    const { name, email, phone, message } = req.body;
+    const { name, email, phone, message, referralCode } = req.body;
 
     // Validate required fields
     if (!name || !email || !phone || !message) {
@@ -37,6 +38,30 @@ exports.createContact = async (req, res) => {
 
     // Save to MongoDB
     await contact.save();
+
+    // Check if submitted through an affiliate referral link
+    if (referralCode) {
+      try {
+        const Affiliate = require('../models/Affiliate');
+        const AffiliateLead = require('../models/AffiliateLead');
+        const code = referralCode.trim().toUpperCase();
+        const aff = await Affiliate.findOne({ referralCode: code, status: 'active' });
+        if (aff) {
+          await AffiliateLead.create({
+            affiliate: aff._id,
+            organizationName: name + ' (Website Inquiry)',
+            contactPerson: name,
+            phone: phone,
+            email: email,
+            product: 'Website Contact Inquiry',
+            notes: message,
+            source: 'website_referral_link'
+          });
+        }
+      } catch (affErr) {
+        console.warn('Affiliate lead attribution notice:', affErr.message);
+      }
+    }
 
     // Send notification email to company
     await sendNotificationEmail(contact);
@@ -124,14 +149,8 @@ exports.deleteContact = async (req, res) => {
  */
 const sendNotificationEmail = async (contact) => {
   try {
-    // Create email transporter using Nodemailer
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
+    // Create email transporter using configured SMTP
+    const transporter = createTransporter();
 
     // Format date for email
     const date = new Date(contact.createdAt).toLocaleString('en-US', {
@@ -263,9 +282,9 @@ const sendNotificationEmail = async (contact) => {
 
     // Email content
     const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: process.env.COMPANY_EMAIL,
-      subject: 'New Website Enquiry - Web n Code Technologies',
+      from: getFromAddress(),
+      to: process.env.COMPANY_EMAIL || 'business@webncode.in',
+      subject: `New Website Enquiry from ${contact.name} - Web n Code`,
       html: htmlTemplate,
       text: textTemplate
     };

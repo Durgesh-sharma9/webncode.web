@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Affiliate = require('../models/Affiliate');
 const jwt = require('jsonwebtoken');
 
 /**
@@ -148,6 +149,30 @@ exports.login = async (req, res) => {
     // Generate JWT
     const token = generateToken(user._id);
 
+    let affiliateData = null;
+    if (user.role === 'affiliate') {
+      const aff = await Affiliate.findOne({ user: user._id });
+      if (aff) {
+        if (aff.status === 'suspended') {
+          return res.status(403).json({
+            success: false,
+            message: 'Your affiliate account is currently suspended. Please contact Web n Code admin.'
+          });
+        }
+        affiliateData = {
+          id: aff._id,
+          referralCode: aff.referralCode,
+          payoutType: aff.payoutType || 'percentage',
+          commissionRate: aff.commissionRate ?? 10,
+          fixedAmount: aff.fixedAmount ?? 0,
+          allowedProducts: aff.allowedProducts || [],
+          status: aff.status,
+          phone: aff.phone,
+          bankDetails: aff.bankDetails
+        };
+      }
+    }
+
     res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -156,7 +181,8 @@ exports.login = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        affiliate: affiliateData
       }
     });
   } catch (error) {
@@ -176,9 +202,33 @@ exports.login = async (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
+    let affiliateData = null;
+    if (user && user.role === 'affiliate') {
+      const aff = await Affiliate.findOne({ user: user._id });
+      if (aff) {
+        affiliateData = {
+          id: aff._id,
+          referralCode: aff.referralCode,
+          payoutType: aff.payoutType || 'percentage',
+          commissionRate: aff.commissionRate ?? 10,
+          fixedAmount: aff.fixedAmount ?? 0,
+          allowedProducts: aff.allowedProducts || [],
+          status: aff.status,
+          phone: aff.phone,
+          bankDetails: aff.bankDetails
+        };
+      }
+    }
+
     res.status(200).json({
       success: true,
-      user
+      user: {
+        id: user ? user._id : req.user.id,
+        name: user ? user.name : req.user.name,
+        email: user ? user.email : req.user.email,
+        role: user ? user.role : req.user.role,
+        affiliate: affiliateData
+      }
     });
   } catch (error) {
     console.error('Get profile error:', error);

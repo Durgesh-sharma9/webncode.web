@@ -1,5 +1,6 @@
 const Application = require('../models/Application');
 const nodemailer = require('nodemailer');
+const { createTransporter, getFromAddress } = require('../config/mailer');
 const imagekit = require('../config/imagekit');
 
 exports.submitApplication = async (req, res) => {
@@ -63,14 +64,8 @@ exports.submitApplication = async (req, res) => {
 
     await application.save();
 
-    // Nodemailer transporter
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
+    // Nodemailer transporter using configured SMTP
+    const transporter = createTransporter();
 
     // Prepare attachments
     const attachments = [];
@@ -129,8 +124,8 @@ exports.submitApplication = async (req, res) => {
     `;
 
     const hrMailOptions = {
-      from: process.env.EMAIL_USER,
-      to: process.env.COMPANY_EMAIL, // Target email
+      from: getFromAddress(),
+      to: process.env.COMPANY_EMAIL || 'business@webncode.in',
       subject: `New Application: ${data.fullName} - ${data.position}`,
       html: hrHtml,
       attachments: attachments
@@ -149,7 +144,7 @@ exports.submitApplication = async (req, res) => {
     `;
 
     const applicantMailOptions = {
-      from: process.env.EMAIL_USER,
+      from: getFromAddress(),
       to: data.email,
       subject: `Application Received - ${data.position} at Web n Code Technologies`,
       html: applicantHtml

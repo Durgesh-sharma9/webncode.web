@@ -6,6 +6,23 @@ export interface User {
   name: string
   email: string
   role: string
+  affiliate?: {
+    id: string
+    referralCode: string
+    payoutType?: 'percentage' | 'fixed'
+    commissionRate: number
+    fixedAmount?: number
+    allowedProducts?: string[]
+    status: string
+    phone?: string
+    bankDetails?: {
+      upiId?: string
+      accountHolder?: string
+      accountNumber?: string
+      ifscCode?: string
+      bankName?: string
+    }
+  } | null
 }
 
 interface AuthContextType {
@@ -13,7 +30,7 @@ interface AuthContextType {
   token: string | null
   isAuthenticated: boolean
   isLoading: boolean
-  login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>
+  login: (email: string, password: string) => Promise<{ success: boolean; message?: string; role?: string; user?: User }>
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; message?: string }>
   logout: () => void
 }
@@ -46,7 +63,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             id: u._id || u.id,
             name: u.name,
             email: u.email,
-            role: u.role
+            role: u.role,
+            affiliate: u.affiliate || null
           })
           setToken(storedToken)
         } else {
@@ -76,7 +94,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('wnc_token', receivedToken)
         setToken(receivedToken)
         setUser(receivedUser)
-        return { success: true, message: res.data.message || 'Login successful' }
+        return {
+          success: true,
+          message: res.data.message || 'Login successful',
+          role: receivedUser?.role,
+          user: receivedUser
+        }
       }
       return { success: false, message: res.data?.message || 'Login failed' }
     } catch (err: any) {

@@ -71,10 +71,12 @@ export default function Contact() {
     e.preventDefault()
     setIsSubmitting(true)
     try {
+      const referralCode = localStorage.getItem('wnc_referral_code') || undefined
+      const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:5000')
       await axios.post(
-  `${import.meta.env.VITE_API_URL}/api/contact`,
-  formData
-)
+        `${API_URL}/api/contact`,
+        { ...formData, referralCode }
+      )
       showSuccessToast('Message sent successfully!')
       setFormData({ name: '', email: '', phone: '', message: '' })
     } catch (error: any) {

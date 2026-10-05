@@ -19,12 +19,16 @@ export default function AdminLayout() {
   })
   const [isUpdatingFloatingLogos, setIsUpdatingFloatingLogos] = useState(false)
 
-  // Auth guard: redirect to /login if unauthenticated
+  // Auth guard: redirect to /login if unauthenticated, or to /affiliate/dashboard if affiliate
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      navigate('/login', { replace: true })
+    if (!isLoading) {
+      if (!isAuthenticated) {
+        navigate('/login', { replace: true })
+      } else if (user?.role === 'affiliate') {
+        navigate('/affiliate/dashboard', { replace: true })
+      }
     }
-  }, [isLoading, isAuthenticated, navigate])
+  }, [isLoading, isAuthenticated, user, navigate])
 
   // Fetch current floating logo global setting from backend
   useEffect(() => {
@@ -78,6 +82,7 @@ export default function AdminLayout() {
   const navItems = [
     { to: '/admin/leads', label: 'Client Leads', icon: '📬' },
     { to: '/admin/careers', label: 'Careers & Resumes', icon: '💼' },
+    { to: '/admin/affiliates', label: 'Affiliates & Partners', icon: '🤝' },
     { to: '/admin/developers', label: 'Developers Team', icon: '👨‍💻' },
     { to: '/admin/projects', label: 'Projects Directory', icon: '📁' },
     { to: '/admin/projects/new', label: '+ Add Project', icon: '✨' },
@@ -98,7 +103,7 @@ export default function AdminLayout() {
     )
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || user?.role !== 'admin') {
     return null
   }
 

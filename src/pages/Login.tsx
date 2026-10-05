@@ -78,7 +78,7 @@ const BOTTOM_FLOATING_LOGOS: ScreenFloatingLogo[] = [
 const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:5000')
 
 export default function Login() {
-  const { login, isAuthenticated, isLoading } = useAuth()
+  const { user, login, isAuthenticated, isLoading } = useAuth()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState('')
@@ -93,12 +93,16 @@ export default function Login() {
     return saved === null ? true : saved === 'true'
   })
 
-  // Redirect to /admin if already logged in
+  // Redirect if already logged in based on role
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      navigate('/admin', { replace: true })
+    if (!isLoading && isAuthenticated && user?.role) {
+      if (user.role === 'affiliate') {
+        navigate('/affiliate/dashboard', { replace: true })
+      } else if (user.role === 'admin') {
+        navigate('/admin', { replace: true })
+      }
     }
-  }, [isLoading, isAuthenticated, navigate])
+  }, [isLoading, isAuthenticated, user, navigate])
 
   // Fetch floating logo global setting from backend
   useEffect(() => {
@@ -131,7 +135,11 @@ export default function Login() {
       const res = await login(email, password)
       if (res.success) {
         showSuccessToast('Successfully signed in!')
-        navigate('/admin', { replace: true })
+        if (res.role === 'affiliate') {
+          navigate('/affiliate/dashboard', { replace: true })
+        } else {
+          navigate('/admin', { replace: true })
+        }
       } else {
         const errorMsg = res.message || 'Invalid email or password'
         setAuthError(errorMsg)

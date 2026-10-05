@@ -100,6 +100,64 @@ export interface CategoryItem {
   createdAt?: string
 }
 
+export interface AffiliateItem {
+  _id: string
+  name: string
+  email: string
+  phone?: string
+  referralCode: string
+  payoutType?: 'percentage' | 'fixed'
+  commissionRate: number
+  fixedAmount?: number
+  allowedProducts?: string[]
+  status: 'active' | 'inactive' | 'suspended'
+  clicksCount: number
+  bankDetails?: {
+    upiId?: string
+    accountHolder?: string
+    accountNumber?: string
+    ifscCode?: string
+    bankName?: string
+  }
+  notes?: string
+  createdAt: string
+  stats?: {
+    clicks: number
+    totalLeads: number
+    dealsWon: number
+    totalEarned: number
+    totalPaid: number
+    pendingPayout: number
+  }
+}
+
+export interface AffiliateLeadItem {
+  _id: string
+  affiliate?: {
+    _id: string
+    name: string
+    email: string
+    referralCode: string
+    payoutType?: 'percentage' | 'fixed'
+    commissionRate: number
+    fixedAmount?: number
+    phone?: string
+  }
+  organizationName: string
+  contactPerson: string
+  phone: string
+  email?: string
+  city?: string
+  product: string
+  status: 'New' | 'Contacted' | 'Demo Scheduled' | 'In Negotiation' | 'Deal Won' | 'Lost'
+  dealValue: number
+  commissionAmount: number
+  commissionStatus: 'Pending' | 'Approved' | 'Paid'
+  source: 'manual_by_affiliate' | 'website_referral_link'
+  notes?: string
+  createdAt: string
+}
+
 export const CATEGORIES = [
   'Education',
   'Operations',
@@ -127,3 +185,14 @@ export const getDeveloperImage = (dev: DeveloperItem, isHover = false) => {
 }
 
 export const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:5000')
+
+export const AVAILABLE_PRODUCTS = [
+  'School ERP Pro',
+  'Timetable Pro',
+  'Attendance Management System',
+  'Result Management System',
+  'Web Builder Pro',
+  'Sports Academy Pro',
+  'Daily Test Pro',
+  'Custom Software / App'
+]
