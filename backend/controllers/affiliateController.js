@@ -9,6 +9,26 @@ const { createTransporter, getFromAddress } = require('../config/mailer');
  * Configure Nodemailer Transporter using SMTP
  */
 const transporter = createTransporter();
+const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || 'durgesh.csai@gmail.com';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://webncode.in';
+
+/**
+ * Helper to dispatch notification emails to Admin (durgesh.csai@gmail.com)
+ */
+const sendAdminNotification = async (subject, htmlContent) => {
+  try {
+    const mailOptions = {
+      from: getFromAddress(),
+      to: ADMIN_NOTIFICATION_EMAIL,
+      subject,
+      html: htmlContent
+    };
+    await transporter.sendMail(mailOptions);
+    console.log(`[Admin Alert] Email sent to ${ADMIN_NOTIFICATION_EMAIL}: ${subject}`);
+  } catch (err) {
+    console.warn(`[Admin Alert Warning] Could not send email notification:`, err.message);
+  }
+};
 
 // =========================================================================
 // PUBLIC METHODS
@@ -563,6 +583,38 @@ exports.createAffiliateLead = async (req, res) => {
       notes: notes || ''
     });
 
+    // Notify SuperAdmin via email (durgesh.csai@gmail.com)
+    sendAdminNotification(
+      `🎯 [Web n Code] New Client Lead: ${organizationName.trim()} (by ${affiliate.name})`,
+      `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 2px solid #0f172a; border-radius: 8px;">
+          <div style="background-color: #0f172a; color: #ffffff; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px;">
+            <h2 style="margin: 0; font-size: 18px;">🎯 New Client Lead Submitted</h2>
+          </div>
+          <p>Partner <strong>${affiliate.name}</strong> has submitted a new client lead for software purchase.</p>
+
+          <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 15px; border-radius: 6px; margin: 15px 0;">
+            <table style="width: 100%; font-size: 13px; line-height: 1.6;">
+              <tr><td style="font-weight: bold; width: 140px; color: #64748b;">School / Client:</td><td><strong>${organizationName.trim()}</strong></td></tr>
+              <tr><td style="font-weight: bold; color: #64748b;">Contact Person:</td><td>${contactPerson.trim()}</td></tr>
+              <tr><td style="font-weight: bold; color: #64748b;">Phone:</td><td><a href="tel:${phone.trim()}">${phone.trim()}</a></td></tr>
+              ${email ? `<tr><td style="font-weight: bold; color: #64748b;">Email:</td><td>${email.trim()}</td></tr>` : ''}
+              ${city ? `<tr><td style="font-weight: bold; color: #64748b;">City / Location:</td><td>${city.trim()}</td></tr>` : ''}
+              <tr><td style="font-weight: bold; color: #64748b;">Product Pitched:</td><td><strong style="color: #2563eb;">${product || 'School ERP Pro'}</strong></td></tr>
+              ${estValue > 0 ? `<tr><td style="font-weight: bold; color: #64748b;">Expected Value:</td><td>₹${estValue.toLocaleString('en-IN')}</td></tr>` : ''}
+              ${notes ? `<tr><td style="font-weight: bold; color: #64748b;">Partner Note:</td><td><em>"${notes.trim()}"</em></td></tr>` : ''}
+              <tr><td style="font-weight: bold; color: #64748b;">Partner:</td><td>${affiliate.name} (${affiliate.email} / ${affiliate.phone})</td></tr>
+            </table>
+          </div>
+
+          <div style="margin-top: 20px;">
+            <a href="${FRONTEND_URL}/admin/affiliates" style="display: inline-block; background-color: #0f172a; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px;">Open Admin Panel to Review & Close Deal</a>
+          </div>
+          <p style="margin-top: 25px; font-size: 11px; color: #94a3b8;">Web n Code Technologies Admin Alert Notification</p>
+        </div>
+      `
+    );
+
     res.status(201).json({
       success: true,
       message: 'Lead registered successfully! Web n Code team will reach out for the demo.',
@@ -706,6 +758,40 @@ exports.requestPayoutByAffiliate = async (req, res) => {
       notes: notes || '',
       requestedAt: new Date()
     });
+
+    // Notify SuperAdmin via email (durgesh.csai@gmail.com)
+    sendAdminNotification(
+      `💸 [Web n Code] New Payout Request: ₹${reqAmount.toLocaleString('en-IN')} by ${affiliate.name}`,
+      `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 2px solid #0f172a; border-radius: 8px;">
+          <div style="background-color: #0f172a; color: #ffffff; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px;">
+            <h2 style="margin: 0; font-size: 18px;">💸 New Payout Withdrawal Request (24h Policy)</h2>
+          </div>
+          <p>Partner <strong>${affiliate.name}</strong> has submitted a request to withdraw commissions.</p>
+
+          <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 15px; border-radius: 6px; margin: 15px 0;">
+            <table style="width: 100%; font-size: 13px; line-height: 1.6;">
+              <tr><td style="font-weight: bold; width: 140px; color: #64748b;">Partner Name:</td><td><strong>${affiliate.name}</strong></td></tr>
+              <tr><td style="font-weight: bold; color: #64748b;">Phone:</td><td>${affiliate.phone || 'N/A'}</td></tr>
+              <tr><td style="font-weight: bold; color: #64748b;">Email:</td><td>${affiliate.email}</td></tr>
+              <tr><td style="font-weight: bold; color: #64748b;">Amount Requested:</td><td><strong style="color: #16a34a; font-size: 16px;">₹${reqAmount.toLocaleString('en-IN')}</strong></td></tr>
+              <tr><td style="font-weight: bold; color: #64748b;">Beneficiary:</td><td><strong>${payoutDetails}</strong></td></tr>
+              <tr><td style="font-weight: bold; color: #64748b;">Payment Method:</td><td>${paymentMethod || (hasUpi ? 'UPI' : 'Bank Transfer')}</td></tr>
+              ${notes ? `<tr><td style="font-weight: bold; color: #64748b;">Partner Note:</td><td><em>"${notes.trim()}"</em></td></tr>` : ''}
+            </table>
+          </div>
+
+          <div style="background-color: #fef3c7; border: 1px solid #f59e0b; padding: 12px; border-radius: 6px; font-size: 12px; color: #92400e; margin: 15px 0;">
+            ⏰ <strong>24 Hours Action Required:</strong> Please verify details in the admin portal, disburse funds via UPI/Bank, and record the UTR number.
+          </div>
+
+          <div style="margin-top: 20px;">
+            <a href="${FRONTEND_URL}/admin/affiliates" style="display: inline-block; background-color: #0f172a; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px;">Open Admin Panel to Review & Pay</a>
+          </div>
+          <p style="margin-top: 25px; font-size: 11px; color: #94a3b8;">Web n Code Technologies Admin Alert Notification</p>
+        </div>
+      `
+    );
 
     res.status(201).json({
       success: true,
