@@ -375,8 +375,8 @@ exports.updateLeadByAdmin = async (req, res) => {
       if (rejectionReason !== undefined) lead.rejectionReason = rejectionReason;
     }
 
-    if (commissionAmount !== undefined) lead.commissionAmount = Number(commissionAmount);
-    if (commissionStatus) lead.commissionStatus = commissionStatus;
+    if (status !== 'Lost' && commissionAmount !== undefined) lead.commissionAmount = Number(commissionAmount);
+    if (status !== 'Lost' && commissionStatus) lead.commissionStatus = commissionStatus;
     if (notes !== undefined) lead.notes = notes;
     if (rejectionReason !== undefined) lead.rejectionReason = rejectionReason;
 

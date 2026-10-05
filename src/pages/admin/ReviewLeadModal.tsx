@@ -20,14 +20,14 @@ export default function ReviewLeadModal({
   token,
   onSuccess
 }: ReviewLeadModalProps) {
-  if (!isOpen || !lead || !mode) return null
+  if (!isOpen || !lead) return null
 
-  const isApprove = mode === 'approve'
   const aff = lead.affiliate
   const isFixed = aff?.payoutType === 'fixed'
   const defaultRate = aff?.commissionRate || 10
   const fixedReward = aff?.fixedAmount || 0
 
+  const [currentMode, setCurrentMode] = useState<'approve' | 'reject'>('approve')
   const [dealValue, setDealValue] = useState<string>(lead.dealValue ? String(lead.dealValue) : '50000')
   const [commissionAmount, setCommissionAmount] = useState<string>(
     lead.commissionAmount ? String(lead.commissionAmount) : ''
@@ -36,7 +36,24 @@ export default function ReviewLeadModal({
   const [rejectionReason, setRejectionReason] = useState<string>(lead.rejectionReason || '')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Auto-calculate suggested commission whenever dealValue changes (if approve mode)
+  // Sync mode whenever modal opens or mode prop changes
+  useEffect(() => {
+    if (mode) setCurrentMode(mode)
+  }, [mode, isOpen])
+
+  // Sync lead details when lead prop changes
+  useEffect(() => {
+    if (lead) {
+      if (lead.dealValue) setDealValue(String(lead.dealValue))
+      if (lead.commissionAmount) setCommissionAmount(String(lead.commissionAmount))
+      if (lead.notes) setAdminNotes(lead.notes)
+      if (lead.rejectionReason) setRejectionReason(lead.rejectionReason)
+    }
+  }, [lead])
+
+  const isApprove = currentMode === 'approve'
+
+  // Auto-calculate suggested commission whenever dealValue changes (if approve mode and user hasn't explicitly set it)
   useEffect(() => {
     if (isApprove) {
       if (isFixed) {
@@ -80,7 +97,7 @@ export default function ReviewLeadModal({
       } else {
         // Reject / Cancel
         if (!rejectionReason.trim()) {
-          showErrorToast('Please provide a reason for cancelling this lead')
+          showErrorToast('Please provide a reason for rejecting this lead')
           setIsSubmitting(false)
           return
         }
@@ -91,12 +108,13 @@ export default function ReviewLeadModal({
             status: 'Lost',
             rejectionReason: rejectionReason.trim(),
             commissionAmount: 0,
-            commissionStatus: 'Pending'
+            commissionStatus: 'Pending',
+            notes: adminNotes
           },
           config
         )
 
-        showSuccessToast('Lead has been cancelled and reason recorded.')
+        showSuccessToast('Lead has been rejected/cancelled and reason recorded.')
       }
 
       onSuccess()
@@ -109,9 +127,17 @@ export default function ReviewLeadModal({
     }
   }
 
+  const presetReasons = [
+    'School principal declined demo',
+    'Already using another software / ERP',
+    'Budget constraints / Not interested',
+    'Invalid contact number / No response',
+    'Duplicate lead submission'
+  ]
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs font-mono">
-      <div className="relative w-full max-w-lg bg-white border-2 border-slate-900 rounded-xl p-6 sm:p-7 shadow-[6px_6px_0px_0px_#0f172a]">
+      <div className="relative w-full max-w-lg bg-white border-2 border-slate-900 rounded-xl p-6 sm:p-7 shadow-[6px_6px_0px_0px_#0f172a] max-h-[90vh] overflow-y-auto">
         
         {/* Header */}
         <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-4">
@@ -124,14 +150,42 @@ export default function ReviewLeadModal({
               {isApprove ? 'APPROVE & CREDIT COMMISSION' : 'CANCEL / REJECT LEAD'}
             </span>
             <h2 className="text-xl font-black uppercase text-slate-900 tracking-tight mt-1">
-              {isApprove ? 'Close Deal & Award Payout' : 'Cancel Client Lead'}
+              {isApprove ? 'Close Deal & Award Payout' : 'Reject Client Lead'}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center border-2 border-slate-900 rounded-md font-black text-slate-900 hover:bg-[#ff9e7d] transition-colors"
+            className="w-8 h-8 flex items-center justify-center border-2 border-slate-900 rounded-md font-black text-slate-900 hover:bg-[#ff9e7d] transition-colors cursor-pointer"
           >
             ×
+          </button>
+        </div>
+
+        {/* Tab Switcher (Approve vs Reject) */}
+        <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 border-2 border-slate-900 rounded-lg mb-4">
+          <button
+            type="button"
+            onClick={() => setCurrentMode('approve')}
+            className={`py-2 px-3 rounded-md font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              isApprove
+                ? 'bg-[#86efac] text-slate-900 border-2 border-slate-900 shadow-[2px_2px_0px_0px_#000]'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <span>✓</span>
+            <span>Approve Deal</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setCurrentMode('reject')}
+            className={`py-2 px-3 rounded-md font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              !isApprove
+                ? 'bg-rose-200 text-rose-950 border-2 border-slate-900 shadow-[2px_2px_0px_0px_#000]'
+                : 'text-slate-600 hover:text-rose-700'
+            }`}
+          >
+            <span>✕</span>
+            <span>Reject Deal</span>
           </button>
         </div>
 
@@ -152,7 +206,7 @@ export default function ReviewLeadModal({
           <div className="flex items-center justify-between border-t border-slate-300 pt-1.5 mt-1">
             <span className="text-slate-500 font-bold uppercase text-[10px]">Partner Attributed:</span>
             <span className="font-bold text-slate-900">
-              {aff?.name} ({isFixed ? `₹${fixedReward.toLocaleString('en-IN')} Flat / Project` : `${defaultRate}% Commission`})
+              {aff?.name || 'Partner'} ({isFixed ? `₹${fixedReward.toLocaleString('en-IN')} Flat Reward` : `${defaultRate}% Commission`})
             </span>
           </div>
         </div>
@@ -170,12 +224,12 @@ export default function ReviewLeadModal({
                   <input
                     type="number"
                     min="0"
-                    step="500"
+                    step="any"
                     required
                     value={dealValue}
                     onChange={(e) => setDealValue(e.target.value)}
                     className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-bold text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-                    placeholder="e.g. 50000"
+                    placeholder="e.g. 5000"
                   />
                 </div>
                 <p className="text-[10px] text-slate-500 mt-1">
@@ -190,7 +244,7 @@ export default function ReviewLeadModal({
                     Commission / Reward to Credit to Partner (₹) *
                   </label>
                   <span className="text-[10px] text-blue-700 font-bold">
-                    {isFixed ? 'Based on ₹ Flat Reward' : `Calculated at ${defaultRate}%`}
+                    {isFixed ? 'Based on Flat Reward' : `Calculated at ${defaultRate}%`}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -198,12 +252,12 @@ export default function ReviewLeadModal({
                   <input
                     type="number"
                     min="0"
-                    step="100"
+                    step="any"
                     required
                     value={commissionAmount}
                     onChange={(e) => setCommissionAmount(e.target.value)}
                     className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-black text-emerald-800 bg-emerald-50 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-                    placeholder="e.g. 5000"
+                    placeholder="e.g. 750"
                   />
                 </div>
                 <p className="text-[10px] text-slate-500 mt-1">
@@ -230,7 +284,7 @@ export default function ReviewLeadModal({
               {/* Cancellation Reason */}
               <div>
                 <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
-                  Reason for Cancellation / Rejection *
+                  Reason for Rejection / Cancellation *
                 </label>
                 <textarea
                   required
@@ -238,37 +292,91 @@ export default function ReviewLeadModal({
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
                   className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-medium text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-                  placeholder="e.g. School principal declined demo / School already reached out directly / Invalid contact number"
+                  placeholder="Specify why this lead cannot be closed..."
                 />
-                <p className="text-[10px] text-slate-500 mt-1">
+                
+                {/* Preset Chips */}
+                <div className="mt-2 space-y-1">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase">Quick presets:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {presetReasons.map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => setRejectionReason(preset)}
+                        className="px-2 py-0.5 bg-slate-100 border border-slate-300 rounded text-[10px] text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+                      >
+                        + {preset}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <p className="text-[10px] text-slate-500 mt-2">
                   This reason will be visible to the partner in their portal so they know why the lead was not closed.
                 </p>
+              </div>
+
+              {/* Optional Admin Notes */}
+              <div>
+                <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
+                  Internal Admin Notes (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={adminNotes}
+                  onChange={(e) => setAdminNotes(e.target.value)}
+                  className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-medium text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
+                  placeholder="Optional internal remarks..."
+                />
               </div>
             </>
           )}
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t-2 border-slate-900 mt-5">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-white border-2 border-slate-900 rounded-md font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors"
-            >
-              Back
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`px-5 py-2 border-2 border-slate-900 rounded-md font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-50 transition-all ${
-                isApprove ? 'bg-[#86efac] text-slate-900' : 'bg-rose-300 text-rose-950'
-              }`}
-            >
-              {isSubmitting
-                ? 'Processing...'
-                : isApprove
-                ? '✓ Approve Deal & Credit'
-                : '✕ Confirm Cancellation'}
-            </button>
+          <div className="flex items-center justify-between pt-3 border-t-2 border-slate-900 mt-5">
+            <div>
+              {isApprove ? (
+                <button
+                  type="button"
+                  onClick={() => setCurrentMode('reject')}
+                  className="px-3 py-2 bg-rose-50 border border-rose-300 text-rose-800 rounded-md font-bold text-xs uppercase tracking-wider hover:bg-rose-100 transition-colors cursor-pointer"
+                >
+                  ✕ Reject Deal Instead
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setCurrentMode('approve')}
+                  className="px-3 py-2 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-md font-bold text-xs uppercase tracking-wider hover:bg-emerald-100 transition-colors cursor-pointer"
+                >
+                  ✓ Approve Instead
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 bg-white border-2 border-slate-900 rounded-md font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                Back
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`px-5 py-2 border-2 border-slate-900 rounded-md font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-50 transition-all cursor-pointer ${
+                  isApprove ? 'bg-[#86efac] text-slate-900' : 'bg-rose-300 text-rose-950'
+                }`}
+              >
+                {isSubmitting
+                  ? 'Processing...'
+                  : isApprove
+                  ? `✓ Approve Deal & Credit ₹${commissionAmount || 0}`
+                  : '✕ Confirm Rejection'}
+              </button>
+            </div>
           </div>
         </form>
 

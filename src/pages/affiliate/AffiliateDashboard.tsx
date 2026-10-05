@@ -220,6 +220,11 @@ export default function AffiliateDashboard() {
                     <td className="p-3">
                       <div className="font-black text-slate-900">{lead.organizationName}</div>
                       <div className="text-[11px] text-slate-500">{lead.contactPerson} ({lead.phone})</div>
+                      {lead.status === 'Lost' && lead.rejectionReason && (
+                        <div className="text-[10px] text-rose-700 font-bold mt-0.5">
+                          Reason: {lead.rejectionReason}
+                        </div>
+                      )}
                     </td>
                     <td className="p-3 font-bold text-slate-800">{lead.product}</td>
                     <td className="p-3">
