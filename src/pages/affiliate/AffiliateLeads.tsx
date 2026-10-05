@@ -178,8 +178,13 @@ export default function AffiliateLeads() {
                         ? 'bg-[#93c5fd] text-slate-900'
                         : 'bg-amber-100 text-slate-900'
                     }`}>
-                      {lead.status}
+                      {lead.status === 'Lost' ? 'Cancelled / Lost' : lead.status}
                     </span>
+                    {lead.rejectionReason && lead.status === 'Lost' && (
+                      <div className="text-[10px] text-rose-700 bg-rose-50 border border-rose-200 rounded px-1.5 py-0.5 mt-1 font-bold">
+                        Reason: {lead.rejectionReason}
+                      </div>
+                    )}
                   </td>
 
                   {/* Deal Value */}

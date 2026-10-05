@@ -66,6 +66,10 @@ const affiliateLeadSchema = new mongoose.Schema(
     notes: {
       type: String,
       default: ''
+    },
+    rejectionReason: {
+      type: String,
+      default: ''
     }
   },
   {

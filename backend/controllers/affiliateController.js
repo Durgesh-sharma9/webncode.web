@@ -323,7 +323,7 @@ exports.getAllAffiliateLeadsForAdmin = async (req, res) => {
 exports.updateLeadByAdmin = async (req, res) => {
   try {
     const { leadId } = req.params;
-    const { status, dealValue, commissionAmount, commissionStatus, notes } = req.body;
+    const { status, dealValue, commissionAmount, commissionStatus, notes, rejectionReason } = req.body;
 
     const lead = await AffiliateLead.findById(leadId).populate('affiliate');
     if (!lead) {
@@ -347,11 +347,18 @@ exports.updateLeadByAdmin = async (req, res) => {
         }
       }
       if (!commissionStatus) lead.commissionStatus = 'Approved';
+      lead.rejectionReason = ''; // Clear any rejection reason if won
+    } else if (status === 'Lost') {
+      // If deal cancelled/lost
+      lead.commissionAmount = 0;
+      lead.commissionStatus = 'Pending';
+      if (rejectionReason !== undefined) lead.rejectionReason = rejectionReason;
     }
 
     if (commissionAmount !== undefined) lead.commissionAmount = Number(commissionAmount);
     if (commissionStatus) lead.commissionStatus = commissionStatus;
     if (notes !== undefined) lead.notes = notes;
+    if (rejectionReason !== undefined) lead.rejectionReason = rejectionReason;
 
     await lead.save();
 

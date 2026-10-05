@@ -5,6 +5,7 @@ import { API_BASE, type AffiliateItem, type AffiliateLeadItem } from './types'
 import { showSuccessToast, showErrorToast } from '../../components/ui/Toast'
 import AffiliateModal from './AffiliateModal'
 import RecordPayoutModal from './RecordPayoutModal'
+import ReviewLeadModal from './ReviewLeadModal'
 
 export default function AffiliatesTab() {
   const { token } = useAuth()
@@ -26,6 +27,9 @@ export default function AffiliatesTab() {
   
   const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false)
   const [payoutAffiliate, setPayoutAffiliate] = useState<AffiliateItem | null>(null)
+
+  const [reviewModalLead, setReviewModalLead] = useState<AffiliateLeadItem | null>(null)
+  const [reviewModalMode, setReviewModalMode] = useState<'approve' | 'reject' | null>(null)
 
   // Fetch affiliates
   const fetchAffiliates = async () => {
@@ -401,6 +405,7 @@ export default function AffiliatesTab() {
                     <th className="p-3">Deal Value</th>
                     <th className="p-3">Commission</th>
                     <th className="p-3">Comm. Status</th>
+                    <th className="p-3 text-right">Quick Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y-2 divide-slate-100 font-medium">
@@ -413,6 +418,11 @@ export default function AffiliatesTab() {
                         <div className="text-[11px] text-slate-600">Contact: {lead.contactPerson} ({lead.phone})</div>
                         {lead.city && <div className="text-[10px] text-slate-400">City: {lead.city}</div>}
                         {lead.notes && <div className="text-[10px] text-slate-500 italic mt-0.5">"{lead.notes}"</div>}
+                        {lead.rejectionReason && lead.status === 'Lost' && (
+                          <div className="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 rounded px-1.5 py-0.5 mt-1">
+                            Reason: {lead.rejectionReason}
+                          </div>
+                        )}
                       </td>
 
                       {/* Affiliate Partner */}
@@ -434,7 +444,18 @@ export default function AffiliatesTab() {
                       <td className="p-3">
                         <select
                           value={lead.status}
-                          onChange={(e) => handleUpdateLead(lead._id, { status: e.target.value as any })}
+                          onChange={(e) => {
+                            const newStatus = e.target.value as any
+                            if (newStatus === 'Deal Won') {
+                              setReviewModalLead(lead)
+                              setReviewModalMode('approve')
+                            } else if (newStatus === 'Lost') {
+                              setReviewModalLead(lead)
+                              setReviewModalMode('reject')
+                            } else {
+                              handleUpdateLead(lead._id, { status: newStatus })
+                            }
+                          }}
                           className={`font-black uppercase text-[10px] px-2 py-1 rounded border-2 border-slate-900 shadow-[1px_1px_0px_0px_#000] focus:outline-none ${
                             lead.status === 'Deal Won'
                               ? 'bg-[#86efac] text-slate-900'
@@ -450,26 +471,13 @@ export default function AffiliatesTab() {
                           <option value="Demo Scheduled">Demo Scheduled</option>
                           <option value="In Negotiation">In Negotiation</option>
                           <option value="Deal Won">Deal Won (Closed)</option>
-                          <option value="Lost">Lost</option>
+                          <option value="Lost">Lost / Cancelled</option>
                         </select>
                       </td>
 
-                      {/* Deal Value Editor */}
-                      <td className="p-3 font-mono">
-                        <div className="flex items-center gap-1">
-                          <span className="font-bold text-slate-500">₹</span>
-                          <input
-                            type="number"
-                            defaultValue={lead.dealValue || 0}
-                            onBlur={(e) => {
-                              const val = Number(e.target.value)
-                              if (val !== lead.dealValue) {
-                                handleUpdateLead(lead._id, { dealValue: val })
-                              }
-                            }}
-                            className="w-20 border border-slate-400 rounded px-1 py-0.5 text-xs font-black text-slate-900 focus:outline-none focus:border-slate-900"
-                          />
-                        </div>
+                      {/* Deal Value */}
+                      <td className="p-3 font-mono font-bold text-slate-900">
+                        ₹{(lead.dealValue || 0).toLocaleString('en-IN')}
                       </td>
 
                       {/* Commission Amount */}
@@ -494,6 +502,66 @@ export default function AffiliatesTab() {
                           <option value="Approved">Approved</option>
                           <option value="Paid">Paid</option>
                         </select>
+                      </td>
+
+                      {/* Quick Actions */}
+                      <td className="p-3 text-right">
+                        {lead.status === 'Deal Won' ? (
+                          <div className="flex items-center justify-end gap-1.5">
+                            <span className="px-2 py-0.5 bg-emerald-100 border border-emerald-600 text-emerald-900 rounded font-black text-[10px]">
+                              ✓ Won
+                            </span>
+                            <button
+                              onClick={() => {
+                                setReviewModalLead(lead)
+                                setReviewModalMode('approve')
+                              }}
+                              className="px-2 py-0.5 bg-white border border-slate-900 rounded font-bold text-[10px] hover:bg-slate-100 cursor-pointer shadow-[1px_1px_0px_0px_#000]"
+                              title="Edit deal amount or commission"
+                            >
+                              Edit
+                            </button>
+                          </div>
+                        ) : lead.status === 'Lost' ? (
+                          <div className="flex items-center justify-end gap-1.5">
+                            <span className="px-2 py-0.5 bg-rose-100 border border-rose-500 text-rose-900 rounded font-black text-[10px]">
+                              ✕ Cancelled
+                            </span>
+                            <button
+                              onClick={() => {
+                                setReviewModalLead(lead)
+                                setReviewModalMode('approve')
+                              }}
+                              className="px-2 py-0.5 bg-white border border-slate-900 rounded font-bold text-[10px] hover:bg-slate-100 cursor-pointer shadow-[1px_1px_0px_0px_#000]"
+                              title="Re-open and approve deal"
+                            >
+                              Reopen
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={() => {
+                                setReviewModalLead(lead)
+                                setReviewModalMode('approve')
+                              }}
+                              className="px-2.5 py-1 bg-[#86efac] border-2 border-slate-900 rounded font-black text-[10px] shadow-[2px_2px_0px_0px_#000] hover:bg-[#6ee7b7] cursor-pointer flex items-center gap-1 active:translate-y-0.5"
+                            >
+                              <span>✓</span>
+                              <span>Approve</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setReviewModalLead(lead)
+                                setReviewModalMode('reject')
+                              }}
+                              className="px-2 py-1 bg-rose-100 border border-slate-900 rounded font-bold text-[10px] shadow-[1px_1px_0px_0px_#000] text-rose-900 hover:bg-rose-200 cursor-pointer flex items-center gap-0.5"
+                            >
+                              <span>✕</span>
+                              <span>Cancel</span>
+                            </button>
+                          </div>
+                        )}
                       </td>
 
                     </tr>
@@ -524,6 +592,22 @@ export default function AffiliatesTab() {
         onPaid={() => {
           fetchAffiliates()
           if (activeSubTab === 'leads') fetchLeads()
+        }}
+      />
+
+      {/* Review / Approve / Cancel Lead Modal */}
+      <ReviewLeadModal
+        isOpen={Boolean(reviewModalLead && reviewModalMode)}
+        onClose={() => {
+          setReviewModalLead(null)
+          setReviewModalMode(null)
+        }}
+        lead={reviewModalLead}
+        mode={reviewModalMode}
+        token={token}
+        onSuccess={() => {
+          fetchLeads()
+          fetchAffiliates()
         }}
       />
 

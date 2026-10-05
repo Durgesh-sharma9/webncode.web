@@ -155,6 +155,7 @@ export interface AffiliateLeadItem {
   commissionStatus: 'Pending' | 'Approved' | 'Paid'
   source: 'manual_by_affiliate' | 'website_referral_link'
   notes?: string
+  rejectionReason?: string
   createdAt: string
 }
 
