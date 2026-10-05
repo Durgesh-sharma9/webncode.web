@@ -62,7 +62,7 @@ export default function AddLeadModal({
       if (selectedProducts.length > 1) {
         setSelectedProducts(selectedProducts.filter((p) => p !== prod))
       } else {
-        showErrorToast('Kam se kam ek product chunein')
+        showErrorToast('Please select at least one product')
       }
     } else {
       setSelectedProducts([...selectedProducts, prod])
@@ -83,7 +83,7 @@ export default function AddLeadModal({
     e.preventDefault()
 
     if (selectedProducts.length === 0) {
-      showErrorToast('Kripya kam se kam ek product ya project select karein')
+      showErrorToast('Please select at least one product or service')
       return
     }
 

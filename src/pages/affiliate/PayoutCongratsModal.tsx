@@ -88,7 +88,7 @@ export default function PayoutCongratsModal({
 
         {/* Motivational Encouragement */}
         <p className="text-xs text-slate-700 font-medium leading-relaxed">
-          Shandar kaam! Aapka commission verify karke account me transfer kar diya gaya hai. Aage bhi schools aur clients ko pitch karein aur aur commissions earn karein!
+          Outstanding work! Your commission has been verified and successfully transferred to your registered account. Keep pitching schools and organizations to unlock even higher earnings!
         </p>
 
         {/* Action Button */}
@@ -97,7 +97,7 @@ export default function PayoutCongratsModal({
             onClick={onClose}
             className="w-full py-3 bg-[#86efac] border-2 border-slate-900 rounded-xl font-black text-xs uppercase tracking-wider text-slate-900 shadow-[4px_4px_0px_0px_#000] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_#000] transition-all cursor-pointer"
           >
-            🚀 Shandar! Continue Partnering
+            🚀 Awesome! Continue to Dashboard
           </button>
         </div>
 

@@ -825,7 +825,7 @@ exports.requestPayoutByAffiliate = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Withdrawal request submitted! Verify karke 24-48 ghante me paise aapke account me daal diye jayenge.',
+      message: 'Withdrawal request submitted! We will verify your deals and credit funds within 24 to 48 hours.',
       data: payout
     });
   } catch (error) {

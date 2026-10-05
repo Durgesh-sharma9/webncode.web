@@ -122,7 +122,7 @@ export default function RequestWithdrawalModal({
               <div className="mt-3 p-4 bg-[#f0fdf4] border-2 border-slate-900 rounded-lg text-xs text-slate-900 font-bold leading-relaxed text-left shadow-[2px_2px_0px_0px_#000]">
                 🕒 <span className="font-black underline text-emerald-800">24-48 Hours Verification Policy:</span>
                 <p className="mt-1 text-slate-700">
-                  Admin team aapki request aur deals verify karke <span className="font-black text-emerald-800">24 se 48 ghante (24-48 Hours) me</span> paise aapke account me transfer kar degi.
+                  Our finance team will verify your closed deals and disburse funds to your registered account within <span className="font-black text-emerald-800">24 to 48 hours</span>.
                 </p>
               </div>
             </div>
@@ -226,10 +226,10 @@ export default function RequestWithdrawalModal({
             <div className="p-3 bg-[#fef08a] border-2 border-slate-900 rounded-lg text-slate-950 text-xs font-bold leading-relaxed shadow-[2px_2px_0px_0px_#000]">
               <div className="flex items-center gap-1.5 text-xs font-black uppercase text-slate-900 mb-0.5">
                 <span>🕒</span>
-                <span>24 se 48 Hours Transfer Guarantee</span>
+                <span>24 to 48 Hours Transfer Guarantee</span>
               </div>
               <p className="text-[11px] text-slate-800">
-                Aapki request receive hote hi admin team closed deals verify karke <strong>24 se 48 ghante (24-48 Hours) me</strong> aapke account me paise bhej degi.
+                Upon receiving your request, our finance team verifies closed deals and transfers funds to your account within <strong>24 to 48 hours</strong>.
               </p>
             </div>
 

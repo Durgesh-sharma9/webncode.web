@@ -109,10 +109,10 @@ export default function AffiliateEarnings() {
           <span className="text-xl">🕒</span>
           <div>
             <span className="font-black text-slate-900 uppercase tracking-tight block">
-              24 se 48 Ghante (24-48 Hours) Settlement Guarantee
+              24 to 48 Hours Settlement Guarantee
             </span>
             <span className="text-slate-800 text-[11px] font-bold">
-              Jab aap payout request karte hain, Admin team aapki deals verify karke <strong>24 se 48 ghante (24-48 Hours) ke andar</strong> aapke UPI / Bank me paise transfer kar deti hai.
+              When you submit a withdrawal request, our finance team verifies the closed deals and transfers funds to your account within <strong>24 to 48 hours</strong>.
             </span>
           </div>
         </div>

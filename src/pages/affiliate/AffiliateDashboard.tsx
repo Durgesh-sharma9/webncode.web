@@ -169,7 +169,7 @@ export default function AffiliateDashboard() {
               </span>
             </div>
             <p className="text-slate-800 font-bold mt-1 leading-relaxed">
-              Aapki ₹{pendingSettlement.toLocaleString('en-IN')} ki payout request admin team ke paas process ho rahi hai. <strong>24 se 48 ghante (24-48 Hours) ke andar</strong> aapke UPI ya Bank account me paise credit ho jayenge.
+              Your payout request for ₹{pendingSettlement.toLocaleString('en-IN')} is being processed by our finance team. Funds will be transferred to your account within <strong>24 to 48 hours</strong>.
             </p>
           </div>
         </div>
@@ -188,8 +188,8 @@ export default function AffiliateDashboard() {
                 </span>
               </div>
               <p className="text-slate-900 font-bold mt-0.5">
-                Aapka ₹{data.latestPaidPayout.amount.toLocaleString('en-IN')} ka payout safaltapoorvak aapke account me transfer kar diya gaya hai!
-                {data.latestPaidPayout.transactionReference ? ` (UTR: ${data.latestPaidPayout.transactionReference})` : ''}
+                Your payout of ₹{data.latestPaidPayout.amount.toLocaleString('en-IN')} has been successfully transferred to your registered account!
+                {data.latestPaidPayout.transactionReference ? ` (UTR / Ref: ${data.latestPaidPayout.transactionReference})` : ''}
               </p>
             </div>
           </div>
