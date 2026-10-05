@@ -6,6 +6,7 @@ import { API_BASE, type AffiliateLeadItem } from '../admin/types'
 import { showErrorToast } from '../../components/ui/Toast'
 import AddLeadModal from './AddLeadModal'
 import RequestWithdrawalModal from './RequestWithdrawalModal'
+import PayoutCongratsModal from './PayoutCongratsModal'
 
 interface DashboardData {
   profile: {
@@ -31,6 +32,13 @@ interface DashboardData {
     pendingWithdrawal?: number
     availableBalance?: number
   }
+  latestPaidPayout?: {
+    id: string
+    amount: number
+    paidAt?: string
+    transactionReference?: string
+    paymentMethod?: string
+  } | null
   recentLeads: AffiliateLeadItem[]
 }
 
@@ -40,6 +48,7 @@ export default function AffiliateDashboard() {
   const [isLoading, setIsLoading] = useState(true)
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false)
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
+  const [showCongrats, setShowCongrats] = useState(false)
 
   const fetchDashboard = async () => {
     setIsLoading(true)
@@ -49,6 +58,13 @@ export default function AffiliateDashboard() {
       })
       if (res.data?.success) {
         setData(res.data.data)
+        const payout = res.data.data?.latestPaidPayout
+        if (payout?.id) {
+          const seenKey = `payout_congrats_seen_${payout.id}`
+          if (!sessionStorage.getItem(seenKey)) {
+            setShowCongrats(true)
+          }
+        }
       }
     } catch (err: any) {
       console.error('Fetch affiliate dashboard error:', err)
@@ -56,6 +72,13 @@ export default function AffiliateDashboard() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleDismissCongrats = () => {
+    if (data?.latestPaidPayout?.id) {
+      sessionStorage.setItem(`payout_congrats_seen_${data.latestPaidPayout.id}`, 'true')
+    }
+    setShowCongrats(false)
   }
 
   useEffect(() => {
@@ -132,23 +155,52 @@ export default function AffiliateDashboard() {
         </div>
       </div>
 
-      {/* 24-48 Hours Verification Notice Banner */}
-      <div className="bg-[#fef08a] border-2 border-slate-900 rounded-xl p-4 shadow-[4px_4px_0px_0px_#000] flex items-start gap-3">
-        <span className="text-2xl leading-none">🕒</span>
-        <div className="text-xs">
-          <div className="flex items-center gap-2">
-            <span className="font-black uppercase text-slate-900 tracking-wider text-sm">
-              24 se 48 Ghante (24-48 Hours) Payout Policy
-            </span>
-            <span className="px-2 py-0.5 bg-white border border-slate-900 rounded text-[10px] font-black text-slate-900 uppercase">
-              Fast Settlement
-            </span>
+      {/* 24-48 Hours Verification Notice Banner - ONLY shown when withdrawal is pending */}
+      {pendingSettlement > 0 ? (
+        <div className="bg-[#fef08a] border-2 border-slate-900 rounded-xl p-4 shadow-[4px_4px_0px_0px_#000] flex items-start gap-3">
+          <span className="text-2xl leading-none">🕒</span>
+          <div className="text-xs">
+            <div className="flex items-center gap-2">
+              <span className="font-black uppercase text-slate-900 tracking-wider text-sm">
+                Withdrawal In Verification (24-48 Hours Policy)
+              </span>
+              <span className="px-2 py-0.5 bg-amber-200 border border-slate-900 rounded text-[10px] font-black text-slate-900 uppercase">
+                Under Process
+              </span>
+            </div>
+            <p className="text-slate-800 font-bold mt-1 leading-relaxed">
+              Aapki ₹{pendingSettlement.toLocaleString('en-IN')} ki payout request admin team ke paas process ho rahi hai. <strong>24 se 48 ghante (24-48 Hours) ke andar</strong> aapke UPI ya Bank account me paise credit ho jayenge.
+            </p>
           </div>
-          <p className="text-slate-800 font-bold mt-1 leading-relaxed">
-            Jab aap withdrawal request bhejte hain, admin team aapki deals verify karke <strong>24 se 48 ghante (24-48 Hours) ke andar</strong> aapke UPI ya Bank account me paise transfer kar deti hai.
-          </p>
         </div>
-      </div>
+      ) : data?.latestPaidPayout ? (
+        /* Payout Complete Celebratory Bar */
+        <div className="bg-[#86efac] border-2 border-slate-900 rounded-xl p-4 shadow-[4px_4px_0px_0px_#000] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl leading-none">🎉</span>
+            <div className="text-xs">
+              <div className="flex items-center gap-2">
+                <span className="font-black uppercase text-slate-900 tracking-wider text-sm">
+                  Congratulations! Payout Credited
+                </span>
+                <span className="px-2 py-0.5 bg-white border border-slate-900 rounded text-[10px] font-black text-emerald-900 uppercase">
+                  ✓ PAID ₹{data.latestPaidPayout.amount.toLocaleString('en-IN')}
+                </span>
+              </div>
+              <p className="text-slate-900 font-bold mt-0.5">
+                Aapka ₹{data.latestPaidPayout.amount.toLocaleString('en-IN')} ka payout safaltapoorvak aapke account me transfer kar diya gaya hai!
+                {data.latestPaidPayout.transactionReference ? ` (UTR: ${data.latestPaidPayout.transactionReference})` : ''}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowCongrats(true)}
+            className="px-4 py-2 bg-white border-2 border-slate-900 rounded-md font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000] hover:bg-slate-100 transition-colors cursor-pointer self-start sm:self-auto shrink-0"
+          >
+            View Reward Details ➔
+          </button>
+        </div>
+      ) : null}
 
       {/* KPI Cards (Clean Responsive Grid) */}
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 text-xs">
@@ -328,6 +380,14 @@ export default function AffiliateDashboard() {
         bankDetails={data?.profile?.bankDetails}
         token={token}
         onRequestSubmitted={fetchDashboard}
+      />
+
+      {/* Celebratory Payout Congrats Modal */}
+      <PayoutCongratsModal
+        isOpen={showCongrats}
+        onClose={handleDismissCongrats}
+        partnerName={data?.profile?.name || user?.name || 'Partner'}
+        payout={data?.latestPaidPayout || null}
       />
 
     </div>

@@ -478,6 +478,9 @@ exports.getAffiliateDashboard = async (req, res) => {
     const totalPaid = payouts.filter((p) => p.status === 'Paid').reduce((acc, curr) => acc + (curr.amount || 0), 0);
     const pendingWithdrawal = payouts.filter((p) => p.status === 'Pending').reduce((acc, curr) => acc + (curr.amount || 0), 0);
     const availableBalance = Math.max(0, totalEarned - totalPaid - pendingWithdrawal);
+    const latestPaidPayout = payouts
+      .filter((p) => p.status === 'Paid')
+      .sort((a, b) => new Date(b.paidAt || b.updatedAt) - new Date(a.paidAt || a.updatedAt))[0] || null;
 
     res.status(200).json({
       success: true,
@@ -505,6 +508,13 @@ exports.getAffiliateDashboard = async (req, res) => {
           pendingPayout: pendingWithdrawal,
           availableBalance
         },
+        latestPaidPayout: latestPaidPayout ? {
+          id: latestPaidPayout._id,
+          amount: latestPaidPayout.amount,
+          paidAt: latestPaidPayout.paidAt,
+          transactionReference: latestPaidPayout.transactionReference,
+          paymentMethod: latestPaidPayout.paymentMethod
+        } : null,
         recentLeads: leads.slice(0, 5)
       }
     });
