@@ -40,11 +40,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:5000')
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const saved = localStorage.getItem('wnc_user')
+      return saved ? JSON.parse(saved) : null
+    } catch {
+      return null
+    }
+  })
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('wnc_token'))
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
-  // Verify token and load current user profile on app load
+  // Verify token and refresh user profile silently in background
   useEffect(() => {
     const fetchUser = async () => {
       const storedToken = localStorage.getItem('wnc_token')
@@ -55,28 +62,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       try {
         const res = await axios.get(`${API_BASE}/api/auth/me`, {
-          headers: { Authorization: `Bearer ${storedToken}` }
+          headers: { Authorization: `Bearer ${storedToken}` },
+          timeout: 7000
         })
         if (res.data?.success && res.data?.user) {
           const u = res.data.user
-          setUser({
+          const mappedUser: User = {
             id: u._id || u.id,
             name: u.name,
             email: u.email,
             role: u.role,
             affiliate: u.affiliate || null
-          })
+          }
+          setUser(mappedUser)
+          localStorage.setItem('wnc_user', JSON.stringify(mappedUser))
           setToken(storedToken)
-        } else {
+        }
+      } catch (err: any) {
+        // ONLY log out if the backend explicitly rejected the token as invalid/expired (HTTP 401)
+        // Never log out on nodemon server restarts, network errors, or temporary delays!
+        if (err.response?.status === 401) {
+          console.warn('Authentication token expired or invalid, logging out.')
           localStorage.removeItem('wnc_token')
+          localStorage.removeItem('wnc_user')
           setUser(null)
           setToken(null)
+        } else {
+          console.info('Backend server reloading or temporarily busy, keeping local session active.')
         }
-      } catch (err) {
-        console.error('Session restoration failed:', err)
-        localStorage.removeItem('wnc_token')
-        setUser(null)
-        setToken(null)
       } finally {
         setIsLoading(false)
       }
@@ -92,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const receivedToken = res.data.token
         const receivedUser = res.data.user
         localStorage.setItem('wnc_token', receivedToken)
+        localStorage.setItem('wnc_user', JSON.stringify(receivedUser))
         setToken(receivedToken)
         setUser(receivedUser)
         return {
@@ -115,6 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const receivedToken = res.data.token
         const receivedUser = res.data.user
         localStorage.setItem('wnc_token', receivedToken)
+        localStorage.setItem('wnc_user', JSON.stringify(receivedUser))
         setToken(receivedToken)
         setUser(receivedUser)
         return { success: true, message: res.data.message || 'Registration successful' }
@@ -128,6 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem('wnc_token')
+    localStorage.removeItem('wnc_user')
     setToken(null)
     setUser(null)
   }
