@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import { usePortalTheme, PortalThemeSwitcher } from '../../contexts/PortalThemeContext'
 import axios from 'axios'
 import { showSuccessToast, showErrorToast } from '../../components/ui/Toast'
 import { API_BASE } from './types'
@@ -8,6 +9,7 @@ import logoImg from '../../assets/logoooo.png'
 
 export default function AdminLayout() {
   const { user, token, isAuthenticated, isLoading, logout } = useAuth()
+  const { theme } = usePortalTheme()
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -94,7 +96,9 @@ export default function AdminLayout() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center font-mono">
+      <div className={`min-h-screen portal-theme-${theme} ${
+        theme === 'dark' ? 'bg-[#080c14]' : theme === 'emerald' ? 'bg-[#02140c]' : 'bg-[#fafafa]'
+      } flex items-center justify-center font-mono`}>
         <div className="p-6 bg-white border-2 border-slate-900 rounded-xl shadow-[4px_4px_0px_0px_#000] flex items-center gap-3">
           <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
           <span className="text-xs font-black uppercase text-slate-800">Verifying SuperAdmin Credentials...</span>
@@ -108,7 +112,9 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col antialiased selection:bg-slate-900 selection:text-white font-mono">
+    <div className={`min-h-screen portal-theme-${theme} ${
+      theme === 'dark' ? 'bg-[#080c14] text-slate-100' : theme === 'emerald' ? 'bg-[#02140c] text-emerald-100' : 'bg-[#fafafa] text-slate-900'
+    } flex flex-col antialiased selection:bg-slate-900 selection:text-white font-mono transition-colors duration-150`}>
       {/* Mobile Drawer Backdrop */}
       {sidebarOpen && (
         <div
@@ -263,9 +269,11 @@ export default function AdminLayout() {
 
             {/* Quick Actions in Navbar */}
             <div className="flex items-center gap-2">
+              <PortalThemeSwitcher />
+
               <Link
                 to="/admin/projects/new"
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#fde047] hover:bg-[#facc15] border-2 border-slate-900 rounded-lg text-xs font-black uppercase tracking-wider text-slate-950 shadow-[2px_2px_0px_0px_#000]"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#fde047] hover:bg-[#facc15] border-2 border-slate-900 rounded-lg text-xs font-black uppercase tracking-wider text-slate-950 shadow-[2px_2px_0px_0px_#000] shrink-0"
               >
                 <span>✨</span>
                 <span>New Project</span>
@@ -273,7 +281,7 @@ export default function AdminLayout() {
 
               <button
                 onClick={handleLogout}
-                className="px-3 py-1.5 bg-white hover:bg-slate-100 border-2 border-slate-900 rounded-lg text-xs font-black uppercase tracking-wider text-slate-800 shadow-[2px_2px_0px_0px_#000]"
+                className="px-3 py-1.5 bg-white hover:bg-slate-100 border-2 border-slate-900 rounded-lg text-xs font-black uppercase tracking-wider text-slate-800 shadow-[2px_2px_0px_0px_#000] shrink-0"
               >
                 Logout
               </button>

@@ -496,7 +496,12 @@ exports.getAffiliateDashboard = async (req, res) => {
           fixedAmount: affiliate.fixedAmount ?? 0,
           allowedProducts: affiliate.allowedProducts || [],
           status: affiliate.status,
-          bankDetails: affiliate.bankDetails
+          bankDetails: affiliate.bankDetails,
+          notifications: affiliate.notifications || {
+            emailOnDealWon: true,
+            emailOnPayout: true,
+            monthlySummary: true
+          }
         },
         stats: {
           clicks: affiliate.clicksCount || 0,
@@ -648,7 +653,130 @@ exports.createAffiliateLead = async (req, res) => {
 };
 
 /**
- * Affiliate: Update Bank & UPI Payout details
+ * Affiliate: Manage / Update their own Lead
+ * PUT /api/affiliate-portal/leads/:leadId
+ */
+exports.updateLeadByAffiliate = async (req, res) => {
+  try {
+    const affiliate = await getAffiliateForUser(req.user.id);
+    if (!affiliate) {
+      return res.status(404).json({ success: false, message: 'Affiliate profile not found' });
+    }
+
+    const lead = await AffiliateLead.findOne({ _id: req.params.leadId, affiliate: affiliate._id });
+    if (!lead) {
+      return res.status(404).json({ success: false, message: 'Lead not found or unauthorized' });
+    }
+
+    const {
+      organizationName,
+      contactPerson,
+      phone,
+      email,
+      city,
+      product,
+      products,
+      dealValue,
+      status,
+      notes
+    } = req.body;
+
+    if (organizationName !== undefined) lead.organizationName = organizationName.trim();
+    if (contactPerson !== undefined) lead.contactPerson = contactPerson.trim();
+    if (phone !== undefined) lead.phone = phone.trim();
+    if (email !== undefined) lead.email = email.trim();
+    if (city !== undefined) lead.city = city.trim();
+
+    if (products && Array.isArray(products) && products.length > 0) {
+      lead.products = products;
+      lead.product = products.join(', ');
+    } else if (product !== undefined && product.trim()) {
+      lead.product = product.trim();
+      lead.products = [product.trim()];
+    }
+
+    if (dealValue !== undefined) {
+      const numDealValue = Number(dealValue) || 0;
+      lead.dealValue = numDealValue;
+      if (affiliate.payoutType === 'percentage') {
+        lead.commissionAmount = Math.round((numDealValue * (affiliate.commissionRate || 10)) / 100);
+      } else if (affiliate.payoutType === 'fixed') {
+        lead.commissionAmount = affiliate.fixedAmount || 0;
+      }
+    }
+
+    if (status !== undefined) {
+      const validStatuses = ['New', 'Contacted', 'Demo Scheduled', 'In Negotiation', 'Deal Won', 'Lost'];
+      if (validStatuses.includes(status)) {
+        lead.status = status;
+        if (status === 'Deal Won' && !lead.commissionStatus) {
+          lead.commissionStatus = 'Pending';
+        }
+      }
+    }
+
+    if (notes !== undefined) {
+      lead.notes = notes.trim();
+    }
+
+    await lead.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Lead updated successfully!',
+      data: lead
+    });
+  } catch (error) {
+    console.error('Update lead by affiliate error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update lead',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Affiliate: Delete their own Lead
+ * DELETE /api/affiliate-portal/leads/:leadId
+ */
+exports.deleteLeadByAffiliate = async (req, res) => {
+  try {
+    const affiliate = await getAffiliateForUser(req.user.id);
+    if (!affiliate) {
+      return res.status(404).json({ success: false, message: 'Affiliate profile not found' });
+    }
+
+    const lead = await AffiliateLead.findOne({ _id: req.params.leadId, affiliate: affiliate._id });
+    if (!lead) {
+      return res.status(404).json({ success: false, message: 'Lead not found or unauthorized' });
+    }
+
+    if (lead.commissionStatus === 'Paid') {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot delete lead with already paid commissions'
+      });
+    }
+
+    await AffiliateLead.deleteOne({ _id: lead._id });
+
+    res.status(200).json({
+      success: true,
+      message: 'Lead deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete lead by affiliate error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete lead',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Affiliate: Update Bank & UPI Payout details and Partner Preferences
  * PUT /api/affiliate-portal/payout-settings
  */
 exports.updatePayoutSettings = async (req, res) => {
@@ -658,22 +786,50 @@ exports.updatePayoutSettings = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Affiliate profile not found' });
     }
 
-    const { upiId, accountHolder, accountNumber, ifscCode, bankName } = req.body;
+    const {
+      primaryMethod,
+      upiId,
+      accountHolder,
+      accountNumber,
+      ifscCode,
+      bankName,
+      accountType,
+      phone,
+      notifications
+    } = req.body;
 
     affiliate.bankDetails = {
-      upiId: upiId !== undefined ? upiId.trim() : affiliate.bankDetails.upiId,
-      accountHolder: accountHolder !== undefined ? accountHolder.trim() : affiliate.bankDetails.accountHolder,
-      accountNumber: accountNumber !== undefined ? accountNumber.trim() : affiliate.bankDetails.accountNumber,
-      ifscCode: ifscCode !== undefined ? ifscCode.trim() : affiliate.bankDetails.ifscCode,
-      bankName: bankName !== undefined ? bankName.trim() : affiliate.bankDetails.bankName
+      primaryMethod: primaryMethod || affiliate.bankDetails?.primaryMethod || 'upi',
+      upiId: upiId !== undefined ? upiId.trim() : (affiliate.bankDetails?.upiId || ''),
+      accountHolder: accountHolder !== undefined ? accountHolder.trim() : (affiliate.bankDetails?.accountHolder || ''),
+      accountNumber: accountNumber !== undefined ? accountNumber.trim() : (affiliate.bankDetails?.accountNumber || ''),
+      ifscCode: ifscCode !== undefined ? ifscCode.trim().toUpperCase() : (affiliate.bankDetails?.ifscCode || ''),
+      bankName: bankName !== undefined ? bankName.trim() : (affiliate.bankDetails?.bankName || ''),
+      accountType: accountType || affiliate.bankDetails?.accountType || 'savings'
     };
+
+    if (phone !== undefined) {
+      affiliate.phone = phone.trim();
+    }
+
+    if (notifications && typeof notifications === 'object') {
+      affiliate.notifications = {
+        emailOnDealWon: notifications.emailOnDealWon ?? affiliate.notifications?.emailOnDealWon ?? true,
+        emailOnPayout: notifications.emailOnPayout ?? affiliate.notifications?.emailOnPayout ?? true,
+        monthlySummary: notifications.monthlySummary ?? affiliate.notifications?.monthlySummary ?? true
+      };
+    }
 
     await affiliate.save();
 
     res.status(200).json({
       success: true,
-      message: 'Payout banking details updated successfully',
-      data: affiliate.bankDetails
+      message: 'Partner settings & payout details updated successfully',
+      data: {
+        bankDetails: affiliate.bankDetails,
+        phone: affiliate.phone,
+        notifications: affiliate.notifications
+      }
     });
   } catch (error) {
     console.error('Update payout settings error:', error);

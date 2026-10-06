@@ -27,12 +27,29 @@ router.get(['/leads', '/portal/leads'], protect, (req, res, next) => {
 
 router.post(['/leads', '/portal/leads'], protect, authorize('affiliate'), affiliateController.createAffiliateLead);
 
+// Lead update and delete for both Affiliate and Admin
+router.put(['/leads/:leadId', '/portal/leads/:leadId'], protect, (req, res, next) => {
+  if (req.user && req.user.role === 'affiliate') {
+    return affiliateController.updateLeadByAffiliate(req, res, next);
+  }
+  if (req.user && req.user.role === 'admin') {
+    return affiliateController.updateLeadByAdmin(req, res, next);
+  }
+  return res.status(403).json({ success: false, message: 'Unauthorized' });
+});
+
+router.delete(['/leads/:leadId', '/portal/leads/:leadId'], protect, (req, res, next) => {
+  if (req.user && (req.user.role === 'affiliate' || req.user.role === 'admin')) {
+    return affiliateController.deleteLeadByAffiliate(req, res, next);
+  }
+  return res.status(403).json({ success: false, message: 'Unauthorized' });
+});
+
 // -------------------------------------------------------------
 // SUPERADMIN MANAGEMENT ROUTES (Role: admin)
 // -------------------------------------------------------------
 router.post('/', protect, authorize('admin'), affiliateController.createAffiliate);
 router.get('/', protect, authorize('admin'), affiliateController.getAllAffiliates);
-router.put('/leads/:leadId', protect, authorize('admin'), affiliateController.updateLeadByAdmin);
 router.put('/:id', protect, authorize('admin'), affiliateController.updateAffiliate);
 router.delete('/:id', protect, authorize('admin'), affiliateController.deleteAffiliate);
 router.post('/:id/payout', protect, authorize('admin'), affiliateController.recordPayoutByAdmin);

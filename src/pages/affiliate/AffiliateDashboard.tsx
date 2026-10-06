@@ -49,6 +49,17 @@ export default function AffiliateDashboard() {
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false)
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
   const [showCongrats, setShowCongrats] = useState(false)
+  const [isPayoutBannerDismissed, setIsPayoutBannerDismissed] = useState(false)
+
+  const latestPayoutId = data?.latestPaidPayout?.id
+  const isBannerDismissed = isPayoutBannerDismissed || Boolean(latestPayoutId && sessionStorage.getItem(`dismissed_payout_bar_${latestPayoutId}`))
+
+  const handleDismissPayoutBanner = () => {
+    setIsPayoutBannerDismissed(true)
+    if (latestPayoutId) {
+      sessionStorage.setItem(`dismissed_payout_bar_${latestPayoutId}`, 'true')
+    }
+  }
 
   const fetchDashboard = async () => {
     setIsLoading(true)
@@ -173,17 +184,17 @@ export default function AffiliateDashboard() {
             </p>
           </div>
         </div>
-      ) : data?.latestPaidPayout ? (
+      ) : (data?.latestPaidPayout && !isBannerDismissed) ? (
         /* Payout Complete Celebratory Bar */
-        <div className="bg-[#86efac] border-2 border-slate-900 rounded-xl p-4 shadow-[4px_4px_0px_0px_#000] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="bg-[#86efac] border-2 border-slate-900 rounded-xl p-4 shadow-[4px_4px_0px_0px_#000] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-slate-950">
           <div className="flex items-center gap-3">
             <span className="text-3xl leading-none">🎉</span>
             <div className="text-xs">
               <div className="flex items-center gap-2">
-                <span className="font-black uppercase text-slate-900 tracking-wider text-sm">
+                <span className="font-black uppercase text-slate-950 tracking-wider text-sm">
                   Congratulations! Payout Credited
                 </span>
-                <span className="px-2 py-0.5 bg-white border border-slate-900 rounded text-[10px] font-black text-emerald-900 uppercase">
+                <span className="px-2 py-0.5 bg-slate-900 border border-slate-900 rounded text-[10px] font-black text-emerald-300 uppercase tracking-wider">
                   ✓ PAID ₹{data.latestPaidPayout.amount.toLocaleString('en-IN')}
                 </span>
               </div>
@@ -193,12 +204,21 @@ export default function AffiliateDashboard() {
               </p>
             </div>
           </div>
-          <button
-            onClick={() => setShowCongrats(true)}
-            className="px-4 py-2 bg-white border-2 border-slate-900 rounded-md font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000] hover:bg-slate-100 transition-colors cursor-pointer self-start sm:self-auto shrink-0"
-          >
-            View Reward Details ➔
-          </button>
+          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+            <button
+              onClick={() => setShowCongrats(true)}
+              className="px-4 py-2 bg-slate-900 text-white border-2 border-slate-900 rounded-md font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000] hover:bg-slate-800 transition-colors cursor-pointer"
+            >
+              View Reward Details ➔
+            </button>
+            <button
+              onClick={handleDismissPayoutBanner}
+              title="Dismiss announcement"
+              className="p-2 bg-slate-900 text-white border-2 border-slate-900 rounded-md font-black text-xs shadow-[2px_2px_0px_0px_#000] hover:bg-slate-800 hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] transition-all cursor-pointer flex items-center justify-center leading-none"
+            >
+              ✕
+            </button>
+          </div>
         </div>
       ) : null}
 
@@ -253,21 +273,6 @@ export default function AffiliateDashboard() {
 
       </div>
 
-      {/* Quick Promotion Kit Banner */}
-      <div className="bg-[#f0fdf4] border-2 border-slate-900 rounded-lg p-4 sm:p-5 shadow-[3px_3px_0px_0px_#000] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="space-y-0.5">
-          <h3 className="text-sm font-black uppercase text-slate-900">Need Marketing Kit & Product Brochures?</h3>
-          <p className="text-xs text-slate-600">
-            Get product demo decks, School ERP feature lists, and QR codes to show school administrators.
-          </p>
-        </div>
-        <Link
-          to="/affiliate/links"
-          className="px-4 py-2 bg-white border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider hover:bg-slate-100 transition-colors text-center shadow-[1px_1px_0px_0px_#000]"
-        >
-          View Marketing Kit ➔
-        </Link>
-      </div>
 
       {/* Recent Leads Table */}
       <div className="space-y-3">

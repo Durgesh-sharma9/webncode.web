@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { API_BASE } from '../admin/types'
 import { showSuccessToast, showErrorToast } from '../../components/ui/Toast'
@@ -8,11 +9,13 @@ interface RequestWithdrawalModalProps {
   onClose: () => void
   availableBalance: number
   bankDetails?: {
+    primaryMethod?: 'upi' | 'bank'
     upiId?: string
     accountHolder?: string
     accountNumber?: string
     ifscCode?: string
     bankName?: string
+    accountType?: string
   }
   token: string | null
   onRequestSubmitted: () => void
@@ -32,6 +35,17 @@ export default function RequestWithdrawalModal({
   const hasBank = Boolean(bankDetails?.accountNumber && bankDetails.accountNumber.trim())
   const isConfigured = hasUpi || hasBank
 
+  // Default method selection based on saved settings
+  const defaultMethod: 'UPI' | 'Bank Transfer' =
+    bankDetails?.primaryMethod === 'bank' && hasBank
+      ? 'Bank Transfer'
+      : hasUpi
+      ? 'UPI'
+      : hasBank
+      ? 'Bank Transfer'
+      : 'UPI'
+
+  const [selectedMethod, setSelectedMethod] = useState<'UPI' | 'Bank Transfer'>(defaultMethod)
   const [amount, setAmount] = useState<string>(availableBalance > 0 ? String(availableBalance) : '100')
   const [inlineUpi, setInlineUpi] = useState<string>('')
   const [notes, setNotes] = useState<string>('')
@@ -72,8 +86,8 @@ export default function RequestWithdrawalModal({
         `${API_BASE}/api/affiliate-portal/request-payout`,
         {
           amount: numAmount,
-          paymentMethod: hasUpi || inlineUpi.trim() ? 'UPI' : 'Bank Transfer',
-          upiId: inlineUpi.trim() || undefined,
+          paymentMethod: isConfigured ? selectedMethod : 'UPI',
+          upiId: !isConfigured ? inlineUpi.trim() : undefined,
           notes
         },
         config
@@ -153,25 +167,77 @@ export default function RequestWithdrawalModal({
               )}
             </div>
 
-            {/* Destination Account */}
-            <div className="border-2 border-slate-900 rounded-lg p-3 bg-white">
-              <span className="text-[10px] uppercase font-black text-slate-500 block mb-1">
-                Disbursement Account:
-              </span>
-              {hasUpi ? (
-                <div className="flex items-center gap-2">
+            {/* Destination Account: Auto-routed from Settings */}
+            <div className="border-2 border-slate-900 rounded-lg p-3 bg-white space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] uppercase font-black text-slate-500 block">
+                  Disbursement Destination:
+                </span>
+                {isConfigured && (
+                  <span className="px-1.5 py-0.5 bg-[#86efac] border border-slate-900 rounded text-[9px] font-black text-slate-950 uppercase">
+                    ✓ Saved Account
+                  </span>
+                )}
+              </div>
+
+              {/* If both UPI & Bank are saved, let user toggle */}
+              {hasUpi && hasBank ? (
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedMethod('UPI')}
+                    className={`p-2 rounded border-2 border-slate-900 text-left transition-all cursor-pointer ${
+                      selectedMethod === 'UPI'
+                        ? 'bg-[#86efac] text-slate-950 shadow-[2px_2px_0px_0px_#000]'
+                        : 'bg-slate-50 hover:bg-slate-100 text-slate-700'
+                    }`}
+                  >
+                    <div className="font-black text-[11px] flex items-center gap-1">
+                      <span>⚡ UPI</span>
+                      {selectedMethod === 'UPI' && <span>✓</span>}
+                    </div>
+                    <div className="text-[10px] truncate font-bold text-slate-800">{bankDetails?.upiId}</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedMethod('Bank Transfer')}
+                    className={`p-2 rounded border-2 border-slate-900 text-left transition-all cursor-pointer ${
+                      selectedMethod === 'Bank Transfer'
+                        ? 'bg-[#86efac] text-slate-950 shadow-[2px_2px_0px_0px_#000]'
+                        : 'bg-slate-50 hover:bg-slate-100 text-slate-700'
+                    }`}
+                  >
+                    <div className="font-black text-[11px] flex items-center gap-1">
+                      <span>🏦 Bank</span>
+                      {selectedMethod === 'Bank Transfer' && <span>✓</span>}
+                    </div>
+                    <div className="text-[10px] truncate font-bold text-slate-800">
+                      ••••{bankDetails?.accountNumber?.slice(-4)}
+                    </div>
+                  </button>
+                </div>
+              ) : hasUpi ? (
+                <div className="flex items-center gap-2 p-2 bg-[#f0fdf4] border border-slate-900 rounded">
                   <span className="px-1.5 py-0.5 bg-blue-100 border border-blue-600 text-blue-800 font-black rounded text-[10px]">UPI</span>
                   <span className="font-black text-slate-900 text-xs">{bankDetails?.upiId}</span>
                 </div>
               ) : hasBank ? (
-                <div>
+                <div className="p-2 bg-[#f0fdf4] border border-slate-900 rounded">
                   <div className="font-black text-slate-900">{bankDetails?.bankName || 'Bank Account'}</div>
-                  <div className="text-[11px] text-slate-600">A/C: {bankDetails?.accountNumber} | IFSC: {bankDetails?.ifscCode}</div>
+                  <div className="text-[11px] text-slate-700 font-bold">
+                    A/C: ••••{bankDetails?.accountNumber?.slice(-4)} | IFSC: {bankDetails?.ifscCode}
+                  </div>
+                  <div className="text-[10px] text-slate-500">Holder: {bankDetails?.accountHolder}</div>
                 </div>
               ) : (
                 <div className="space-y-1.5">
-                  <div className="text-amber-800 font-bold bg-amber-50 border border-amber-300 rounded p-2 text-[11px]">
-                    Enter your UPI ID below to receive this payment:
+                  <div className="text-amber-900 font-bold bg-amber-50 border border-amber-300 rounded p-2 text-[11px]">
+                    No payout account saved yet. Enter UPI below, or{' '}
+                    <Link to="/affiliate/settings" onClick={onClose} className="underline text-blue-700 font-black">
+                      save once in Settings
+                    </Link>{' '}
+                    for auto-payouts.
                   </div>
                   <input
                     type="text"
@@ -208,7 +274,7 @@ export default function RequestWithdrawalModal({
               <p className="text-[10px] text-slate-500 mt-1">Minimum withdrawal amount is ₹100.</p>
             </div>
 
-            {/* Notes */}
+            {/* Optional Note */}
             <div>
               <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
                 Note for Finance Team (Optional)
@@ -217,43 +283,23 @@ export default function RequestWithdrawalModal({
                 type="text"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-medium text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-                placeholder="e.g. Please transfer via PhonePe UPI"
+                placeholder="e.g. Urgent settlement for School ERP deal"
+                className="w-full border-2 border-slate-900 rounded-md px-3 py-1.5 font-bold text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
               />
             </div>
 
-            {/* 24 - 48 Hours Prominent Assurance Notice */}
-            <div className="p-3 bg-[#fef08a] border-2 border-slate-900 rounded-lg text-slate-950 text-xs font-bold leading-relaxed shadow-[2px_2px_0px_0px_#000]">
-              <div className="flex items-center gap-1.5 text-xs font-black uppercase text-slate-900 mb-0.5">
-                <span>🕒</span>
-                <span>24 to 48 Hours Transfer Guarantee</span>
-              </div>
-              <p className="text-[11px] text-slate-800">
-                Upon receiving your request, our finance team verifies closed deals and transfers funds to your account within <strong>24 to 48 hours</strong>.
-              </p>
-            </div>
-
-            {/* Buttons */}
-            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-3 border-t-2 border-slate-900 mt-4">
-              <button
-                type="button"
-                onClick={onClose}
-                className="w-full sm:w-auto px-4 py-2 bg-white border-2 border-slate-900 rounded-md font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors text-center cursor-pointer"
-              >
-                Cancel
-              </button>
+            {/* Submit Button */}
+            <div className="pt-2">
               <button
                 type="submit"
                 disabled={isSubmitting || availableBalance < 100}
-                className="w-full sm:w-auto px-5 py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-50 transition-all text-center cursor-pointer"
+                className="w-full py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-50 transition-all text-center cursor-pointer"
               >
-                {isSubmitting ? 'Submitting...' : 'Submit Request'}
+                {isSubmitting ? 'Submitting Request...' : `Confirm & Request ₹${Number(amount || 0).toLocaleString('en-IN')}`}
               </button>
             </div>
-
           </form>
         )}
-
       </div>
     </div>
   )

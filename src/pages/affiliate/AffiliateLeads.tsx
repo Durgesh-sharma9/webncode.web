@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { API_BASE, type AffiliateLeadItem } from '../admin/types'
 import { showErrorToast } from '../../components/ui/Toast'
 import AddLeadModal from './AddLeadModal'
+import ManageLeadModal from './ManageLeadModal'
 
 export default function AffiliateLeads() {
   const { token, user } = useAuth()
@@ -12,6 +13,8 @@ export default function AffiliateLeads() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedLeadForManage, setSelectedLeadForManage] = useState<AffiliateLeadItem | null>(null)
+  const [isManageModalOpen, setIsManageModalOpen] = useState(false)
 
   const payoutType = (user?.affiliate?.payoutType || 'percentage') as 'percentage' | 'fixed'
   const commissionRate = user?.affiliate?.commissionRate ?? 10
@@ -226,14 +229,25 @@ export default function AffiliateLeads() {
                   </div>
                 </div>
 
-                {/* Date */}
-                <div className="text-[10px] text-slate-400 text-right pt-0.5">
-                  Submitted:{' '}
-                  {new Date(lead.createdAt).toLocaleDateString('en-IN', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
-                  })}
+                {/* Date & Manage Action */}
+                <div className="pt-2 border-t border-slate-200 flex items-center justify-between gap-2">
+                  <span className="text-[10px] text-slate-400">
+                    Submitted: {new Date(lead.createdAt).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric'
+                    })}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setSelectedLeadForManage(lead)
+                      setIsManageModalOpen(true)
+                    }}
+                    className="px-3 py-1.5 bg-[#86efac] hover:bg-[#6ee7b7] border-2 border-slate-900 rounded font-black text-xs uppercase shadow-[1.5px_1.5px_0px_0px_#000] cursor-pointer flex items-center gap-1 text-slate-950"
+                  >
+                    <span>⚙️</span>
+                    <span>Manage Lead</span>
+                  </button>
                 </div>
               </div>
             ))}
@@ -252,6 +266,7 @@ export default function AffiliateLeads() {
                   <th className="p-3">Commission ({commissionRate}%)</th>
                   <th className="p-3">Payout Status</th>
                   <th className="p-3">Date</th>
+                  <th className="p-3 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y-2 divide-slate-100 font-medium">
@@ -333,6 +348,20 @@ export default function AffiliateLeads() {
                       })}
                     </td>
 
+                    {/* Action */}
+                    <td className="p-3 text-right">
+                      <button
+                        onClick={() => {
+                          setSelectedLeadForManage(lead)
+                          setIsManageModalOpen(true)
+                        }}
+                        className="px-3 py-1.5 bg-[#86efac] hover:bg-[#6ee7b7] border-2 border-slate-900 rounded-md font-black text-xs uppercase shadow-[1.5px_1.5px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[0.5px_0.5px_0px_0px_#000] transition-all cursor-pointer inline-flex items-center gap-1 text-slate-950"
+                      >
+                        <span>⚙️</span>
+                        <span>Manage</span>
+                      </button>
+                    </td>
+
                   </tr>
                 ))}
               </tbody>
@@ -351,6 +380,23 @@ export default function AffiliateLeads() {
         fixedAmount={fixedAmount}
         allowedProducts={allowedProducts}
         onLeadAdded={fetchLeads}
+      />
+
+      {/* Manage Lead Modal */}
+      <ManageLeadModal
+        isOpen={isManageModalOpen}
+        onClose={() => {
+          setIsManageModalOpen(false)
+          setSelectedLeadForManage(null)
+        }}
+        lead={selectedLeadForManage}
+        token={token}
+        payoutType={payoutType}
+        commissionRate={commissionRate}
+        fixedAmount={fixedAmount}
+        allowedProducts={allowedProducts}
+        onLeadUpdated={fetchLeads}
+        onLeadDeleted={fetchLeads}
       />
 
     </div>

@@ -63,11 +63,18 @@ const affiliateSchema = new mongoose.Schema(
       default: 0
     },
     bankDetails: {
+      primaryMethod: { type: String, enum: ['upi', 'bank'], default: 'upi' },
       upiId: { type: String, default: '', trim: true },
       accountHolder: { type: String, default: '', trim: true },
       accountNumber: { type: String, default: '', trim: true },
       ifscCode: { type: String, default: '', trim: true },
-      bankName: { type: String, default: '', trim: true }
+      bankName: { type: String, default: '', trim: true },
+      accountType: { type: String, enum: ['savings', 'current'], default: 'savings' }
+    },
+    notifications: {
+      emailOnDealWon: { type: Boolean, default: true },
+      emailOnPayout: { type: Boolean, default: true },
+      monthlySummary: { type: Boolean, default: true }
     },
     notes: {
       type: String,

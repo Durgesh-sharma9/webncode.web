@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
+import { PortalThemeProvider } from './contexts/PortalThemeContext'
 import Layout from './components/layout/Layout'
 import ScrollToTop from './components/ui/ScrollToTop'
 import Toast from './components/ui/Toast'
@@ -34,9 +35,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <ScrollToTop />
-        <Toast />
-        <Routes>
+        <PortalThemeProvider>
+          <ScrollToTop />
+          <Toast />
+          <Routes>
           {/* Public Website with Navbar and Footer */}
           <Route element={<Layout />}>
             <Route index element={<Home />} />
@@ -76,6 +78,7 @@ export default function App() {
             <Route path="settings" element={<AffiliateSettings />} />
           </Route>
         </Routes>
+        </PortalThemeProvider>
       </AuthProvider>
     </BrowserRouter>
   )

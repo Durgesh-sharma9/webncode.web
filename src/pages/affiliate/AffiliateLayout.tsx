@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import { usePortalTheme, PortalThemeSwitcher } from '../../contexts/PortalThemeContext'
 import { showSuccessToast } from '../../components/ui/Toast'
 import logoImg from '../../assets/logoooo.png'
 
 export default function AffiliateLayout() {
   const { user, isAuthenticated, isLoading, logout } = useAuth()
+  const { theme } = usePortalTheme()
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -41,7 +43,9 @@ export default function AffiliateLayout() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center font-mono">
+      <div className={`min-h-screen portal-theme-${theme} ${
+        theme === 'dark' ? 'bg-[#080c14]' : theme === 'emerald' ? 'bg-[#02140c]' : 'bg-[#fafafa]'
+      } flex items-center justify-center font-mono`}>
         <div className="p-6 bg-white border-2 border-slate-900 rounded-xl shadow-[4px_4px_0px_0px_#000] flex items-center gap-3">
           <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
           <span className="text-xs font-black uppercase text-slate-800">Loading Partner Portal...</span>
@@ -59,7 +63,9 @@ export default function AffiliateLayout() {
   const fixedAmount = user?.affiliate?.fixedAmount ?? 0
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col antialiased selection:bg-[#ff9e7d] font-mono text-slate-900">
+    <div className={`min-h-screen portal-theme-${theme} ${
+      theme === 'dark' ? 'bg-[#080c14] text-slate-100' : theme === 'emerald' ? 'bg-[#02140c] text-emerald-100' : 'bg-[#fafafa] text-slate-900'
+    } flex flex-col antialiased selection:bg-[#ff9e7d] font-mono transition-colors duration-150`}>
       
       {/* Mobile Drawer Backdrop */}
       {sidebarOpen && (
@@ -176,10 +182,11 @@ export default function AffiliateLayout() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <PortalThemeSwitcher />
               <button
                 onClick={handleLogout}
-                className="px-3.5 py-1.5 bg-rose-50 border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider text-rose-700 shadow-[2px_2px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] transition-all flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-1.5 bg-rose-50 border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider text-rose-700 shadow-[2px_2px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
               >
                 <span>Logout</span>
               </button>
