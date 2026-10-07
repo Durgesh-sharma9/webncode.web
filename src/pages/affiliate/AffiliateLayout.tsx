@@ -30,6 +30,28 @@ export default function AffiliateLayout() {
     navigate('/login', { replace: true })
   }
 
+  // Stealth Impersonation detection
+  const isImpersonating = Boolean(localStorage.getItem('wnc_admin_backup_token'))
+  const impersonatedPartnerName = localStorage.getItem('wnc_admin_impersonating_name') || user?.name || 'Partner'
+
+  const handleExitImpersonation = () => {
+    const backupToken = localStorage.getItem('wnc_admin_backup_token')
+    const backupUser = localStorage.getItem('wnc_admin_backup_user')
+
+    if (backupToken && backupUser) {
+      localStorage.setItem('wnc_token', backupToken)
+      localStorage.setItem('wnc_user', backupUser)
+      localStorage.removeItem('wnc_admin_backup_token')
+      localStorage.removeItem('wnc_admin_backup_user')
+      localStorage.removeItem('wnc_admin_impersonating_name')
+      showSuccessToast('Exited partner account. Returning to Admin Panel.')
+      window.location.href = '/admin'
+    } else {
+      logout()
+      navigate('/login')
+    }
+  }
+
   // Navigation Items (Simplified without link marketing kit)
   const navItems = [
     { to: '/affiliate/dashboard', label: 'Overview', icon: '📊' },
@@ -137,6 +159,24 @@ export default function AffiliateLayout() {
       theme === 'dark' ? 'bg-[#080c14] text-slate-100' : theme === 'emerald' ? 'bg-[#02140c] text-emerald-100' : 'bg-[#fafafa] text-slate-900'
     } flex flex-col antialiased selection:bg-[#ff9e7d] font-mono transition-colors duration-150`}>
       
+      {/* Stealth Impersonation Banner for SuperAdmin */}
+      {isImpersonating && (
+        <div className="bg-amber-400 text-slate-950 px-4 py-2.5 border-b-2 border-slate-900 font-mono text-xs font-black flex flex-wrap items-center justify-between gap-2 shadow-[0_2px_0_0_#000] sticky top-0 z-50">
+          <div className="flex items-center gap-2">
+            <span className="text-base">👁️</span>
+            <span>
+              STEALTH ADMIN VIEW: Currently viewing <strong>{impersonatedPartnerName}</strong>'s portal. Partner is NOT notified.
+            </span>
+          </div>
+          <button
+            onClick={handleExitImpersonation}
+            className="px-3 py-1 bg-slate-900 text-white rounded border border-slate-900 font-black text-[11px] uppercase tracking-wider hover:bg-slate-800 transition-all cursor-pointer shadow-[2px_2px_0px_0px_#fff]"
+          >
+            ✕ Exit & Return to Admin Panel
+          </button>
+        </div>
+      )}
+
       {/* Mobile Drawer Backdrop */}
       {sidebarOpen && (
         <div

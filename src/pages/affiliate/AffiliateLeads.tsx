@@ -87,26 +87,52 @@ export default function AffiliateLeads() {
           </p>
         </div>
 
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="w-full sm:w-auto px-4 py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] transition-all flex items-center justify-center gap-1.5 text-center cursor-pointer"
-        >
-          <span>+</span>
-          <span>Submit Client Lead</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          {leads.length > 0 && (
+            <button
+              onClick={() => {
+                const defaultLead = leads.find((l) => isDiscussionStatus(l.status)) || leads[0]
+                setConfirmDealModalLead(defaultLead)
+              }}
+              className="w-full sm:w-auto px-4 py-2.5 bg-emerald-100 border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] transition-all flex items-center justify-center gap-1.5 text-center cursor-pointer"
+            >
+              <span>✓</span>
+              <span>Confirm School Order</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="w-full sm:w-auto px-4 py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] transition-all flex items-center justify-center gap-1.5 text-center cursor-pointer"
+          >
+            <span>+</span>
+            <span>Submit Client Lead</span>
+          </button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
         
-        {/* Search */}
-        <input
-          type="text"
-          placeholder="Search by school, contact, or city..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full sm:w-80 border-2 border-slate-900 rounded-md px-3 py-2 text-xs font-bold text-slate-900 bg-white shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-        />
+        {/* Direct School Search */}
+        <div className="relative w-full sm:w-80">
+          <input
+            type="text"
+            placeholder="Search school name, contact, or city..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full border-2 border-slate-900 rounded-md pl-8 pr-7 py-2 text-xs font-bold text-slate-900 bg-white shadow-[2px_2px_0px_0px_#000] focus:outline-none"
+          />
+          <span className="absolute left-2.5 top-2.5 text-slate-500 text-xs">🔍</span>
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              className="absolute right-2.5 top-2 font-black text-slate-400 hover:text-slate-900 text-xs cursor-pointer"
+            >
+              ×
+            </button>
+          )}
+        </div>
 
         {/* Status filters */}
         <div className="flex overflow-x-auto no-scrollbar sm:flex-wrap items-center gap-1.5 text-xs py-1">
@@ -210,13 +236,28 @@ export default function AffiliateLeads() {
                 </div>
 
                 {/* Product & Notes */}
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase">Product:</span>
-                    <span className="text-[10px] font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-300">
-                      {lead.product}
-                    </span>
+                <div className="space-y-1.5">
+                  <div className="flex flex-wrap items-center gap-1">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase mr-1">Products:</span>
+                    {(lead.products && lead.products.length > 0 ? lead.products : (lead.product ? lead.product.split(', ') : []))
+                      .filter(Boolean)
+                      .map((prod, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-900 bg-blue-50 px-2 py-0.5 rounded border border-blue-200"
+                        >
+                          <span>📦</span>
+                          <span>{prod.trim()}</span>
+                        </span>
+                      ))}
                   </div>
+                  {lead.appliedCoupon && (
+                    <div>
+                      <span className="inline-block px-1.5 py-0.5 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded font-mono text-[9px] font-black">
+                        🏷️ {lead.appliedCoupon} {lead.discountAmount ? `(-₹${lead.discountAmount.toLocaleString('en-IN')})` : ''}
+                      </span>
+                    </div>
+                  )}
                   {lead.notes && (
                     <div className="text-[10px] text-slate-600 bg-amber-50/70 border border-amber-200 rounded p-1.5 italic">
                       "{lead.notes}"
@@ -293,7 +334,7 @@ export default function AffiliateLeads() {
                           className="px-2.5 py-1.5 bg-[#86efac] hover:bg-[#6ee7b7] border-2 border-slate-900 rounded font-black text-xs uppercase shadow-[1.5px_1.5px_0px_0px_#000] cursor-pointer inline-flex items-center gap-1 text-slate-950"
                         >
                           <span>🎉</span>
-                          <span>School Confirmed!</span>
+                          <span>Confirm Deal</span>
                         </button>
                       )
                     )}
@@ -304,8 +345,8 @@ export default function AffiliateLeads() {
                       }}
                       className="px-2.5 py-1.5 bg-white hover:bg-slate-100 border-2 border-slate-900 rounded font-black text-xs uppercase shadow-[1.5px_1.5px_0px_0px_#000] cursor-pointer flex items-center gap-1 text-slate-900"
                     >
-                      <span>⚙️</span>
-                      <span>Manage</span>
+                      <span>✏️</span>
+                      <span>Edit</span>
                     </button>
                   </div>
                 </div>
@@ -313,51 +354,78 @@ export default function AffiliateLeads() {
             ))}
           </div>
 
-          {/* Desktop Table (>= md) */}
+          {/* Desktop Table (>= md) — Perfectly sized without horizontal scroll */}
           <div className="hidden md:block overflow-x-auto border-2 border-slate-900 rounded-lg shadow-[4px_4px_0px_0px_#000] bg-white">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs table-auto">
               <thead className="bg-[#f1f5f9] border-b-2 border-slate-900 uppercase font-black tracking-wider text-slate-700">
                 <tr>
-                  <th className="p-3">School / Organization</th>
-                  <th className="p-3">Contact Person</th>
-                  <th className="p-3">Product</th>
-                  <th className="p-3">Pipeline Status</th>
-                  <th className="p-3">Deal Value</th>
-                  <th className="p-3">Commission ({commissionRate}%)</th>
-                  <th className="p-3">Payout Status</th>
-                  <th className="p-3">Date</th>
-                  <th className="p-3 text-right">Action</th>
+                  <th className="py-2.5 px-3">School / Client</th>
+                  <th className="py-2.5 px-3">Contact</th>
+                  <th className="py-2.5 px-3">Products Pitched</th>
+                  <th className="py-2.5 px-3">Status</th>
+                  <th className="py-2.5 px-3">Deal & Commission</th>
+                  <th className="py-2.5 px-3">Payout</th>
+                  <th className="py-2.5 px-3 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y-2 divide-slate-100 font-medium">
                 {filtered.map((lead) => (
                   <tr key={lead._id} className="hover:bg-slate-50 transition-colors">
                     
-                    {/* Org */}
-                    <td className="p-3">
-                      <div className="font-black text-slate-900">{lead.organizationName}</div>
-                      {lead.city && <div className="text-[10px] text-slate-400">City: {lead.city}</div>}
+                    {/* Org & Location & Date */}
+                    <td className="py-2.5 px-3">
+                      <div className="font-black text-slate-900 text-xs leading-snug">{lead.organizationName}</div>
+                      <div className="text-[10px] text-slate-500 font-medium">
+                        {lead.city ? `${lead.city} • ` : ''}
+                        {new Date(lead.createdAt).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric'
+                        })}
+                      </div>
                       {lead.notes && (
-                        <div className="text-[10px] text-slate-500 italic mt-0.5 max-w-[200px] truncate">
+                        <div className="text-[10px] text-slate-500 italic mt-0.5 max-w-[180px] truncate" title={lead.notes}>
                           "{lead.notes}"
                         </div>
                       )}
                     </td>
 
-                    {/* Contact */}
-                    <td className="p-3">
-                      <div className="font-bold text-slate-900">{lead.contactPerson}</div>
-                      <div className="text-[11px] text-slate-500">{lead.phone}</div>
-                      {lead.email && <div className="text-[10px] text-slate-400">{lead.email}</div>}
+                    {/* Contact Person & Phone */}
+                    <td className="py-2.5 px-3 whitespace-nowrap">
+                      <div className="font-bold text-slate-900 text-xs">{lead.contactPerson}</div>
+                      <a href={`tel:${lead.phone}`} className="text-[10px] text-blue-700 font-bold hover:underline font-mono">
+                        {lead.phone}
+                      </a>
                     </td>
 
-                    {/* Product */}
-                    <td className="p-3 font-bold text-slate-800">
-                      {lead.product}
+                    {/* Product Chips */}
+                    <td className="py-2.5 px-3">
+                      <div className="flex flex-wrap gap-1 max-w-[220px]">
+                        {(lead.products && lead.products.length > 0 ? lead.products : (lead.product ? lead.product.split(', ') : []))
+                          .filter(Boolean)
+                          .map((prod, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-blue-50 border border-blue-200 text-blue-900 rounded font-bold text-[10px]"
+                            >
+                              <span className="text-[9px]">📦</span>
+                              <span>{prod.trim()}</span>
+                            </span>
+                          ))}
+                      </div>
+                      {lead.appliedCoupon && (
+                        <div className="mt-1">
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.2 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded font-mono text-[9px] font-black">
+                            <span>🏷️</span>
+                            <span>{lead.appliedCoupon}</span>
+                            {lead.discountAmount ? <span>(-₹{lead.discountAmount.toLocaleString('en-IN')})</span> : null}
+                          </span>
+                        </div>
+                      )}
                     </td>
 
                     {/* Status Badge */}
-                    <td className="p-3">
+                    <td className="py-2.5 px-3 whitespace-nowrap">
                       <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border border-slate-900 shadow-[1px_1px_0px_0px_#000] inline-block ${
                         lead.status === 'Deal Won'
                           ? 'bg-[#86efac] text-slate-950'
@@ -368,71 +436,54 @@ export default function AffiliateLeads() {
                           : 'bg-blue-100 text-blue-900'
                       }`}>
                         {lead.status === 'Deal Won'
-                          ? '🎉 Won (In Wallet)'
+                          ? '🎉 Won'
                           : lead.status === 'Deal Confirmed'
-                          ? '⏳ Confirmed (Verifying)'
+                          ? '⏳ Verifying'
                           : lead.status === 'Lost'
                           ? '❌ Cancelled'
-                          : '💬 In Discussion'}
+                          : '💬 Discussion'}
                       </span>
                       {lead.confirmationNotes && lead.status === 'Deal Confirmed' && (
-                        <div className="text-[10px] text-emerald-800 bg-emerald-50 border border-emerald-300 rounded px-1.5 py-0.5 mt-1 font-bold">
+                        <div className="text-[10px] text-emerald-800 bg-emerald-50 border border-emerald-300 rounded px-1.5 py-0.5 mt-1 font-bold max-w-[140px] truncate" title={lead.confirmationNotes}>
                           "{lead.confirmationNotes}"
                         </div>
                       )}
                       {lead.rejectionReason && lead.status === 'Lost' && (
-                        <div className="text-[10px] text-rose-700 bg-rose-50 border border-rose-200 rounded px-1.5 py-0.5 mt-1 font-bold">
+                        <div className="text-[10px] text-rose-700 bg-rose-50 border border-rose-200 rounded px-1.5 py-0.5 mt-1 font-bold max-w-[140px] truncate" title={lead.rejectionReason}>
                           Reason: {lead.rejectionReason}
                         </div>
                       )}
-                      {lead.adminNotes && (
-                        <div className="text-[10px] text-blue-900 bg-blue-50 border border-blue-300 rounded px-1.5 py-0.5 mt-1 font-bold">
-                          Admin Note: "{lead.adminNotes}"
-                        </div>
-                      )}
                     </td>
 
-                    {/* Deal Value */}
-                    <td className="p-3 font-mono font-bold text-slate-900">
-                      ₹{(lead.dealValue || 0).toLocaleString('en-IN')}
-                    </td>
-
-                    {/* Commission */}
-                    <td className="p-3 font-mono font-black text-emerald-700">
-                      ₹{(lead.commissionAmount || 0).toLocaleString('en-IN')}
+                    {/* Deal Value & Commission */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono">
+                      <div className="font-bold text-slate-900 text-xs">
+                        ₹{(lead.dealValue || 0).toLocaleString('en-IN')}
+                      </div>
+                      <div className="font-black text-emerald-700 text-[10px]">
+                        Comm: ₹{(lead.commissionAmount || 0).toLocaleString('en-IN')}
+                      </div>
                     </td>
 
                     {/* Commission / Payout Status */}
-                    <td className="p-3">
+                    <td className="py-2.5 px-3 whitespace-nowrap">
                       {lead.status !== 'Deal Won' ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black uppercase bg-slate-100 text-slate-600 border border-slate-300">
-                          <span>⏳</span>
-                          <span>In Pipeline</span>
+                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-slate-100 text-slate-600 border border-slate-300">
+                          In Pipeline
                         </span>
                       ) : lead.commissionStatus === 'Paid' ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black uppercase bg-emerald-100 text-emerald-900 border border-emerald-400">
-                          <span>✓</span>
-                          <span>Paid to Bank</span>
+                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-emerald-100 text-emerald-900 border border-emerald-400">
+                          ✓ Paid to Bank
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black uppercase bg-[#86efac] text-slate-950 border border-slate-900 shadow-[1px_1px_0px_0px_#000]">
-                          <span>🟢</span>
-                          <span>In Wallet (Ready)</span>
+                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-[#86efac] text-slate-950 border border-slate-900 shadow-[1px_1px_0px_0px_#000]">
+                          🟢 In Wallet
                         </span>
                       )}
                     </td>
 
-                    {/* Date */}
-                    <td className="p-3 text-[10px] text-slate-500 whitespace-nowrap">
-                      {new Date(lead.createdAt).toLocaleDateString('en-IN', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric'
-                      })}
-                    </td>
-
                     {/* Action */}
-                    <td className="p-3 text-right space-x-1.5 whitespace-nowrap">
+                    <td className="py-2.5 px-3 text-right whitespace-nowrap space-x-1.5">
                       {lead.status !== 'Deal Won' && lead.status !== 'Lost' && (
                         lead.status === 'Deal Confirmed' ? (
                           <span className="px-2 py-1 bg-amber-100 border border-amber-500 rounded text-[10px] font-black uppercase text-amber-900 inline-flex items-center gap-1">
@@ -442,11 +493,11 @@ export default function AffiliateLeads() {
                         ) : (
                           <button
                             onClick={() => setConfirmDealModalLead(lead)}
-                            className="px-2.5 py-1 bg-[#86efac] hover:bg-[#6ee7b7] border-2 border-slate-900 rounded font-black text-[10px] uppercase shadow-[1.5px_1.5px_0px_0px_#000] hover:translate-y-[-1px] transition-all cursor-pointer inline-flex items-center gap-1 text-slate-950"
+                            className="px-2 py-1 bg-[#86efac] hover:bg-[#6ee7b7] border-2 border-slate-900 rounded font-black text-[10px] uppercase shadow-[1.5px_1.5px_0px_0px_#000] hover:translate-y-[-1px] transition-all cursor-pointer inline-flex items-center gap-1 text-slate-950"
                             title="School agreed to purchase! Submit confirmation to Admin"
                           >
                             <span>🎉</span>
-                            <span>School Confirmed!</span>
+                            <span>Confirm</span>
                           </button>
                         )
                       )}
@@ -455,10 +506,10 @@ export default function AffiliateLeads() {
                           setSelectedLeadForManage(lead)
                           setIsManageModalOpen(true)
                         }}
-                        className="px-2.5 py-1 bg-white hover:bg-slate-100 border-2 border-slate-900 rounded font-black text-[10px] uppercase shadow-[1.5px_1.5px_0px_0px_#000] cursor-pointer inline-flex items-center gap-1 text-slate-900"
+                        className="px-2 py-1 bg-white hover:bg-slate-100 border-2 border-slate-900 rounded font-black text-[10px] uppercase shadow-[1.5px_1.5px_0px_0px_#000] cursor-pointer inline-flex items-center gap-1 text-slate-900"
                       >
-                        <span>⚙️</span>
-                        <span>Manage</span>
+                        <span>✏️</span>
+                        <span>Edit</span>
                       </button>
                     </td>
 
@@ -487,11 +538,16 @@ export default function AffiliateLeads() {
         isOpen={Boolean(confirmDealModalLead)}
         onClose={() => setConfirmDealModalLead(null)}
         lead={confirmDealModalLead}
+        allLeads={leads}
         token={token}
+        payoutType={payoutType}
+        commissionRate={commissionRate}
+        fixedAmount={fixedAmount}
         onSuccess={fetchLeads}
       />
 
       {/* Manage Lead Modal */}
+      {/* Edit Lead Modal */}
       <ManageLeadModal
         isOpen={isManageModalOpen}
         onClose={() => {
@@ -500,12 +556,8 @@ export default function AffiliateLeads() {
         }}
         lead={selectedLeadForManage}
         token={token}
-        payoutType={payoutType}
-        commissionRate={commissionRate}
-        fixedAmount={fixedAmount}
         allowedProducts={allowedProducts}
         onLeadUpdated={fetchLeads}
-        onLeadDeleted={fetchLeads}
       />
 
     </div>

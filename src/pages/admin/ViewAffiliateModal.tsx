@@ -1,14 +1,17 @@
-import { useState } from 'react'
-import { type AffiliateItem, type AffiliateLeadItem } from './types'
-import { showSuccessToast } from '../../components/ui/Toast'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+import { API_BASE, type AffiliateItem, type AffiliateLeadItem, type AffiliateCouponItem, PROJECT_OPTIONS } from './types'
+import { showSuccessToast, showErrorToast } from '../../components/ui/Toast'
 
 interface ViewAffiliateModalProps {
   isOpen: boolean
   onClose: () => void
   affiliate: AffiliateItem | null
   leads: AffiliateLeadItem[]
+  token?: string | null
   onEdit: (affiliate: AffiliateItem) => void
   onPay: (affiliate: AffiliateItem) => void
+  onImpersonate?: (affiliate: AffiliateItem) => void
 }
 
 export default function ViewAffiliateModal({
@@ -16,11 +19,106 @@ export default function ViewAffiliateModal({
   onClose,
   affiliate,
   leads,
+  token,
   onEdit,
-  onPay
+  onPay,
+  onImpersonate
 }: ViewAffiliateModalProps) {
   const [copiedLink, setCopiedLink] = useState(false)
   const [copiedCode, setCopiedCode] = useState(false)
+
+  // Partner coupons state
+  const [partnerCoupons, setPartnerCoupons] = useState<AffiliateCouponItem[]>([])
+  const [isLoadingCoupons, setIsLoadingCoupons] = useState(false)
+  const [isAddCouponOpen, setIsAddCouponOpen] = useState(false)
+
+  // Create coupon form
+  const [couponCode, setCouponCode] = useState('')
+  const [couponDiscount, setCouponDiscount] = useState<number | ''>(20)
+  const [couponProduct, setCouponProduct] = useState<string>('All Products')
+  const [couponMaxUses, setCouponMaxUses] = useState<number | ''>(1)
+  const [couponExpiry, setCouponExpiry] = useState<string>('')
+  const [couponNote, setCouponNote] = useState<string>('')
+  const [isSavingCoupon, setIsSavingCoupon] = useState(false)
+
+  const getHeaders = () => {
+    const activeToken = token || localStorage.getItem('wnc_token')
+    return activeToken ? { Authorization: `Bearer ${activeToken}` } : {}
+  }
+
+  const fetchPartnerCoupons = async () => {
+    if (!affiliate?._id) return
+    setIsLoadingCoupons(true)
+    try {
+      const res = await axios.get(`${API_BASE}/api/affiliates/coupons`, {
+        headers: getHeaders(),
+        timeout: 10000
+      })
+      if (res.data?.success && Array.isArray(res.data.data)) {
+        const matching = res.data.data.filter(
+          (c: any) => c.affiliate?._id === affiliate._id || (typeof c.affiliate === 'string' && c.affiliate === affiliate._id)
+        )
+        setPartnerCoupons(matching)
+      }
+    } catch (err) {
+      // quiet fallback
+    } finally {
+      setIsLoadingCoupons(false)
+    }
+  }
+
+  useEffect(() => {
+    if (isOpen && affiliate?._id) {
+      fetchPartnerCoupons()
+      // Default suggested code e.g. DEV20
+      const firstName = (affiliate.name || 'PARTNER').split(' ')[0].toUpperCase().replace(/[^A-Z0-9]/g, '')
+      setCouponCode(`${firstName}20`)
+      setCouponDiscount(20)
+      setCouponMaxUses(1)
+      setCouponNote(`Special 20% discount authorized for ${affiliate.name}`)
+    }
+  }, [isOpen, affiliate])
+
+  const handleSavePartnerCoupon = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!couponCode.trim()) {
+      showErrorToast('Coupon code is required')
+      return
+    }
+    if (!couponDiscount || Number(couponDiscount) <= 0) {
+      showErrorToast('Valid discount percentage is required')
+      return
+    }
+
+    setIsSavingCoupon(true)
+    try {
+      const payload = {
+        code: couponCode.trim().toUpperCase(),
+        discountType: 'percentage',
+        discountValue: Number(couponDiscount),
+        affiliate: affiliate?._id,
+        applicableProducts: couponProduct === 'All Products' ? [] : [couponProduct],
+        maxUses: Number(couponMaxUses) || 0,
+        expiryDate: couponExpiry ? new Date(couponExpiry).toISOString() : null,
+        description: couponNote.trim()
+      }
+
+      const res = await axios.post(`${API_BASE}/api/affiliates/coupons`, payload, {
+        headers: getHeaders(),
+        timeout: 10000
+      })
+
+      if (res.data?.success) {
+        showSuccessToast(`Coupon "${couponCode.toUpperCase()}" assigned to ${affiliate?.name}!`)
+        setIsAddCouponOpen(false)
+        fetchPartnerCoupons()
+      }
+    } catch (err: any) {
+      showErrorToast(err.response?.data?.message || 'Failed to create coupon')
+    } finally {
+      setIsSavingCoupon(false)
+    }
+  }
 
   if (!isOpen || !affiliate) return null
 
@@ -245,6 +343,169 @@ export default function ViewAffiliateModal({
             </div>
           </div>
 
+          {/* Assigned Discount Coupons for this Partner */}
+          <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-[3px_3px_0px_0px_#000] space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
+              <div className="flex items-center gap-2">
+                <span className="text-base">🏷️</span>
+                <span className="font-black text-xs uppercase text-slate-900 tracking-wider">
+                  Discount Coupons Assigned to {affiliate.name} ({partnerCoupons.length})
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddCouponOpen(!isAddCouponOpen)}
+                className="px-2.5 py-1 bg-[#86efac] border border-slate-900 rounded font-black text-[10px] uppercase shadow-[1px_1px_0px_0px_#000] hover:bg-[#6ee7b7] cursor-pointer"
+              >
+                {isAddCouponOpen ? 'Cancel' : '+ Assign New Coupon'}
+              </button>
+            </div>
+
+            {/* Inline Quick Add Coupon Form */}
+            {isAddCouponOpen && (
+              <form onSubmit={handleSavePartnerCoupon} className="p-3 bg-amber-50/70 border-2 border-slate-900 rounded-lg space-y-3 text-xs">
+                <span className="font-black uppercase text-[11px] text-slate-900 block">
+                  Assign Promo Code to {affiliate.name}
+                </span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-600 mb-1">Coupon Code *</label>
+                    <input
+                      type="text"
+                      required
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase().replace(/\s+/g, ''))}
+                      placeholder="e.g. DEV20"
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-900 rounded font-mono font-black text-slate-900 uppercase"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-600 mb-1">Discount % *</label>
+                    <input
+                      type="number"
+                      required
+                      min="1"
+                      max="100"
+                      value={couponDiscount}
+                      onChange={(e) => setCouponDiscount(e.target.value === '' ? '' : Number(e.target.value))}
+                      placeholder="20"
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-900 rounded font-black text-slate-900"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-600 mb-1">Product Scope</label>
+                    <select
+                      value={couponProduct}
+                      onChange={(e) => setCouponProduct(e.target.value)}
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-900 rounded font-bold text-slate-900 text-xs"
+                    >
+                      <option value="All Products">All Software Products</option>
+                      {PROJECT_OPTIONS.map((p) => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-600 mb-1">Max Redemptions (0 = Unlimited)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={couponMaxUses}
+                      onChange={(e) => setCouponMaxUses(e.target.value === '' ? '' : Number(e.target.value))}
+                      placeholder="1"
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-900 rounded font-bold text-slate-900"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black uppercase text-slate-600 mb-1">Valid Until (Expiry Date)</label>
+                    <input
+                      type="date"
+                      value={couponExpiry}
+                      onChange={(e) => setCouponExpiry(e.target.value)}
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-900 rounded font-bold text-slate-900"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-slate-600 mb-1">Approval Note / Reason</label>
+                  <input
+                    type="text"
+                    value={couponNote}
+                    onChange={(e) => setCouponNote(e.target.value)}
+                    placeholder="e.g. Authorized 20% discount on School ERP Pro for Dev"
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-900 rounded font-medium text-slate-900"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddCouponOpen(false)}
+                    className="px-3 py-1 bg-white border border-slate-900 rounded font-bold text-[10px] uppercase hover:bg-slate-100 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSavingCoupon}
+                    className="px-4 py-1 bg-slate-900 text-white rounded font-black text-[10px] uppercase shadow-[1px_1px_0px_0px_#000] hover:bg-slate-800 cursor-pointer disabled:opacity-50"
+                  >
+                    {isSavingCoupon ? 'Saving...' : 'Save & Assign Coupon'}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* List of Coupons */}
+            {isLoadingCoupons ? (
+              <p className="text-[11px] text-slate-500 font-bold">Loading partner coupons...</p>
+            ) : partnerCoupons.length === 0 ? (
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded text-center text-[11px] text-slate-500 font-medium">
+                No specific discount coupons assigned to this partner yet. Click <strong>"+ Assign New Coupon"</strong> above to give them an exclusive promo code.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {partnerCoupons.map((c) => (
+                  <div key={c._id} className="p-2.5 bg-white border border-slate-900 rounded shadow-[1px_1px_0px_0px_#000] space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono font-black text-xs px-2 py-0.5 bg-amber-100 border border-amber-900 rounded text-amber-950">
+                        {c.code}
+                      </span>
+                      <span className="font-black text-xs text-emerald-700">
+                        {c.discountType === 'percentage' ? `${c.discountValue}% OFF` : `₹${c.discountValue} OFF`}
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-slate-600 font-bold flex items-center justify-between pt-1">
+                      <span>Products:</span>
+                      <span className="text-slate-900">{c.applicableProducts?.length ? c.applicableProducts.join(', ') : 'All Products'}</span>
+                    </div>
+                    <div className="text-[10px] text-slate-600 font-bold flex items-center justify-between">
+                      <span>Uses:</span>
+                      <span className="text-slate-900">{c.usedCount || 0} {c.maxUses > 0 ? `/ ${c.maxUses}` : '(Unlimited)'}</span>
+                    </div>
+                    {c.expiryDate && (
+                      <div className="text-[10px] text-slate-600 font-bold flex items-center justify-between">
+                        <span>Expiry:</span>
+                        <span className="text-slate-900">{new Date(c.expiryDate).toLocaleDateString('en-IN')}</span>
+                      </div>
+                    )}
+                    {c.description && (
+                      <p className="text-[10px] text-slate-500 italic pt-0.5">"{c.description}"</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Bank & UPI Account Details */}
           <div className="bg-[#fafafa] border-2 border-slate-900 rounded-xl p-4 shadow-[3px_3px_0px_0px_#000] space-y-3">
             <div className="flex items-center justify-between border-b border-slate-200 pb-2">
@@ -397,6 +658,20 @@ export default function ViewAffiliateModal({
           </button>
 
           <div className="flex items-center gap-2">
+            {onImpersonate && (
+              <button
+                onClick={() => {
+                  onClose()
+                  onImpersonate(affiliate)
+                }}
+                className="px-4 py-2 bg-indigo-50 border-2 border-indigo-500 text-indigo-950 rounded font-black text-xs uppercase hover:bg-indigo-100 shadow-[2px_2px_0px_0px_#000] cursor-pointer flex items-center gap-1.5"
+                title="Stealth login as this partner without sending notification"
+              >
+                <span>👁️</span>
+                <span>Login As Partner</span>
+              </button>
+            )}
+
             <button
               onClick={() => {
                 onClose()

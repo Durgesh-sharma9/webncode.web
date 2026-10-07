@@ -161,6 +161,8 @@ export interface AffiliateLeadItem {
   source: 'manual_by_affiliate' | 'website_referral_link'
   notes?: string
   adminNotes?: string
+  appliedCoupon?: string
+  discountAmount?: number
   rejectionReason?: string
   createdAt: string
 }
@@ -271,7 +273,7 @@ export const PRODUCT_CATALOG: ProductPlanItem[] = [
   { name: 'Attendance Management System', price: 20000, billing: '/ Year', description: 'RFID, Biometric & App attendance system' },
   { name: 'Timetable Pro', price: 15000, billing: '/ Year', description: 'Automated AI timetable scheduling engine' },
   { name: 'Result Management System', price: 15000, billing: '/ Year', description: 'Automated report card & marksheet generator' },
-  { name: 'Web Builder Pro', price: 25000, billing: '/ Year', description: 'Custom institutional web portal' },
+  { name: 'Web Builder Pro', price: 5999, billing: '/ Year', description: 'Custom institutional web portal' },
   { name: 'Sports Academy Pro', price: 30000, billing: '/ Year', description: 'Sports academy management & tournament app' },
   { name: 'Daily Test Pro', price: 15000, billing: '/ Year', description: 'Online exam & MCQ mock test engine' },
   { name: 'Custom Software / App', price: 75000, billing: 'Starting', description: 'Custom full-stack web or mobile application' }

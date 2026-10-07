@@ -1,6 +1,6 @@
-import { useState, useEffect, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import axios from 'axios'
-import { API_BASE, type ProductPlan, getProductPrice, calculateProductsPrice } from '../admin/types'
+import { API_BASE, PROJECT_OPTIONS } from '../admin/types'
 import { showSuccessToast, showErrorToast } from '../../components/ui/Toast'
 
 interface AddLeadModalProps {
@@ -18,75 +18,18 @@ export default function AddLeadModal({
   isOpen,
   onClose,
   token,
-  payoutType = 'percentage',
-  commissionRate,
-  fixedAmount = 0,
   allowedProducts,
   onLeadAdded
 }: AddLeadModalProps) {
   if (!isOpen) return null
 
-  const [dbPlans, setDbPlans] = useState<ProductPlan[]>([])
-  const [isLoadingPlans, setIsLoadingPlans] = useState(false)
-
-  // Fetch official plans created by SuperAdmin
-  useEffect(() => {
-    const fetchDbPlans = async () => {
-      setIsLoadingPlans(true)
-      try {
-        const res = await axios.get(`${API_BASE}/api/affiliates/plans`, { timeout: 10000 })
-        if (res.data?.success && Array.isArray(res.data.data)) {
-          setDbPlans(res.data.data)
-        }
-      } catch (err) {
-        console.warn('Could not load dynamic plans, fallback to default catalog')
-      } finally {
-        setIsLoadingPlans(false)
-      }
-    }
-    fetchDbPlans()
-  }, [])
-
-  const defaultStarterList = (allowedProducts && allowedProducts.length > 0)
+  const availableProductsList = (allowedProducts && allowedProducts.length > 0)
     ? allowedProducts
-    : [
-        'School ERP Pro - Standard Campus',
-        'Web Builder Pro - Starter Institutional Website',
-        'Timetable Pro - Single School Annual License'
-      ]
+    : PROJECT_OPTIONS
 
-  const [selectedProducts, setSelectedProducts] = useState<string[]>([])
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([availableProductsList[0] || 'School ERP Pro'])
   const [customProduct, setCustomProduct] = useState('')
   const [showCustomInput, setShowCustomInput] = useState(false)
-
-  // Distinct projects available
-  const distinctProjects = Array.from(
-    new Set(dbPlans.map((p) => p.projectName))
-  )
-  const [activeSelectedProject, setActiveSelectedProject] = useState<string>('')
-
-  useEffect(() => {
-    if (distinctProjects.length > 0 && !activeSelectedProject) {
-      setActiveSelectedProject(distinctProjects[0])
-    }
-  }, [dbPlans])
-
-  // Current plans for the selected product
-  const currentProjectPlans = dbPlans.filter(
-    (p) => p.projectName === activeSelectedProject
-  )
-
-  // Initialize selected product once plans load or fallback
-  useEffect(() => {
-    if (selectedProducts.length === 0) {
-      if (dbPlans.length > 0) {
-        const first = `${dbPlans[0].projectName} - ${dbPlans[0].planName}`
-        setSelectedProducts([first])
-      } else {
-        setSelectedProducts([defaultStarterList[0]])
-      }
-    }
-  }, [dbPlans])
 
   const [formData, setFormData] = useState({
     organizationName: '',
@@ -98,77 +41,15 @@ export default function AddLeadModal({
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Coupon state
-  const [couponCodeInput, setCouponCodeInput] = useState('')
-  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false)
-  const [couponError, setCouponError] = useState('')
-  const [appliedCoupon, setAppliedCoupon] = useState<{
-    code: string
-    discountType: 'percentage' | 'flat'
-    discountValue: number
-    discountAmount: number
-  } | null>(null)
-
-  // Official Admin catalog price computed automatically from SuperAdmin's plans
-  const officialPackagePrice = calculateProductsPrice(selectedProducts, dbPlans)
-
-  // Dynamic discount calculation
-  const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0
-  const finalDealValue = Math.max(0, officialPackagePrice - discountAmount)
-
-  const projectedCommission =
-    payoutType === 'fixed'
-      ? fixedAmount || 0
-      : Math.round((finalDealValue * commissionRate) / 100)
-
-  const handleApplyCoupon = async () => {
-    if (!couponCodeInput.trim()) {
-      setCouponError('Please enter a coupon code')
-      return
-    }
-    setIsValidatingCoupon(true)
-    setCouponError('')
-    try {
-      const res = await axios.post(
-        `${API_BASE}/api/affiliates/coupons/validate`,
-        {
-          code: couponCodeInput.trim().toUpperCase(),
-          products: selectedProducts,
-          baseAmount: officialPackagePrice
-        },
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-          timeout: 10000
-        }
-      )
-      if (res.data?.success && res.data.data) {
-        setAppliedCoupon(res.data.data)
-        showSuccessToast(`Coupon "${res.data.data.code}" applied successfully!`)
-      }
-    } catch (err: any) {
-      const msg = err.response?.data?.message || 'Invalid coupon code'
-      setCouponError(msg)
-      showErrorToast(msg)
-    } finally {
-      setIsValidatingCoupon(false)
-    }
-  }
-
-  const handleRemoveCoupon = () => {
-    setAppliedCoupon(null)
-    setCouponCodeInput('')
-    setCouponError('')
-  }
-
-  const toggleProduct = (prodIdentifier: string) => {
-    if (selectedProducts.includes(prodIdentifier)) {
+  const toggleProduct = (prod: string) => {
+    if (selectedProducts.includes(prod)) {
       if (selectedProducts.length > 1) {
-        setSelectedProducts(selectedProducts.filter((p) => p !== prodIdentifier))
+        setSelectedProducts(selectedProducts.filter((p) => p !== prod))
       } else {
-        showErrorToast('Please select at least one plan/product')
+        showErrorToast('Please select at least one product')
       }
     } else {
-      setSelectedProducts([...selectedProducts, prodIdentifier])
+      setSelectedProducts([...selectedProducts, prod])
     }
   }
 
@@ -185,8 +66,20 @@ export default function AddLeadModal({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
 
+    if (!formData.organizationName.trim()) {
+      showErrorToast('School / Organization name is required')
+      return
+    }
+    if (!formData.contactPerson.trim()) {
+      showErrorToast('Contact person name is required')
+      return
+    }
+    if (!formData.phone.trim()) {
+      showErrorToast('Phone number is required')
+      return
+    }
     if (selectedProducts.length === 0) {
-      showErrorToast('Please select at least one product or service')
+      showErrorToast('Please select at least one software product')
       return
     }
 
@@ -202,18 +95,20 @@ export default function AddLeadModal({
       await axios.post(
         `${API_BASE}/api/affiliate-portal/leads`,
         {
-          ...formData,
+          organizationName: formData.organizationName.trim(),
+          contactPerson: formData.contactPerson.trim(),
+          phone: formData.phone.trim(),
+          email: formData.email.trim(),
+          city: formData.city.trim(),
           product: productSummary,
           products: selectedProducts,
-          dealValue: finalDealValue,
-          estimatedValue: finalDealValue,
-          appliedCoupon: appliedCoupon ? appliedCoupon.code : '',
-          discountAmount: discountAmount
+          dealValue: 0,
+          notes: formData.notes.trim()
         },
         config
       )
 
-      showSuccessToast('Client lead submitted successfully! Our team will contact them.')
+      showSuccessToast('Client lead registered successfully! Our team will reach out for the demo.')
       onLeadAdded()
       onClose()
     } catch (err: any) {
@@ -226,89 +121,47 @@ export default function AddLeadModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-3 sm:p-4 backdrop-blur-xs font-mono">
-      <div className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden bg-white border-2 border-slate-900 rounded-xl p-4 sm:p-8 shadow-[6px_6px_0px_0px_#0f172a]">
+      <div className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden bg-white border-2 border-slate-900 rounded-xl p-5 sm:p-7 shadow-[6px_6px_0px_0px_#0f172a]">
         
         {/* Header */}
-        <div className="flex items-center justify-between border-b-2 border-slate-900 pb-4 mb-5">
-          <div>
-            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 bg-[#86efac] border border-slate-900 rounded">
-              NEW CLIENT LEAD
+        <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-5">
+          <div className="flex items-center gap-2.5">
+            <span className="p-2 bg-yellow-300 border-2 border-slate-900 rounded-lg text-lg shadow-[2px_2px_0px_0px_#0f172a]">
+              🎯
             </span>
-            <h2 className="text-xl sm:text-2xl font-black uppercase text-slate-900 tracking-tight mt-1">
-              Submit Client Lead
-            </h2>
-            <p className="text-xs text-slate-600 font-bold">
-              Submit details of a school or organization interested in Web n Code software.
-            </p>
+            <div>
+              <h2 className="text-base sm:text-lg font-black uppercase text-slate-900 tracking-tight">
+                Submit Client Lead
+              </h2>
+              <p className="text-xs text-slate-600 font-bold">
+                Enter client details. Our team will schedule the software demo.
+              </p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center border-2 border-slate-900 rounded-md font-black text-slate-900 hover:bg-[#ff9e7d] transition-colors cursor-pointer"
+            type="button"
+            className="w-8 h-8 flex items-center justify-center bg-white hover:bg-slate-100 border-2 border-slate-900 rounded-full font-black text-sm shadow-[2px_2px_0px_0px_#0f172a] cursor-pointer"
           >
-            ×
+            ✕
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+        <form onSubmit={handleSubmit} className="space-y-4 text-xs font-bold text-slate-800">
           
-          {/* School/Org Name */}
-          <div>
-            <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
-              School / College / Organization Name *
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.organizationName}
-              onChange={(e) => setFormData({ ...formData, organizationName: e.target.value })}
-              className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-bold text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-              placeholder="e.g. Modern Public Academy"
-            />
-          </div>
-
-          {/* Contact Person & Phone */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* School / Organization Name & City */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
-                Contact Person (Principal/Director) *
+                School / Client Name *
               </label>
               <input
                 type="text"
                 required
-                value={formData.contactPerson}
-                onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
-                className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-bold text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-                placeholder="e.g. Dr. Rajesh Verma"
-              />
-            </div>
-
-            <div>
-              <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
-                Phone Number *
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-bold text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-                placeholder="+91 9876543210"
-              />
-            </div>
-          </div>
-
-          {/* Email & City */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
-                Email Address
-              </label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-bold text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-                placeholder="info@school.com"
+                value={formData.organizationName}
+                onChange={(e) => setFormData({ ...formData, organizationName: e.target.value })}
+                placeholder="e.g. St. Xavier High School"
+                className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-black text-slate-900 bg-white shadow-[2px_2px_0px_0px_#000] focus:outline-none"
               />
             </div>
 
@@ -320,275 +173,133 @@ export default function AddLeadModal({
                 type="text"
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-bold text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
                 placeholder="e.g. Jaipur, Rajasthan"
+                className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-bold text-slate-900 bg-white shadow-[2px_2px_0px_0px_#000] focus:outline-none"
               />
             </div>
           </div>
 
-          {/* STEP 1: Choose Software Product */}
-          <div>
-            <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
-              1. Choose Software Product *
-            </label>
-            <select
-              value={activeSelectedProject}
-              onChange={(e) => setActiveSelectedProject(e.target.value)}
-              className="w-full border-2 border-slate-900 rounded-lg px-3 py-2 font-black text-slate-900 bg-white shadow-[2px_2px_0px_0px_#000] focus:outline-none focus:ring-2 focus:ring-yellow-400 cursor-pointer"
-            >
-              {distinctProjects.map((proj) => (
-                <option key={proj} value={proj}>
-                  📦 {proj}
-                </option>
-              ))}
-            </select>
+          {/* Contact Person & Phone */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
+                Contact Person Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.contactPerson}
+                onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
+                placeholder="e.g. Principal Rajesh Sharma"
+                className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-bold text-slate-900 bg-white shadow-[2px_2px_0px_0px_#000] focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
+                Phone Number *
+              </label>
+              <input
+                type="tel"
+                required
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="e.g. 9876543210"
+                className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-black text-slate-900 bg-white shadow-[2px_2px_0px_0px_#000] focus:outline-none"
+              />
+            </div>
           </div>
 
-          {/* STEP 2: Choose Plan for that Selected Product */}
+          {/* Email Address */}
+          <div>
+            <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
+              Email Address (Optional)
+            </label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              placeholder="e.g. contact@stxaviers.edu.in"
+              className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-bold text-slate-900 bg-white shadow-[2px_2px_0px_0px_#000] focus:outline-none"
+            />
+          </div>
+
+          {/* Software Products Interested In */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="font-black uppercase tracking-wider text-slate-700">
-                2. Available Plans for {activeSelectedProject || 'Product'} *
+                Software Products of Interest *
               </label>
-              <span className="text-[10px] font-bold text-blue-700">
-                {selectedProducts.length} Selected
+              <span className="text-[10px] text-slate-500 font-bold">
+                {selectedProducts.length} selected
               </span>
             </div>
 
-            <div className="space-y-2 p-2.5 bg-slate-50 border-2 border-slate-900 rounded-lg max-h-56 overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-              {isLoadingPlans ? (
-                <div className="p-4 text-center text-[11px] font-bold text-slate-500">
-                  Loading official pricing plans...
-                </div>
-              ) : currentProjectPlans.length > 0 ? (
-                currentProjectPlans.map((plan) => {
-                  const planIdentifier = `${plan.projectName} - ${plan.planName}`
-                  const isSelected = selectedProducts.includes(planIdentifier) || selectedProducts.includes(plan.planName)
-                  return (
-                    <label
-                      key={plan._id || plan.planName}
-                      className={`flex items-center justify-between p-2 rounded-lg border-2 cursor-pointer select-none transition-all ${
-                        isSelected
-                          ? 'bg-[#86efac] border-slate-900 font-black text-slate-900 shadow-[1.5px_1.5px_0px_0px_#000]'
-                          : 'bg-white border-slate-300 font-medium text-slate-700 hover:border-slate-500'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleProduct(planIdentifier)}
-                          className="w-4 h-4 accent-slate-900 rounded cursor-pointer"
-                        />
-                        <div>
-                          <div className="text-xs font-black text-slate-900">{plan.planName}</div>
-                          {plan.description && (
-                            <div className="text-[10px] text-slate-500 line-clamp-1">{plan.description}</div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="text-right shrink-0 ml-3">
-                        <span className={`text-[11px] font-black px-2 py-0.5 rounded ${
-                          isSelected ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900 border border-slate-300'
-                        }`}>
-                          ₹{plan.price.toLocaleString('en-IN')}
-                        </span>
-                        <div className="text-[9px] text-slate-500 font-bold mt-0.5">{plan.billingCycle}</div>
-                      </div>
-                    </label>
-                  )
-                })
-              ) : (
-                <p className="text-xs text-slate-500 font-bold p-3 text-center">
-                  No plans configured for {activeSelectedProject}.
-                </p>
-              )}
-            </div>
-
-            {/* Selected Plans Badges */}
-            {selectedProducts.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1.5 items-center">
-                <span className="text-[10px] font-bold text-slate-500">Selected Plans:</span>
-                {selectedProducts.map((p) => (
-                  <span
-                    key={p}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-yellow-300 border border-slate-900 rounded text-[10px] font-black text-slate-900 shadow-[1px_1px_0px_0px_#000]"
-                  >
-                    <span>✓ {p} (₹{getProductPrice(p).toLocaleString('en-IN')})</span>
-                    <button
-                      type="button"
-                      onClick={() => toggleProduct(p)}
-                      className="text-slate-900 hover:text-red-700 font-black ml-0.5 cursor-pointer"
-                    >
-                      ✕
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Custom product adder */}
-            <div className="mt-2">
-              {!showCustomInput ? (
-                <button
-                  type="button"
-                  onClick={() => setShowCustomInput(true)}
-                  className="text-[11px] font-black text-blue-700 hover:underline cursor-pointer flex items-center gap-1"
-                >
-                  <span>+</span>
-                  <span>Add Another / Custom Software Product</span>
-                </button>
-              ) : (
-                <div className="flex items-center gap-2 mt-1">
-                  <input
-                    type="text"
-                    value={customProduct}
-                    onChange={(e) => setCustomProduct(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        handleAddCustomProduct()
-                      }
-                    }}
-                    placeholder="Enter custom product/service name..."
-                    className="flex-1 border-2 border-slate-900 rounded-md px-3 py-1.5 text-xs font-bold text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-                  />
+            <div className="flex flex-wrap gap-1.5">
+              {availableProductsList.map((prod) => {
+                const isSelected = selectedProducts.includes(prod)
+                return (
                   <button
+                    key={prod}
                     type="button"
-                    onClick={handleAddCustomProduct}
-                    className="px-3 py-1.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000] hover:bg-[#6ee7b7] cursor-pointer"
+                    onClick={() => toggleProduct(prod)}
+                    className={`px-3 py-1.5 rounded-md text-xs font-black border-2 border-slate-900 transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-slate-900 text-white shadow-[2px_2px_0px_0px_#86efac]'
+                        : 'bg-white text-slate-800 hover:bg-slate-100 shadow-[2px_2px_0px_0px_#000]'
+                    }`}
                   >
-                    Add
+                    {isSelected ? '✓ ' : '+ '}
+                    {prod}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowCustomInput(false)
-                      setCustomProduct('')
-                    }}
-                    className="px-2 py-1.5 text-slate-600 hover:text-slate-900 text-xs font-bold cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Discount Coupon Code Box */}
-          <div className="bg-white border-2 border-slate-900 rounded-lg p-3 shadow-[2px_2px_0px_0px_#000] space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-[11px] font-black uppercase text-slate-800 flex items-center gap-1.5">
-                <span>🏷️</span>
-                <span>Apply Discount Coupon (Optional)</span>
-              </label>
-              {appliedCoupon && (
-                <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded border border-emerald-300">
-                  Coupon Applied
-                </span>
-              )}
+                )
+              })}
             </div>
 
-            {!appliedCoupon ? (
-              <div className="flex items-center gap-2">
+            {/* Custom Product Add Button */}
+            {!showCustomInput ? (
+              <button
+                type="button"
+                onClick={() => setShowCustomInput(true)}
+                className="mt-2 text-[11px] font-bold text-blue-700 hover:text-blue-900 flex items-center gap-1 cursor-pointer"
+              >
+                <span>+</span>
+                <span>Other / Custom Software Requirement</span>
+              </button>
+            ) : (
+              <div className="flex items-center gap-2 mt-2">
                 <input
                   type="text"
-                  value={couponCodeInput}
-                  onChange={(e) => {
-                    setCouponCodeInput(e.target.value.toUpperCase().replace(/\s+/g, ''))
-                    setCouponError('')
+                  value={customProduct}
+                  onChange={(e) => setCustomProduct(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      handleAddCustomProduct()
+                    }
                   }}
-                  placeholder="Enter partner discount code..."
-                  className="flex-1 border-2 border-slate-900 rounded-md px-3 py-1.5 text-xs font-mono font-bold uppercase text-slate-900 focus:outline-none"
+                  placeholder="Enter software/service name..."
+                  className="flex-1 border-2 border-slate-900 rounded-md px-3 py-1.5 text-xs font-bold text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
                 />
                 <button
                   type="button"
-                  disabled={isValidatingCoupon || !couponCodeInput.trim()}
-                  onClick={handleApplyCoupon}
-                  className="px-3 py-1.5 bg-slate-900 text-white border-2 border-slate-900 rounded-md font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000] hover:bg-slate-800 cursor-pointer disabled:opacity-50"
+                  onClick={handleAddCustomProduct}
+                  className="px-3 py-1.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000] hover:bg-[#6ee7b7] cursor-pointer"
                 >
-                  {isValidatingCoupon ? 'Checking...' : 'Apply'}
+                  Add
                 </button>
-              </div>
-            ) : (
-              <div className="flex items-center justify-between bg-emerald-50 border border-emerald-400 rounded-md p-2">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono font-black text-xs text-emerald-950 px-2 py-0.5 bg-white border border-emerald-300 rounded">
-                    {appliedCoupon.code}
-                  </span>
-                  <span className="text-xs font-bold text-emerald-900">
-                    -₹{discountAmount.toLocaleString('en-IN')} off ({appliedCoupon.discountType === 'percentage' ? `${appliedCoupon.discountValue}%` : 'Flat'})
-                  </span>
-                </div>
                 <button
                   type="button"
-                  onClick={handleRemoveCoupon}
-                  className="text-[11px] font-black text-rose-600 hover:text-rose-800 underline cursor-pointer"
+                  onClick={() => {
+                    setShowCustomInput(false)
+                    setCustomProduct('')
+                  }}
+                  className="px-2 py-1.5 text-slate-600 hover:text-slate-900 text-xs font-bold cursor-pointer"
                 >
-                  Remove
+                  Cancel
                 </button>
               </div>
             )}
-
-            {couponError && (
-              <p className="text-[11px] font-bold text-rose-600">
-                ⚠️ {couponError}
-              </p>
-            )}
-          </div>
-
-          {/* Locked Official Admin Pricing & Partner Commission Breakdown */}
-          <div className="p-4 bg-gradient-to-br from-emerald-50 via-teal-50 to-green-100 border-2 border-slate-900 rounded-xl shadow-[4px_4px_0px_0px_#0f172a] space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-300 pb-2">
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm">🔒</span>
-                <span className="text-xs font-black uppercase text-slate-900 tracking-wider">
-                  Official Pricing & Your Commission
-                </span>
-              </div>
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-slate-900 text-white rounded">
-                Admin Fixed Rates
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-0.5">
-              <div className="bg-white border-2 border-slate-900 rounded-lg p-3 shadow-[2px_2px_0px_0px_#000]">
-                <span className="text-[10px] font-black uppercase text-slate-600 block">
-                  {discountAmount > 0 ? 'Discounted Deal Value' : 'Official Package Price'}
-                </span>
-                <p className="text-xl font-black text-slate-950 mt-0.5">
-                  ₹{finalDealValue.toLocaleString('en-IN')}
-                </p>
-                {discountAmount > 0 ? (
-                  <span className="text-[10px] text-emerald-700 font-extrabold block mt-0.5">
-                    Original ₹{officialPackagePrice.toLocaleString('en-IN')} (-₹{discountAmount.toLocaleString('en-IN')})
-                  </span>
-                ) : (
-                  <span className="text-[9px] text-slate-500 font-bold block mt-0.5">
-                    {selectedProducts.length} product{selectedProducts.length > 1 ? 's' : ''} bundled
-                  </span>
-                )}
-              </div>
-
-              <div className="bg-[#86efac] border-2 border-slate-900 rounded-lg p-3 shadow-[2px_2px_0px_0px_#000]">
-                <span className="text-[10px] font-black uppercase text-slate-800 block">
-                  Your Commission ({payoutType === 'fixed' ? 'Fixed Reward' : `${commissionRate}%`})
-                </span>
-                <p className="text-xl font-black text-slate-950 mt-0.5">
-                  ₹{projectedCommission.toLocaleString('en-IN')}
-                </p>
-                <span className="text-[9px] text-slate-800 font-black block mt-0.5">
-                  {payoutType === 'fixed' ? 'Flat payout per closed deal' : 'Calculated transparently on closed deal'}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-1.5 text-[10px] text-slate-700 font-bold bg-white/80 p-2 rounded border border-slate-300">
-              <span className="text-xs">💡</span>
-              <span>
-                Standard rates are set by Admin. When Admin closes this client deal, your commission will be credited directly to your partner wallet.
-              </span>
-            </div>
           </div>
 
           {/* Meeting Notes */}
@@ -597,19 +308,20 @@ export default function AddLeadModal({
               Discussion Notes / Preferred Demo Time
             </label>
             <textarea
-              rows={2}
+              rows={3}
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-medium text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-              placeholder="e.g. School needs ERP + Attendance System. Principal requested demo on Thursday at 11 AM"
+              placeholder="e.g. School needs ERP + Attendance System. Principal requested live demo on Thursday at 11 AM."
             />
           </div>
 
-          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-4 border-t-2 border-slate-900 mt-6">
+          {/* Submit Action Buttons */}
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-3 border-t-2 border-slate-900 mt-4">
             <button
               type="button"
               onClick={onClose}
-              className="w-full sm:w-auto px-4 py-2.5 bg-white border-2 border-slate-900 rounded-md font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors text-center cursor-pointer"
+              className="w-full sm:w-auto px-4 py-2 bg-white border-2 border-slate-900 rounded-md font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors text-center cursor-pointer"
             >
               Cancel
             </button>
@@ -618,7 +330,7 @@ export default function AddLeadModal({
               disabled={isSubmitting}
               className="w-full sm:w-auto px-5 py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-50 transition-all text-center cursor-pointer"
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Lead'}
+              {isSubmitting ? 'Registering Lead...' : 'Submit Client Lead'}
             </button>
           </div>
         </form>

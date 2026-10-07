@@ -53,6 +53,7 @@ router.get('/', protect, authorize('admin'), affiliateController.getAllAffiliate
 router.put('/:id', protect, authorize('admin'), affiliateController.updateAffiliate);
 router.delete('/:id', protect, authorize('admin'), affiliateController.deleteAffiliate);
 router.post('/:id/payout', protect, authorize('admin'), affiliateController.recordPayoutByAdmin);
+router.post('/:id/impersonate', protect, authorize('admin'), affiliateController.impersonateAffiliate);
 
 // SuperAdmin Payout Requests Management
 router.get('/payout-requests', protect, authorize('admin'), affiliateController.getAllPayoutRequestsForAdmin);
@@ -76,7 +77,7 @@ router.put('/coupons/:id', protect, authorize('admin'), affiliateController.upda
 router.delete('/coupons/:id', protect, authorize('admin'), affiliateController.deleteCouponByAdmin);
 
 // Affiliate & validation coupon routes
-router.get(['/portal/coupons', '/my-coupons'], protect, authorize('affiliate'), affiliateController.getAffiliateCoupons);
+router.get(['/portal/coupons', '/my-coupons'], protect, authorize('affiliate', 'admin'), affiliateController.getAffiliateCoupons);
 router.post('/coupons/validate', protect, affiliateController.validateCoupon);
 
 module.exports = router;

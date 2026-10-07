@@ -136,6 +136,43 @@ export default function AffiliatesTab() {
     }
   }
 
+  // SuperAdmin: Stealth login as affiliate
+  const handleImpersonateAffiliate = async (aff: AffiliateItem) => {
+    if (!window.confirm(`Login to partner account "${aff.name}"? You will view their dashboard directly without any notification or email sent to them.`)) {
+      return
+    }
+
+    try {
+      const res = await axios.post(
+        `${API_BASE}/api/affiliates/${aff._id}/impersonate`,
+        {},
+        { headers: getAuthHeaders() }
+      )
+
+      if (res.data?.success && res.data.token) {
+        // Backup current admin session safely
+        const currentToken = token || localStorage.getItem('wnc_token')
+        const currentUser = localStorage.getItem('wnc_user')
+
+        if (currentToken) localStorage.setItem('wnc_admin_backup_token', currentToken)
+        if (currentUser) localStorage.setItem('wnc_admin_backup_user', currentUser)
+        localStorage.setItem('wnc_admin_impersonating_name', aff.name)
+
+        // Set affiliate session
+        localStorage.setItem('wnc_token', res.data.token)
+        localStorage.setItem('wnc_user', JSON.stringify(res.data.user))
+
+        showSuccessToast(`Stealth login as ${aff.name} successful! Loading partner portal...`)
+        setTimeout(() => {
+          window.location.href = '/affiliate/dashboard'
+        }, 300)
+      }
+    } catch (err: any) {
+      console.error('Impersonate error:', err)
+      showErrorToast(err.response?.data?.message || 'Failed to enter affiliate account')
+    }
+  }
+
   // Update lead status by admin
   const handleUpdateLead = async (leadId: string, updates: Partial<AffiliateLeadItem>) => {
     try {
@@ -423,6 +460,14 @@ export default function AffiliatesTab() {
                           <span>🔍</span>
                           <span>View Info</span>
                         </button>
+                        <button
+                          onClick={() => handleImpersonateAffiliate(aff)}
+                          className="px-3 py-1.5 bg-indigo-50 border border-indigo-400 text-indigo-950 rounded font-black text-xs uppercase hover:bg-indigo-100 shadow-[1px_1px_0px_0px_#000] cursor-pointer inline-flex items-center gap-1"
+                          title="Stealth login as this partner without sending notification"
+                        >
+                          <span>👁️</span>
+                          <span>Login As Partner</span>
+                        </button>
                         {pending > 0 && (
                           <button
                             onClick={() => {
@@ -551,6 +596,14 @@ export default function AffiliatesTab() {
                             >
                               <span>🔍</span>
                               <span>View Info</span>
+                            </button>
+                            <button
+                              onClick={() => handleImpersonateAffiliate(aff)}
+                              className="px-2 py-1 bg-indigo-50 border border-indigo-400 text-indigo-950 rounded font-black text-[10px] uppercase hover:bg-indigo-100 shadow-[1px_1px_0px_0px_#000] cursor-pointer inline-flex items-center gap-1"
+                              title="Stealth login as this partner without sending notification"
+                            >
+                              <span>👁️</span>
+                              <span>Login As Partner</span>
                             </button>
                             {pending > 0 && (
                               <button
@@ -1313,6 +1366,7 @@ export default function AffiliatesTab() {
         }}
         affiliate={viewAffiliateData}
         leads={leads}
+        token={token}
         onEdit={(aff) => {
           setSelectedAffiliate(aff)
           setIsAffiliateModalOpen(true)
@@ -1321,6 +1375,7 @@ export default function AffiliatesTab() {
           setPayoutAffiliate(aff)
           setIsPayoutModalOpen(true)
         }}
+        onImpersonate={handleImpersonateAffiliate}
       />
 
     </div>

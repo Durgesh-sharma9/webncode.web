@@ -4,8 +4,19 @@ const AffiliateLead = require('../models/AffiliateLead');
 const AffiliatePayout = require('../models/AffiliatePayout');
 const ProductPlan = require('../models/ProductPlan');
 const AffiliateCoupon = require('../models/AffiliateCoupon');
+const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const { createTransporter, getFromAddress } = require('../config/mailer');
+
+/**
+ * Helper to generate JWT token for stealth impersonation
+ */
+const generateToken = (id) => {
+  const secret = process.env.JWT_SECRET || 'webncode_super_secret_jwt_key_2026_x89f';
+  return jwt.sign({ id }, secret, {
+    expiresIn: process.env.JWT_EXPIRES_IN || '7d'
+  });
+};
 
 /**
  * Configure Nodemailer Transporter using SMTP
@@ -347,7 +358,7 @@ exports.getAllAffiliateLeadsForAdmin = async (req, res) => {
 exports.updateLeadByAdmin = async (req, res) => {
   try {
     const { leadId } = req.params;
-    const { status, dealValue, commissionAmount, commissionStatus, notes, adminNotes, rejectionReason } = req.body;
+    const { status, dealValue, commissionAmount, commissionStatus, notes, adminNotes, rejectionReason, appliedCoupon, discountAmount, product, products } = req.body;
 
     const lead = await AffiliateLead.findById(leadId).populate('affiliate');
     if (!lead) {
@@ -356,6 +367,10 @@ exports.updateLeadByAdmin = async (req, res) => {
 
     if (status) lead.status = status;
     if (dealValue !== undefined) lead.dealValue = Number(dealValue);
+    if (product) lead.product = product;
+    if (products && Array.isArray(products) && products.length > 0) lead.products = products;
+    if (appliedCoupon !== undefined) lead.appliedCoupon = String(appliedCoupon).trim().toUpperCase();
+    if (discountAmount !== undefined) lead.discountAmount = Number(discountAmount) || 0;
 
     // If deal won and no commission set, auto-calculate based on affiliate payout model
     if (status === 'Deal Won') {
@@ -372,6 +387,14 @@ exports.updateLeadByAdmin = async (req, res) => {
       }
       if (!commissionStatus) lead.commissionStatus = 'Approved';
       lead.rejectionReason = ''; // Clear any rejection reason if won
+
+      // If coupon was applied, increment usedCount
+      if (lead.appliedCoupon) {
+        await AffiliateCoupon.findOneAndUpdate(
+          { code: lead.appliedCoupon },
+          { $inc: { usedCount: 1 } }
+        ).catch(() => {});
+      }
     } else if (status === 'Lost') {
       // If deal cancelled/lost
       lead.commissionAmount = 0;
@@ -473,6 +496,66 @@ exports.recordPayoutByAdmin = async (req, res) => {
   }
 };
 
+/**
+ * SuperAdmin: Stealth Impersonate / View as Affiliate
+ * POST /api/affiliates/:id/impersonate
+ * Completely silent - no emails or alerts sent to the affiliate
+ */
+exports.impersonateAffiliate = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const affiliate = await Affiliate.findById(id).populate('user');
+    if (!affiliate) {
+      return res.status(404).json({ success: false, message: 'Affiliate not found' });
+    }
+
+    let targetUser = affiliate.user;
+    if (!targetUser) {
+      targetUser = await User.findOne({ email: affiliate.email });
+    }
+
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'No associated user account found for this affiliate partner'
+      });
+    }
+
+    // Generate JWT for the affiliate user silently without sending any notification
+    const token = generateToken(targetUser._id);
+
+    res.status(200).json({
+      success: true,
+      message: `Impersonation session established for ${affiliate.name}`,
+      token,
+      user: {
+        id: targetUser._id,
+        name: targetUser.name,
+        email: targetUser.email,
+        role: targetUser.role,
+        affiliate: {
+          id: affiliate._id,
+          referralCode: affiliate.referralCode,
+          payoutType: affiliate.payoutType,
+          commissionRate: affiliate.commissionRate,
+          fixedAmount: affiliate.fixedAmount,
+          allowedProducts: affiliate.allowedProducts,
+          status: affiliate.status,
+          phone: affiliate.phone,
+          bankDetails: affiliate.bankDetails
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Affiliate impersonation error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create impersonation session',
+      error: error.message
+    });
+  }
+};
+
 // =========================================================================
 // AFFILIATE PORTAL METHODS (ROLE: AFFILIATE)
 // =========================================================================
@@ -513,6 +596,20 @@ exports.getAffiliateDashboard = async (req, res) => {
       .filter((p) => p.status === 'Paid')
       .sort((a, b) => new Date(b.paidAt || b.updatedAt) - new Date(a.paidAt || a.updatedAt))[0] || null;
 
+    const now = new Date();
+    const assignedCoupons = await AffiliateCoupon.find({
+      affiliate: affiliate._id,
+      isActive: true,
+      $or: [
+        { expiryDate: null },
+        { expiryDate: { $gt: now } }
+      ]
+    }).sort({ createdAt: -1 });
+
+    const activeValidCoupons = assignedCoupons.filter(
+      (c) => c.maxUses === 0 || c.usedCount < c.maxUses
+    );
+
     res.status(200).json({
       success: true,
       data: {
@@ -551,7 +648,8 @@ exports.getAffiliateDashboard = async (req, res) => {
           transactionReference: latestPaidPayout.transactionReference,
           paymentMethod: latestPaidPayout.paymentMethod
         } : null,
-        recentLeads: leads.slice(0, 5)
+        recentLeads: leads.slice(0, 5),
+        assignedCoupons: activeValidCoupons
       }
     });
   } catch (error) {
@@ -661,15 +759,14 @@ exports.createAffiliateLead = async (req, res) => {
       : (product ? String(product).split(',').map(p => p.trim()).filter(Boolean) : ['School ERP Pro']);
     const productDisplay = productList.length > 0 ? productList.join(', ') : 'School ERP Pro';
 
-    // Official plan value is automatically determined by standard product catalog prices
-    const officialPrice = await getCatalogPriceForProducts(productList);
-    const finalDealValue = (estimatedValue !== undefined && Number(estimatedValue) > 0)
-      ? Number(estimatedValue)
-      : officialPrice;
+    // For new inquiry leads, deal value and commission remain 0 until finalized at deal closing
+    const finalDealValue = Number(estimatedValue || req.body.dealValue || 0);
 
-    const projectedCommission = affiliate.payoutType === 'fixed'
-      ? (affiliate.fixedAmount || 0)
-      : Math.round((finalDealValue * (affiliate.commissionRate || 10)) / 100);
+    const projectedCommission = finalDealValue > 0
+      ? (affiliate.payoutType === 'fixed'
+          ? (affiliate.fixedAmount || 0)
+          : Math.round((finalDealValue * (affiliate.commissionRate || 10)) / 100))
+      : 0;
 
     const lead = await AffiliateLead.create({
       affiliate: affiliate._id,
@@ -802,6 +899,18 @@ exports.updateLeadByAffiliate = async (req, res) => {
       } else if (affiliate.payoutType === 'fixed') {
         lead.commissionAmount = affiliate.fixedAmount || 0;
       }
+    }
+
+    if (req.body.commissionAmount !== undefined && Number(req.body.commissionAmount) >= 0) {
+      lead.commissionAmount = Number(req.body.commissionAmount);
+    }
+
+    if (req.body.appliedCoupon !== undefined) {
+      lead.appliedCoupon = String(req.body.appliedCoupon).trim().toUpperCase();
+    }
+
+    if (req.body.discountAmount !== undefined) {
+      lead.discountAmount = Number(req.body.discountAmount) || 0;
     }
 
     if (status !== undefined) {
@@ -1449,6 +1558,10 @@ exports.getAffiliateCoupons = async (req, res) => {
   try {
     const affiliate = await getAffiliateForUser(req.user.id);
     if (!affiliate) {
+      if (req.user && req.user.role === 'admin') {
+        const adminCoupons = await AffiliateCoupon.find({ isActive: true }).sort({ createdAt: -1 });
+        return res.json({ success: true, count: adminCoupons.length, data: adminCoupons });
+      }
       return res.status(404).json({ success: false, message: 'Affiliate profile not found' });
     }
 
@@ -1682,14 +1795,29 @@ exports.validateCoupon = async (req, res) => {
       }
     }
 
-    // Check product scope
+    // Check product scope (fuzzy match so plan names like "Web Builder Pro - Plan A" match "Web Builder Pro")
+    let discountBase = Number(baseAmount) || 0;
+
     if (coupon.applicableProducts && coupon.applicableProducts.length > 0 && products.length > 0) {
-      const hasMatchingProduct = products.some(p => coupon.applicableProducts.includes(p));
-      if (!hasMatchingProduct) {
+      const matchingItems = products.filter((p) => {
+        const pLower = String(p).toLowerCase().trim();
+        return coupon.applicableProducts.some((appProd) => {
+          const appLower = String(appProd).toLowerCase().trim();
+          return pLower.includes(appLower) || appLower.includes(pLower);
+        });
+      });
+
+      if (matchingItems.length === 0) {
         return res.status(400).json({
           success: false,
           message: `Coupon "${cleanCode}" is only applicable to: ${coupon.applicableProducts.join(', ')}`
         });
+      }
+
+      // If only some bundled products match, calculate discount base solely on the matching products
+      if (matchingItems.length < products.length) {
+        const matchingPrice = await getCatalogPriceForProducts(matchingItems);
+        discountBase = matchingPrice;
       }
     }
 
@@ -1698,9 +1826,9 @@ exports.validateCoupon = async (req, res) => {
     let discountAmount = 0;
 
     if (coupon.discountType === 'percentage') {
-      discountAmount = Math.round((numBase * coupon.discountValue) / 100);
+      discountAmount = Math.round((discountBase * coupon.discountValue) / 100);
     } else {
-      discountAmount = Math.min(numBase, coupon.discountValue);
+      discountAmount = Math.min(discountBase, coupon.discountValue);
     }
 
     const discountedDealValue = Math.max(0, numBase - discountAmount);
