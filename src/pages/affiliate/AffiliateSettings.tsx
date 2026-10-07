@@ -368,7 +368,7 @@ export default function AffiliateSettings() {
                     </span>
                   </div>
                   <p className="font-bold mt-1 leading-relaxed">
-                    Aapki bank/UPI details saved hain. Ab jab bhi aap withdrawal request karenge, aapko bar-bar account number ya UPI daalne ki zaroorat nahi padegi!
+                    Your bank/UPI account is active. When you submit a withdrawal request, funds will be disbursed directly to this account with 1-click convenience.
                   </p>
                 </div>
               </div>
@@ -394,10 +394,10 @@ export default function AffiliateSettings() {
               <span className="text-2xl leading-none">⚠️</span>
               <div>
                 <span className="font-black uppercase tracking-wider block text-sm">
-                  Koi Payout Account Saved Nahi Hai
+                  No Payout Destination Configured
                 </span>
                 <p className="font-bold mt-0.5">
-                  Apna UPI ID ya Bank details niche ek baar fill karke save kar lijiye. Iske baad aap 1-click me turant withdrawal request bhej sakenge!
+                  Please add your UPI ID or Bank Account details below. Once saved, you can submit withdrawal requests with 1 click.
                 </p>
               </div>
             </div>

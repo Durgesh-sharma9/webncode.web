@@ -14,7 +14,7 @@ export default function ScrollToTop() {
     window.scrollTo({
       top: 0,
       left: 0,
-      behavior: 'auto' // 'smooth' ke badle 'auto' fast state changes ke liye ideal hai
+      behavior: 'auto' // Instant scroll reset for fast state changes
     })
   }, [pathname])
 

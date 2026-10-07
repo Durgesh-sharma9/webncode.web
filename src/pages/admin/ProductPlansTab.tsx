@@ -188,7 +188,7 @@ export default function ProductPlansTab({ token }: ProductPlansTabProps) {
                 Software Products Catalog
               </h2>
               <p className="text-xs text-slate-600 font-medium mt-0.5 max-w-2xl">
-                Har product par click karein uske andar bane huye plans (Starter, Standard, Enterprise, Monthly/Yearly) dekhne aur naye plan add karne ke liye.
+                Click any software product below to view its pricing plans (Starter, Standard, Enterprise, etc.) or configure new pricing packages.
               </p>
             </div>
             <div className="flex items-center gap-2">

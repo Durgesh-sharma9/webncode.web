@@ -15,14 +15,14 @@ export default function Logo({
   size = 'md',
   textClassName = '',
 }: LogoProps) {
-  // Logo ka size thoda bada kar diya hai (h-14 se h-16 aur h-16 se h-20)
+  // Responsive logo sizing
   const logoSizeClasses = {
     sm: 'h-6 sm:h-7',
     md: 'h-8 sm:h-9',
     lg: 'h-10 sm:h-11',
   }
 
-  // Text size ko bhi logo ke bade size ke sath match kar diya hai
+  // Matching typography scale
   const textSizeClasses = {
     sm: 'text-xs sm:text-sm',
     md: 'text-sm sm:text-base', 
@@ -38,7 +38,7 @@ export default function Logo({
       />
 
       {showText && (
-        // flex-col ke sath items-start aur self-center lagane se text image ke center me align ho jayega
+        // Align text vertically centered with logo
         <div className={`flex flex-col justify-center items-start gap-0.5 sm:gap-1 ${textClassName}`}>
           <div
             className={`${textSizeClasses[size]} font-extrabold text-text-primary leading-tight tracking-tight whitespace-nowrap`}

@@ -245,7 +245,7 @@ export default function ViewAffiliateModal({
             </div>
           </div>
 
-          {/* Bank & UPI Account Details (खाता विवरण) */}
+          {/* Bank & UPI Account Details */}
           <div className="bg-[#fafafa] border-2 border-slate-900 rounded-xl p-4 shadow-[3px_3px_0px_0px_#000] space-y-3">
             <div className="flex items-center justify-between border-b border-slate-200 pb-2">
               <div className="flex items-center gap-2">

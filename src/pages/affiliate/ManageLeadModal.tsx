@@ -212,9 +212,9 @@ export default function ManageLeadModal({
   const whatsappUrl = `https://wa.me/91${cleanPhone.length > 10 ? cleanPhone.slice(-10) : cleanPhone}?text=Hello%20${encodeURIComponent(formData.contactPerson)},%20this%20is%20regarding%20Web%20n%20Code%20Software%20Solutions.`
 
   const pipelineStages = [
-    { id: 'In Discussion', label: '💬 In Discussion', icon: '💬', color: 'bg-blue-100 text-blue-900', desc: 'School ke saath baat chal rahi hai' },
-    { id: 'Deal Confirmed', label: '🎉 School Confirmed!', icon: '🎉', color: 'bg-[#86efac] text-emerald-950 font-black', desc: 'School ne haan bol diya (Request Admin Verification)' },
-    { id: 'Lost', label: '❌ Cancelled / Declined', icon: '❌', color: 'bg-rose-100 text-rose-900', desc: 'School ne mana kar diya' }
+    { id: 'In Discussion', label: '💬 In Discussion', icon: '💬', color: 'bg-blue-100 text-blue-900', desc: 'Active communication with client' },
+    { id: 'Deal Confirmed', label: '🎉 Client Confirmed!', icon: '🎉', color: 'bg-[#86efac] text-emerald-950 font-black', desc: 'Client confirmed purchase (Awaiting Admin Verification)' },
+    { id: 'Lost', label: '❌ Cancelled / Declined', icon: '❌', color: 'bg-rose-100 text-rose-900', desc: 'Client declined or cancelled' }
   ]
 
   return (
