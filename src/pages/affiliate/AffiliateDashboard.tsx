@@ -127,40 +127,33 @@ export default function AffiliateDashboard() {
   return (
     <div className="space-y-6 font-mono text-slate-900">
       
-      {/* Top Welcome & Lead Action Bar */}
-      <div className="bg-white border-2 border-slate-900 rounded-xl p-5 sm:p-6 shadow-[4px_4px_0px_0px_#000] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Top Welcome & Lead Action Bar (Compact) */}
+      <div className="bg-white border-2 border-slate-900 rounded-xl py-3.5 px-4 sm:px-5 shadow-[3px_3px_0px_0px_#000] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 bg-[#86efac] border border-slate-900 rounded">
-            PARTNER DASHBOARD
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight mt-1 text-slate-900">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 bg-[#86efac] border border-slate-900 rounded">
+              PARTNER DASHBOARD
+            </span>
+            <span className="text-[11px] text-slate-400 font-bold hidden sm:inline">•</span>
+            <p className="text-[11px] text-slate-600 font-bold">
+              {payoutType === 'fixed' ? (
+                <>Reward: <span className="text-emerald-700 font-black">₹{(fixedAmount || 0).toLocaleString('en-IN')} Flat</span> / deal</>
+              ) : (
+                <>Commission: <span className="text-emerald-700 font-black">{commissionRate}%</span> per closed deal</>
+              )}
+            </p>
+          </div>
+          <h1 className="text-lg sm:text-xl font-black uppercase tracking-tight mt-1 text-slate-900">
             Welcome, {data?.profile?.name || user?.name}!
           </h1>
-          <p className="text-xs text-slate-600 font-bold mt-0.5">
-            {payoutType === 'fixed' ? (
-              <>Your reward model is <span className="text-emerald-700 font-black">₹{(fixedAmount || 0).toLocaleString('en-IN')} Flat</span> per closed project.</>
-            ) : (
-              <>Your personal commission rate is <span className="text-emerald-700 font-black">{commissionRate}%</span> per closed deal.</>
-            )}
-          </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
-          {availableBalance > 0 && (
-            <button
-              onClick={() => setIsWithdrawModalOpen(true)}
-              className="w-full sm:w-auto px-4 py-2.5 bg-[#fef08a] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
-            >
-              <span>💸</span>
-              <span>Withdraw ₹{availableBalance.toLocaleString('en-IN')}</span>
-            </button>
-          )}
-
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             onClick={() => setIsLeadModalOpen(true)}
-            className="w-full sm:w-auto px-5 py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
+            className="w-full sm:w-auto px-4 py-2 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[2px_2px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
           >
-            <span className="text-base leading-none">+</span>
+            <span className="text-base leading-none font-black">+</span>
             <span>Submit Client Lead</span>
           </button>
         </div>
