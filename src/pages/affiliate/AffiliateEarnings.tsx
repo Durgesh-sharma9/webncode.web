@@ -178,60 +178,7 @@ export default function AffiliateEarnings() {
         </div>
       </div>
 
-      {/* Easy Accounting Breakdown Formula */}
-      <div className="bg-[#f8fafc] border-2 border-slate-900 rounded-xl p-4 sm:p-5 shadow-[4px_4px_0px_0px_#000] space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-slate-200 pb-2.5">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">📊</span>
-            <span className="font-black text-xs sm:text-sm uppercase text-slate-900 tracking-wider">
-              Transparent Accounting Formula
-            </span>
-          </div>
-          <span className="text-[10px] font-black uppercase text-emerald-900 bg-emerald-100 border border-emerald-400 px-2 py-0.5 rounded">
-            Auto-calculated
-          </span>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 text-center text-xs">
-          <div className="bg-white border-2 border-slate-900 rounded-lg p-3 shadow-[2px_2px_0px_0px_#000]">
-            <span className="text-[10px] font-black uppercase text-slate-500 block">Total Earned</span>
-            <span className="text-lg font-black text-slate-900 block font-mono mt-0.5">₹{totalEarned.toLocaleString('en-IN')}</span>
-            <span className="text-[9px] text-slate-500 font-bold">Commission from {wonLeads.length} closed deals</span>
-          </div>
-
-          <div className="bg-white border-2 border-slate-900 rounded-lg p-3 shadow-[2px_2px_0px_0px_#000]">
-            <span className="text-[10px] font-black uppercase text-blue-700 block">Paid to Bank / UPI</span>
-            <span className="text-lg font-black text-blue-700 block font-mono mt-0.5">₹{totalPaid.toLocaleString('en-IN')}</span>
-            <span className="text-[9px] text-slate-500 font-bold">Transferred to registered account</span>
-          </div>
-
-          <div className="bg-white border-2 border-slate-900 rounded-lg p-3 shadow-[2px_2px_0px_0px_#000]">
-            <span className="text-[10px] font-black uppercase text-amber-700 block">In Process (24-48h)</span>
-            <span className="text-lg font-black text-amber-700 block font-mono mt-0.5">₹{pendingRequests.toLocaleString('en-IN')}</span>
-            <span className="text-[9px] text-slate-500 font-bold">Under finance verification</span>
-          </div>
-
-          <div className="bg-[#86efac] border-2 border-slate-900 rounded-lg p-3 shadow-[2px_2px_0px_0px_#000]">
-            <span className="text-[10px] font-black uppercase text-slate-950 block">Available in Wallet</span>
-            <span className="text-lg font-black text-slate-950 block font-mono mt-0.5">₹{availableBalance.toLocaleString('en-IN')}</span>
-            <span className="text-[9px] text-slate-800 font-black">Ready for withdrawal request</span>
-          </div>
-        </div>
-
-        <div className="text-[11px] text-slate-700 font-bold bg-white border border-slate-200 rounded-lg p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <span>
-            💡 <strong>Formula:</strong> Total Earned = Paid to Bank + In Process + Available Balance. You can submit a withdrawal request anytime from your available wallet balance.
-          </span>
-          {availableBalance > 0 && (
-            <button
-              onClick={() => setIsWithdrawModalOpen(true)}
-              className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-black uppercase cursor-pointer shrink-0 transition-colors"
-            >
-              Withdrawal Request ₹{availableBalance.toLocaleString('en-IN')} ➔
-            </button>
-          )}
-        </div>
-      </div>
 
       {/* Payout Requests & History */}
       <div className="space-y-3 pt-2">
