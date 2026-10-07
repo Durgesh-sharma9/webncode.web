@@ -98,12 +98,67 @@ export default function AddLeadModal({
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Coupon state
+  const [couponCodeInput, setCouponCodeInput] = useState('')
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false)
+  const [couponError, setCouponError] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string
+    discountType: 'percentage' | 'flat'
+    discountValue: number
+    discountAmount: number
+  } | null>(null)
+
   // Official Admin catalog price computed automatically from SuperAdmin's plans
   const officialPackagePrice = calculateProductsPrice(selectedProducts, dbPlans)
+
+  // Dynamic discount calculation
+  const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0
+  const finalDealValue = Math.max(0, officialPackagePrice - discountAmount)
+
   const projectedCommission =
     payoutType === 'fixed'
       ? fixedAmount || 0
-      : Math.round((officialPackagePrice * commissionRate) / 100)
+      : Math.round((finalDealValue * commissionRate) / 100)
+
+  const handleApplyCoupon = async () => {
+    if (!couponCodeInput.trim()) {
+      setCouponError('Please enter a coupon code')
+      return
+    }
+    setIsValidatingCoupon(true)
+    setCouponError('')
+    try {
+      const res = await axios.post(
+        `${API_BASE}/api/affiliates/coupons/validate`,
+        {
+          code: couponCodeInput.trim().toUpperCase(),
+          products: selectedProducts,
+          baseAmount: officialPackagePrice
+        },
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+          timeout: 10000
+        }
+      )
+      if (res.data?.success && res.data.data) {
+        setAppliedCoupon(res.data.data)
+        showSuccessToast(`Coupon "${res.data.data.code}" applied successfully!`)
+      }
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Invalid coupon code'
+      setCouponError(msg)
+      showErrorToast(msg)
+    } finally {
+      setIsValidatingCoupon(false)
+    }
+  }
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponCodeInput('')
+    setCouponError('')
+  }
 
   const toggleProduct = (prodIdentifier: string) => {
     if (selectedProducts.includes(prodIdentifier)) {
@@ -150,8 +205,10 @@ export default function AddLeadModal({
           ...formData,
           product: productSummary,
           products: selectedProducts,
-          dealValue: officialPackagePrice,
-          estimatedValue: officialPackagePrice
+          dealValue: finalDealValue,
+          estimatedValue: finalDealValue,
+          appliedCoupon: appliedCoupon ? appliedCoupon.code : '',
+          discountAmount: discountAmount
         },
         config
       )
@@ -418,6 +475,68 @@ export default function AddLeadModal({
             </div>
           </div>
 
+          {/* Discount Coupon Code Box */}
+          <div className="bg-white border-2 border-slate-900 rounded-lg p-3 shadow-[2px_2px_0px_0px_#000] space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-black uppercase text-slate-800 flex items-center gap-1.5">
+                <span>🏷️</span>
+                <span>Apply Discount Coupon (Optional)</span>
+              </label>
+              {appliedCoupon && (
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded border border-emerald-300">
+                  Coupon Applied
+                </span>
+              )}
+            </div>
+
+            {!appliedCoupon ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={couponCodeInput}
+                  onChange={(e) => {
+                    setCouponCodeInput(e.target.value.toUpperCase().replace(/\s+/g, ''))
+                    setCouponError('')
+                  }}
+                  placeholder="Enter partner discount code..."
+                  className="flex-1 border-2 border-slate-900 rounded-md px-3 py-1.5 text-xs font-mono font-bold uppercase text-slate-900 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  disabled={isValidatingCoupon || !couponCodeInput.trim()}
+                  onClick={handleApplyCoupon}
+                  className="px-3 py-1.5 bg-slate-900 text-white border-2 border-slate-900 rounded-md font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000] hover:bg-slate-800 cursor-pointer disabled:opacity-50"
+                >
+                  {isValidatingCoupon ? 'Checking...' : 'Apply'}
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between bg-emerald-50 border border-emerald-400 rounded-md p-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-black text-xs text-emerald-950 px-2 py-0.5 bg-white border border-emerald-300 rounded">
+                    {appliedCoupon.code}
+                  </span>
+                  <span className="text-xs font-bold text-emerald-900">
+                    -₹{discountAmount.toLocaleString('en-IN')} off ({appliedCoupon.discountType === 'percentage' ? `${appliedCoupon.discountValue}%` : 'Flat'})
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemoveCoupon}
+                  className="text-[11px] font-black text-rose-600 hover:text-rose-800 underline cursor-pointer"
+                >
+                  Remove
+                </button>
+              </div>
+            )}
+
+            {couponError && (
+              <p className="text-[11px] font-bold text-rose-600">
+                ⚠️ {couponError}
+              </p>
+            )}
+          </div>
+
           {/* Locked Official Admin Pricing & Partner Commission Breakdown */}
           <div className="p-4 bg-gradient-to-br from-emerald-50 via-teal-50 to-green-100 border-2 border-slate-900 rounded-xl shadow-[4px_4px_0px_0px_#0f172a] space-y-3">
             <div className="flex items-center justify-between border-b border-slate-300 pb-2">
@@ -435,14 +554,20 @@ export default function AddLeadModal({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-0.5">
               <div className="bg-white border-2 border-slate-900 rounded-lg p-3 shadow-[2px_2px_0px_0px_#000]">
                 <span className="text-[10px] font-black uppercase text-slate-600 block">
-                  Official Package Price
+                  {discountAmount > 0 ? 'Discounted Deal Value' : 'Official Package Price'}
                 </span>
                 <p className="text-xl font-black text-slate-950 mt-0.5">
-                  ₹{officialPackagePrice.toLocaleString('en-IN')}
+                  ₹{finalDealValue.toLocaleString('en-IN')}
                 </p>
-                <span className="text-[9px] text-slate-500 font-bold block mt-0.5">
-                  {selectedProducts.length} product{selectedProducts.length > 1 ? 's' : ''} bundled
-                </span>
+                {discountAmount > 0 ? (
+                  <span className="text-[10px] text-emerald-700 font-extrabold block mt-0.5">
+                    Original ₹{officialPackagePrice.toLocaleString('en-IN')} (-₹{discountAmount.toLocaleString('en-IN')})
+                  </span>
+                ) : (
+                  <span className="text-[9px] text-slate-500 font-bold block mt-0.5">
+                    {selectedProducts.length} product{selectedProducts.length > 1 ? 's' : ''} bundled
+                  </span>
+                )}
               </div>
 
               <div className="bg-[#86efac] border-2 border-slate-900 rounded-lg p-3 shadow-[2px_2px_0px_0px_#000]">
@@ -453,7 +578,7 @@ export default function AddLeadModal({
                   ₹{projectedCommission.toLocaleString('en-IN')}
                 </p>
                 <span className="text-[9px] text-slate-800 font-black block mt-0.5">
-                  {payoutType === 'fixed' ? 'Flat payout per closed deal' : 'Credited to wallet upon deal won'}
+                  {payoutType === 'fixed' ? 'Flat payout per closed deal' : 'Calculated transparently on closed deal'}
                 </span>
               </div>
             </div>

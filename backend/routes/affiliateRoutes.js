@@ -67,4 +67,16 @@ router.post('/plans', protect, authorize('admin'), affiliateController.createPla
 router.put('/plans/:id', protect, authorize('admin'), affiliateController.updatePlan);
 router.delete('/plans/:id', protect, authorize('admin'), affiliateController.deletePlan);
 
+// -------------------------------------------------------------
+// DISCOUNT COUPON ROUTES
+// -------------------------------------------------------------
+router.get('/coupons', protect, authorize('admin'), affiliateController.getAllCouponsForAdmin);
+router.post('/coupons', protect, authorize('admin'), affiliateController.createCouponByAdmin);
+router.put('/coupons/:id', protect, authorize('admin'), affiliateController.updateCouponByAdmin);
+router.delete('/coupons/:id', protect, authorize('admin'), affiliateController.deleteCouponByAdmin);
+
+// Affiliate & validation coupon routes
+router.get(['/portal/coupons', '/my-coupons'], protect, authorize('affiliate'), affiliateController.getAffiliateCoupons);
+router.post('/coupons/validate', protect, affiliateController.validateCoupon);
+
 module.exports = router;

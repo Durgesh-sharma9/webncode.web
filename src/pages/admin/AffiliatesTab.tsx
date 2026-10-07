@@ -9,10 +9,11 @@ import ReviewLeadModal from './ReviewLeadModal'
 import ConfirmPayoutModal from './ConfirmPayoutModal'
 import ViewAffiliateModal from './ViewAffiliateModal'
 import ProductPlansTab from './ProductPlansTab'
+import DiscountCouponsTab from './DiscountCouponsTab'
 
 export default function AffiliatesTab() {
   const { token } = useAuth()
-  const [activeSubTab, setActiveSubTab] = useState<'partners' | 'leads' | 'payouts' | 'plans'>('partners')
+  const [activeSubTab, setActiveSubTab] = useState<'partners' | 'leads' | 'payouts' | 'plans' | 'coupons'>('partners')
 
   const getAuthHeaders = () => {
     const activeToken = token || localStorage.getItem('wnc_token')
@@ -286,6 +287,17 @@ export default function AffiliatesTab() {
           }`}
         >
           <span>📦 Product Plans & Pricing</span>
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('coupons')}
+          className={`shrink-0 px-3.5 py-2 text-xs font-black uppercase tracking-wider border-2 border-b-0 border-slate-900 rounded-t-md transition-all flex items-center gap-1.5 cursor-pointer ${
+            activeSubTab === 'coupons'
+              ? 'bg-slate-900 text-white shadow-[2px_2px_0px_0px_#fff]'
+              : 'bg-white text-slate-700 hover:bg-slate-100'
+          }`}
+        >
+          <span>🏷️ Discount Coupons</span>
         </button>
       </div>
 
@@ -1228,6 +1240,13 @@ export default function AffiliatesTab() {
       {/* ======================================================== */}
       {activeSubTab === 'plans' && (
         <ProductPlansTab token={token} />
+      )}
+
+      {/* ======================================================== */}
+      {/* SUBTAB 5: DISCOUNT COUPONS */}
+      {/* ======================================================== */}
+      {activeSubTab === 'coupons' && (
+        <DiscountCouponsTab token={token} affiliates={affiliates} />
       )}
 
       {/* Onboard / Edit Affiliate Modal */}

@@ -79,6 +79,16 @@ const affiliateLeadSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
+    appliedCoupon: {
+      type: String,
+      default: '',
+      uppercase: true,
+      trim: true
+    },
+    discountAmount: {
+      type: Number,
+      default: 0
+    },
     rejectionReason: {
       type: String,
       default: ''

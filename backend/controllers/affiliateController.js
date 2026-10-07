@@ -3,6 +3,7 @@ const Affiliate = require('../models/Affiliate');
 const AffiliateLead = require('../models/AffiliateLead');
 const AffiliatePayout = require('../models/AffiliatePayout');
 const ProductPlan = require('../models/ProductPlan');
+const AffiliateCoupon = require('../models/AffiliateCoupon');
 const nodemailer = require('nodemailer');
 const { createTransporter, getFromAddress } = require('../config/mailer');
 
@@ -646,7 +647,7 @@ exports.createAffiliateLead = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Affiliate profile not found' });
     }
 
-    const { organizationName, contactPerson, phone, email, city, product, products, notes, estimatedValue } = req.body;
+    const { organizationName, contactPerson, phone, email, city, product, products, notes, estimatedValue, appliedCoupon, discountAmount } = req.body;
 
     if (!organizationName || !contactPerson || !phone) {
       return res.status(400).json({
@@ -683,8 +684,17 @@ exports.createAffiliateLead = async (req, res) => {
       commissionAmount: projectedCommission,
       status: 'New',
       source: 'manual_by_affiliate',
-      notes: notes || ''
+      notes: notes || '',
+      appliedCoupon: appliedCoupon ? appliedCoupon.trim().toUpperCase() : '',
+      discountAmount: Number(discountAmount) || 0
     });
+
+    if (appliedCoupon && appliedCoupon.trim()) {
+      await AffiliateCoupon.findOneAndUpdate(
+        { code: appliedCoupon.trim().toUpperCase() },
+        { $inc: { usedCount: 1 } }
+      ).catch(() => {});
+    }
 
     // Notify SuperAdmin via email (durgesh.csai@gmail.com)
     sendAdminNotification(
@@ -1405,4 +1415,316 @@ exports.deletePlan = async (req, res) => {
     });
   }
 };
+
+/**
+ * SuperAdmin: Get all discount coupons
+ * GET /api/affiliates/coupons
+ */
+exports.getAllCouponsForAdmin = async (req, res) => {
+  try {
+    const coupons = await AffiliateCoupon.find()
+      .populate('affiliate', 'name email referralCode phone')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: coupons.length,
+      data: coupons
+    });
+  } catch (error) {
+    console.error('Get all coupons error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to load discount coupons',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Affiliate: Get active coupons applicable to logged-in affiliate
+ * GET /api/affiliate-portal/coupons
+ */
+exports.getAffiliateCoupons = async (req, res) => {
+  try {
+    const affiliate = await getAffiliateForUser(req.user.id);
+    if (!affiliate) {
+      return res.status(404).json({ success: false, message: 'Affiliate profile not found' });
+    }
+
+    const now = new Date();
+    const query = {
+      isActive: true,
+      $or: [
+        { affiliate: null },
+        { affiliate: affiliate._id }
+      ],
+      $and: [
+        {
+          $or: [
+            { expiryDate: null },
+            { expiryDate: { $gt: now } }
+          ]
+        }
+      ]
+    };
+
+    const coupons = await AffiliateCoupon.find(query).sort({ createdAt: -1 });
+
+    // Filter out coupons that have reached maxUses
+    const validCoupons = coupons.filter(c => c.maxUses === 0 || c.usedCount < c.maxUses);
+
+    res.status(200).json({
+      success: true,
+      count: validCoupons.length,
+      data: validCoupons
+    });
+  } catch (error) {
+    console.error('Get affiliate coupons error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to load available coupons',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * SuperAdmin: Create a new discount coupon
+ * POST /api/affiliates/coupons
+ */
+exports.createCouponByAdmin = async (req, res) => {
+  try {
+    const {
+      code,
+      discountType = 'percentage',
+      discountValue,
+      affiliate = null,
+      applicableProducts = [],
+      maxUses = 0,
+      expiryDate = null,
+      description = ''
+    } = req.body;
+
+    if (!code || !code.trim()) {
+      return res.status(400).json({ success: false, message: 'Coupon code is required' });
+    }
+
+    if (!discountValue || Number(discountValue) <= 0) {
+      return res.status(400).json({ success: false, message: 'Discount value must be greater than 0' });
+    }
+
+    const cleanCode = code.trim().toUpperCase();
+
+    // Check if coupon code already exists
+    const existing = await AffiliateCoupon.findOne({ code: cleanCode });
+    if (existing) {
+      return res.status(400).json({ success: false, message: `Coupon code "${cleanCode}" already exists` });
+    }
+
+    const coupon = await AffiliateCoupon.create({
+      code: cleanCode,
+      discountType,
+      discountValue: Number(discountValue),
+      affiliate: affiliate && affiliate !== 'all' ? affiliate : null,
+      applicableProducts: Array.isArray(applicableProducts) ? applicableProducts : [],
+      maxUses: Number(maxUses) || 0,
+      expiryDate: expiryDate ? new Date(expiryDate) : null,
+      description: description.trim(),
+      isActive: true
+    });
+
+    const populatedCoupon = await AffiliateCoupon.findById(coupon._id)
+      .populate('affiliate', 'name email referralCode');
+
+    res.status(201).json({
+      success: true,
+      message: `Coupon "${cleanCode}" created successfully!`,
+      data: populatedCoupon
+    });
+  } catch (error) {
+    console.error('Create coupon error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create discount coupon',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * SuperAdmin: Update coupon
+ * PUT /api/affiliates/coupons/:id
+ */
+exports.updateCouponByAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const coupon = await AffiliateCoupon.findById(id);
+    if (!coupon) {
+      return res.status(404).json({ success: false, message: 'Coupon not found' });
+    }
+
+    const {
+      code,
+      discountType,
+      discountValue,
+      affiliate,
+      applicableProducts,
+      maxUses,
+      expiryDate,
+      isActive,
+      description
+    } = req.body;
+
+    if (code && code.trim()) {
+      const cleanCode = code.trim().toUpperCase();
+      if (cleanCode !== coupon.code) {
+        const existing = await AffiliateCoupon.findOne({ code: cleanCode });
+        if (existing) {
+          return res.status(400).json({ success: false, message: `Coupon code "${cleanCode}" already in use` });
+        }
+        coupon.code = cleanCode;
+      }
+    }
+
+    if (discountType !== undefined) coupon.discountType = discountType;
+    if (discountValue !== undefined) coupon.discountValue = Number(discountValue);
+    if (affiliate !== undefined) coupon.affiliate = (affiliate && affiliate !== 'all') ? affiliate : null;
+    if (applicableProducts !== undefined) coupon.applicableProducts = Array.isArray(applicableProducts) ? applicableProducts : [];
+    if (maxUses !== undefined) coupon.maxUses = Number(maxUses) || 0;
+    if (expiryDate !== undefined) coupon.expiryDate = expiryDate ? new Date(expiryDate) : null;
+    if (isActive !== undefined) coupon.isActive = Boolean(isActive);
+    if (description !== undefined) coupon.description = description.trim();
+
+    await coupon.save();
+
+    const populatedCoupon = await AffiliateCoupon.findById(coupon._id)
+      .populate('affiliate', 'name email referralCode');
+
+    res.status(200).json({
+      success: true,
+      message: `Coupon "${coupon.code}" updated successfully!`,
+      data: populatedCoupon
+    });
+  } catch (error) {
+    console.error('Update coupon error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update discount coupon',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * SuperAdmin: Delete coupon
+ * DELETE /api/affiliates/coupons/:id
+ */
+exports.deleteCouponByAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const coupon = await AffiliateCoupon.findById(id);
+    if (!coupon) {
+      return res.status(404).json({ success: false, message: 'Coupon not found' });
+    }
+
+    await AffiliateCoupon.deleteOne({ _id: coupon._id });
+
+    res.status(200).json({
+      success: true,
+      message: `Coupon "${coupon.code}" deleted successfully.`
+    });
+  } catch (error) {
+    console.error('Delete coupon error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete coupon',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Validate coupon application
+ * POST /api/affiliates/coupons/validate
+ */
+exports.validateCoupon = async (req, res) => {
+  try {
+    const { code, affiliateId, products = [], baseAmount = 0 } = req.body;
+
+    if (!code || !code.trim()) {
+      return res.status(400).json({ success: false, message: 'Coupon code is required' });
+    }
+
+    const cleanCode = code.trim().toUpperCase();
+    const coupon = await AffiliateCoupon.findOne({ code: cleanCode });
+
+    if (!coupon) {
+      return res.status(404).json({ success: false, message: `Coupon code "${cleanCode}" is invalid.` });
+    }
+
+    if (!coupon.isActive) {
+      return res.status(400).json({ success: false, message: `Coupon "${cleanCode}" is currently inactive.` });
+    }
+
+    if (coupon.expiryDate && new Date() > new Date(coupon.expiryDate)) {
+      return res.status(400).json({ success: false, message: `Coupon "${cleanCode}" has expired.` });
+    }
+
+    if (coupon.maxUses > 0 && coupon.usedCount >= coupon.maxUses) {
+      return res.status(400).json({ success: false, message: `Coupon "${cleanCode}" usage limit has been reached.` });
+    }
+
+    // Check affiliate scope
+    if (coupon.affiliate && affiliateId) {
+      if (String(coupon.affiliate) !== String(affiliateId)) {
+        return res.status(400).json({ success: false, message: `Coupon "${cleanCode}" is not authorized for this affiliate partner.` });
+      }
+    }
+
+    // Check product scope
+    if (coupon.applicableProducts && coupon.applicableProducts.length > 0 && products.length > 0) {
+      const hasMatchingProduct = products.some(p => coupon.applicableProducts.includes(p));
+      if (!hasMatchingProduct) {
+        return res.status(400).json({
+          success: false,
+          message: `Coupon "${cleanCode}" is only applicable to: ${coupon.applicableProducts.join(', ')}`
+        });
+      }
+    }
+
+    // Compute discount amount
+    const numBase = Number(baseAmount) || 0;
+    let discountAmount = 0;
+
+    if (coupon.discountType === 'percentage') {
+      discountAmount = Math.round((numBase * coupon.discountValue) / 100);
+    } else {
+      discountAmount = Math.min(numBase, coupon.discountValue);
+    }
+
+    const discountedDealValue = Math.max(0, numBase - discountAmount);
+
+    res.status(200).json({
+      success: true,
+      message: `Coupon "${cleanCode}" applied successfully!`,
+      data: {
+        code: coupon.code,
+        discountType: coupon.discountType,
+        discountValue: coupon.discountValue,
+        discountAmount,
+        discountedDealValue,
+        description: coupon.description
+      }
+    });
+  } catch (error) {
+    console.error('Validate coupon error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to validate coupon',
+      error: error.message
+    });
+  }
+};
+
 

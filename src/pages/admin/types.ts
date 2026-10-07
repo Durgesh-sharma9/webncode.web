@@ -295,3 +295,25 @@ export const calculateProductsPrice = (products: string[], plansList?: ProductPl
   return products.reduce((sum, p) => sum + getProductPrice(p, plansList), 0)
 }
 
+export interface AffiliateCouponItem {
+  _id: string
+  code: string
+  discountType: 'percentage' | 'flat'
+  discountValue: number
+  affiliate?: {
+    _id: string
+    name: string
+    email: string
+    referralCode?: string
+    phone?: string
+  } | null
+  applicableProducts: string[]
+  maxUses: number
+  usedCount: number
+  expiryDate?: string | null
+  isActive: boolean
+  description?: string
+  createdAt?: string
+  updatedAt?: string
+}
+
