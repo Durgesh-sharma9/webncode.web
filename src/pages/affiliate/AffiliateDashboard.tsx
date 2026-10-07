@@ -166,14 +166,14 @@ export default function AffiliateDashboard() {
           <div className="text-xs">
             <div className="flex items-center gap-2">
               <span className="font-black uppercase text-slate-900 tracking-wider text-sm">
-                Withdrawal In Verification (24-48 Hours Policy)
+                Withdrawal Request In Verification (24-48 Hours Policy)
               </span>
               <span className="px-2 py-0.5 bg-amber-200 border border-slate-900 rounded text-[10px] font-black text-slate-900 uppercase">
                 Under Process
               </span>
             </div>
             <p className="text-slate-800 font-bold mt-1 leading-relaxed">
-              Your payout request for ₹{pendingSettlement.toLocaleString('en-IN')} is being processed by our finance team. Funds will be transferred to your account within <strong>24 to 48 hours</strong>.
+              Your withdrawal request for ₹{pendingSettlement.toLocaleString('en-IN')} is being processed by our finance team. Funds will be transferred to your account within <strong>24 to 48 hours</strong>.
             </p>
           </div>
         </div>
@@ -234,10 +234,10 @@ export default function AffiliateDashboard() {
               onClick={() => setIsWithdrawModalOpen(true)}
               className="mt-2 text-[10px] bg-emerald-700 hover:bg-emerald-800 text-white font-black py-1.5 px-2 rounded cursor-pointer uppercase tracking-wider text-center transition-colors shadow-[1px_1px_0px_0px_#000]"
             >
-              Withdraw Now ➔
+              Withdrawal Request ➔
             </button>
           ) : (
-            <span className="text-[10px] text-emerald-700 font-bold mt-1">Ready to withdraw</span>
+            <span className="text-[10px] text-emerald-700 font-bold mt-1">Ready for Withdrawal Request</span>
           )}
         </div>
 

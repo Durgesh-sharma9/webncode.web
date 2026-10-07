@@ -112,10 +112,10 @@ export default function RequestWithdrawalModal({
         <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-4">
           <div>
             <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 bg-[#fef08a] border border-slate-900 rounded">
-              WITHDRAW COMMISSIONS
+              COMMISSION PAYOUT
             </span>
             <h2 className="text-xl font-black uppercase text-slate-900 tracking-tight mt-1">
-              Request Payout
+              Withdrawal Request
             </h2>
           </div>
           <button
@@ -132,7 +132,7 @@ export default function RequestWithdrawalModal({
               ✓
             </div>
             <div>
-              <h3 className="text-base font-black uppercase text-slate-900">Payout Request Submitted!</h3>
+              <h3 className="text-base font-black uppercase text-slate-900">Withdrawal Request Submitted!</h3>
               <div className="mt-3 p-4 bg-[#f0fdf4] border-2 border-slate-900 rounded-lg text-xs text-slate-900 font-bold leading-relaxed text-left shadow-[2px_2px_0px_0px_#000]">
                 🕒 <span className="font-black underline text-emerald-800">24-48 Hours Verification Policy:</span>
                 <p className="mt-1 text-slate-700">
@@ -153,7 +153,7 @@ export default function RequestWithdrawalModal({
             {/* Balance Overview */}
             <div className="bg-[#f0fdf4] border-2 border-slate-900 rounded-lg p-3 flex items-center justify-between shadow-[2px_2px_0px_0px_#000]">
               <div>
-                <span className="text-[10px] uppercase font-black text-slate-500 block">Available to Withdraw</span>
+                <span className="text-[10px] uppercase font-black text-slate-500 block">Available for Withdrawal Request</span>
                 <span className="text-2xl font-black text-emerald-700">₹{availableBalance.toLocaleString('en-IN')}</span>
               </div>
               {availableBalance > 0 && (
@@ -162,7 +162,7 @@ export default function RequestWithdrawalModal({
                   onClick={() => setAmount(String(availableBalance))}
                   className="px-3 py-1.5 bg-[#86efac] hover:bg-[#6ee7b7] border-2 border-slate-900 text-slate-900 rounded-md font-black text-[10px] uppercase cursor-pointer shadow-[1px_1px_0px_0px_#000]"
                 >
-                  Withdraw All
+                  Request Full Balance
                 </button>
               )}
             </div>
@@ -254,7 +254,7 @@ export default function RequestWithdrawalModal({
             {/* Amount input */}
             <div>
               <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
-                Amount to Withdraw (₹) *
+                Withdrawal Request Amount (₹) *
               </label>
               <div className="flex items-center gap-2">
                 <span className="font-black text-sm text-slate-900">₹</span>
@@ -271,7 +271,7 @@ export default function RequestWithdrawalModal({
                   placeholder="e.g. 750"
                 />
               </div>
-              <p className="text-[10px] text-slate-500 mt-1">Minimum withdrawal amount is ₹100.</p>
+              <p className="text-[10px] text-slate-500 mt-1">Minimum withdrawal request amount is ₹100.</p>
             </div>
 
             {/* Optional Note */}
@@ -295,7 +295,7 @@ export default function RequestWithdrawalModal({
                 disabled={isSubmitting || availableBalance < 100}
                 className="w-full py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-50 transition-all text-center cursor-pointer"
               >
-                {isSubmitting ? 'Submitting Request...' : `Confirm & Request ₹${Number(amount || 0).toLocaleString('en-IN')}`}
+                {isSubmitting ? 'Submitting Request...' : `Submit Withdrawal Request (₹${Number(amount || 0).toLocaleString('en-IN')})`}
               </button>
             </div>
           </form>

@@ -364,7 +364,7 @@ export default function AffiliateSettings() {
                       Auto-Payout Destination Active
                     </span>
                     <span className="px-2 py-0.5 bg-slate-900 text-emerald-300 font-black text-[10px] rounded uppercase">
-                      Ready for 1-Click Withdrawals
+                      Ready for 1-Click Withdrawal Requests
                     </span>
                   </div>
                   <p className="font-bold mt-1 leading-relaxed">
@@ -397,7 +397,7 @@ export default function AffiliateSettings() {
                   Koi Payout Account Saved Nahi Hai
                 </span>
                 <p className="font-bold mt-0.5">
-                  Apna UPI ID ya Bank details niche ek baar fill karke save kar lijiye. Iske baad aap 1-click me turant withdraw kar sakenge!
+                  Apna UPI ID ya Bank details niche ek baar fill karke save kar lijiye. Iske baad aap 1-click me turant withdrawal request bhej sakenge!
                 </p>
               </div>
             </div>

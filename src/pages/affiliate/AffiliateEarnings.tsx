@@ -99,7 +99,7 @@ export default function AffiliateEarnings() {
           className="w-full sm:w-auto px-5 py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] transition-all flex items-center justify-center gap-2 cursor-pointer text-center"
         >
           <span>💸</span>
-          <span>Request Payout</span>
+          <span>Withdrawal Request</span>
         </button>
       </div>
 
@@ -124,14 +124,14 @@ export default function AffiliateEarnings() {
         {/* Available to Withdraw */}
         <div className="bg-[#f0fdf4] border-2 border-slate-900 rounded-lg p-4 shadow-[4px_4px_0px_0px_#000]">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase text-emerald-800">Available to Withdraw</span>
+            <span className="text-[10px] font-black uppercase text-emerald-800">Available for Withdrawal Request</span>
             <span className="text-xs">🟢</span>
           </div>
           <p className="text-2xl sm:text-3xl font-black mt-1 text-emerald-700 font-mono">
             ₹{availableBalance.toLocaleString('en-IN')}
           </p>
           <span className="text-[10px] text-slate-500 font-bold mt-1 block">
-            Wallet balance (Ready to withdraw)
+            Wallet balance (Ready for Withdrawal Request)
           </span>
         </div>
 
@@ -227,7 +227,7 @@ export default function AffiliateEarnings() {
               onClick={() => setIsWithdrawModalOpen(true)}
               className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-black uppercase cursor-pointer shrink-0 transition-colors"
             >
-              Request ₹{availableBalance.toLocaleString('en-IN')} ➔
+              Withdrawal Request ₹{availableBalance.toLocaleString('en-IN')} ➔
             </button>
           )}
         </div>
@@ -243,7 +243,7 @@ export default function AffiliateEarnings() {
           <div className="bg-white border-2 border-slate-900 rounded-lg p-6 text-center text-xs">
             <p className="font-black uppercase text-slate-600">No payout requests submitted yet</p>
             <p className="text-slate-500 mt-1">
-              Click "Request Payout" above to withdraw your commission earnings anytime.
+              Click "Withdrawal Request" above to withdraw your commission earnings anytime.
             </p>
           </div>
         ) : (
