@@ -28,11 +28,12 @@ export default function ReviewLeadModal({
   const fixedReward = aff?.fixedAmount || 0
 
   const [currentMode, setCurrentMode] = useState<'approve' | 'reject'>('approve')
+  const standardValue = lead.dealValue || 50000
   const [dealValue, setDealValue] = useState<string>(lead.dealValue ? String(lead.dealValue) : '50000')
   const [commissionAmount, setCommissionAmount] = useState<string>(
     lead.commissionAmount ? String(lead.commissionAmount) : ''
   )
-  const [adminNotes, setAdminNotes] = useState<string>(lead.notes || '')
+  const [adminNotes, setAdminNotes] = useState<string>(lead.adminNotes || '')
   const [rejectionReason, setRejectionReason] = useState<string>(lead.rejectionReason || '')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -46,7 +47,7 @@ export default function ReviewLeadModal({
     if (lead) {
       if (lead.dealValue) setDealValue(String(lead.dealValue))
       if (lead.commissionAmount) setCommissionAmount(String(lead.commissionAmount))
-      if (lead.notes) setAdminNotes(lead.notes)
+      setAdminNotes(lead.adminNotes || '')
       if (lead.rejectionReason) setRejectionReason(lead.rejectionReason)
     }
   }, [lead])
@@ -86,7 +87,8 @@ export default function ReviewLeadModal({
             dealValue: val,
             commissionAmount: comm,
             commissionStatus: 'Approved',
-            notes: adminNotes
+            adminNotes: adminNotes.trim(),
+            notes: lead.notes || ''
           },
           config
         )
@@ -109,7 +111,8 @@ export default function ReviewLeadModal({
             rejectionReason: rejectionReason.trim(),
             commissionAmount: 0,
             commissionStatus: 'Pending',
-            notes: adminNotes
+            adminNotes: adminNotes.trim(),
+            notes: lead.notes || ''
           },
           config
         )
@@ -209,6 +212,14 @@ export default function ReviewLeadModal({
               {aff?.name || 'Partner'} ({isFixed ? `₹${fixedReward.toLocaleString('en-IN')} Flat Reward` : `${defaultRate}% Commission`})
             </span>
           </div>
+          {lead.notes && (
+            <div className="border-t border-slate-300 pt-1.5 mt-1">
+              <span className="text-slate-500 font-bold uppercase text-[10px] block">Partner Discussion Note:</span>
+              <p className="text-slate-800 font-bold italic mt-0.5 bg-yellow-50 p-2 rounded border border-yellow-300 text-[11px]">
+                "{lead.notes}"
+              </p>
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
@@ -216,24 +227,58 @@ export default function ReviewLeadModal({
             <>
               {/* Deal Value */}
               <div>
-                <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
-                  Final Deal Value (Amount Received from School ₹) *
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-black uppercase tracking-wider text-slate-700">
+                    Final Deal Value (Amount Received from School ₹) *
+                  </label>
+                  <span className="text-[10px] font-bold text-slate-500">
+                    Standard Price: <strong className="text-slate-900">₹{standardValue.toLocaleString('en-IN')}</strong>
+                  </span>
+                </div>
                 <div className="flex items-center gap-2">
                   <span className="font-black text-sm text-slate-900">₹</span>
                   <input
                     type="number"
                     min="0"
-                    step="any"
+                    step="1"
                     required
                     value={dealValue}
                     onChange={(e) => setDealValue(e.target.value)}
                     className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-bold text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-                    placeholder="e.g. 5000"
+                    placeholder="e.g. 50000"
                   />
                 </div>
+
+                {/* Discount Tag & Quick Reset */}
+                {Number(dealValue || 0) < standardValue && Number(dealValue || 0) > 0 && (
+                  <div className="mt-1.5 p-2 bg-amber-50 border border-amber-300 rounded text-amber-900 font-bold text-[11px] flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span>🏷️</span>
+                      <span>
+                        Discounted Deal: <strong>-₹{(standardValue - Number(dealValue)).toLocaleString('en-IN')}</strong> ({Math.round(((standardValue - Number(dealValue)) / standardValue) * 100)}% off)
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setDealValue(String(standardValue))}
+                      className="underline font-black text-blue-700 hover:text-blue-900 cursor-pointer text-[10px]"
+                    >
+                      Reset to Standard
+                    </button>
+                  </div>
+                )}
+
+                {Number(dealValue || 0) > standardValue && (
+                  <div className="mt-1.5 p-2 bg-emerald-50 border border-emerald-300 rounded text-emerald-900 font-bold text-[11px] flex items-center gap-1.5">
+                    <span>📈</span>
+                    <span>
+                      Upsold / Higher Package: <strong>+₹{(Number(dealValue) - standardValue).toLocaleString('en-IN')}</strong> extra revenue
+                    </span>
+                  </div>
+                )}
+
                 <p className="text-[10px] text-slate-500 mt-1">
-                  Total revenue collected from the client for this software purchase.
+                  Default shows standard price. If client negotiated a discount, enter the actual collected amount here. Partner commission automatically recalculates.
                 </p>
               </div>
 
@@ -252,7 +297,7 @@ export default function ReviewLeadModal({
                   <input
                     type="number"
                     min="0"
-                    step="any"
+                    step="1"
                     required
                     value={commissionAmount}
                     onChange={(e) => setCommissionAmount(e.target.value)}
@@ -268,15 +313,18 @@ export default function ReviewLeadModal({
               {/* Admin Notes */}
               <div>
                 <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
-                  Admin Closing Notes (Optional)
+                  Super Admin Note / Discount Reason (Saved & Visible to Partner)
                 </label>
-                <input
-                  type="text"
+                <textarea
+                  rows={2}
                   value={adminNotes}
                   onChange={(e) => setAdminNotes(e.target.value)}
                   className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-medium text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-                  placeholder="e.g. 1 Year license signed with Principal"
+                  placeholder="e.g. Special 16% discount approved for annual prepayment. Deal finalized at ₹42,000."
                 />
+                <p className="text-[10px] text-slate-500 mt-0.5">
+                  This note will be visible to the affiliate partner in their portal so they understand the final agreed deal amount.
+                </p>
               </div>
             </>
           ) : (

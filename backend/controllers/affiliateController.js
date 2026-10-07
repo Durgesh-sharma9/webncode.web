@@ -346,7 +346,7 @@ exports.getAllAffiliateLeadsForAdmin = async (req, res) => {
 exports.updateLeadByAdmin = async (req, res) => {
   try {
     const { leadId } = req.params;
-    const { status, dealValue, commissionAmount, commissionStatus, notes, rejectionReason } = req.body;
+    const { status, dealValue, commissionAmount, commissionStatus, notes, adminNotes, rejectionReason } = req.body;
 
     const lead = await AffiliateLead.findById(leadId).populate('affiliate');
     if (!lead) {
@@ -381,6 +381,7 @@ exports.updateLeadByAdmin = async (req, res) => {
     if (status !== 'Lost' && commissionAmount !== undefined) lead.commissionAmount = Number(commissionAmount);
     if (status !== 'Lost' && commissionStatus) lead.commissionStatus = commissionStatus;
     if (notes !== undefined) lead.notes = notes;
+    if (adminNotes !== undefined) lead.adminNotes = adminNotes;
     if (rejectionReason !== undefined) lead.rejectionReason = rejectionReason;
 
     await lead.save();

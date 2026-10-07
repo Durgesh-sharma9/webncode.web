@@ -222,6 +222,11 @@ export default function AffiliateLeads() {
                       "{lead.notes}"
                     </div>
                   )}
+                  {lead.adminNotes && (
+                    <div className="text-[10px] text-blue-900 bg-blue-50 border border-blue-300 rounded p-1.5 font-bold">
+                      Admin Note: "{lead.adminNotes}"
+                    </div>
+                  )}
                   {lead.confirmationNotes && lead.status === 'Deal Confirmed' && (
                     <div className="text-[10px] text-emerald-800 bg-emerald-50 border border-emerald-300 rounded p-1.5 font-bold">
                       Confirmation Note: "{lead.confirmationNotes}"
@@ -378,6 +383,11 @@ export default function AffiliateLeads() {
                       {lead.rejectionReason && lead.status === 'Lost' && (
                         <div className="text-[10px] text-rose-700 bg-rose-50 border border-rose-200 rounded px-1.5 py-0.5 mt-1 font-bold">
                           Reason: {lead.rejectionReason}
+                        </div>
+                      )}
+                      {lead.adminNotes && (
+                        <div className="text-[10px] text-blue-900 bg-blue-50 border border-blue-300 rounded px-1.5 py-0.5 mt-1 font-bold">
+                          Admin Note: "{lead.adminNotes}"
                         </div>
                       )}
                     </td>

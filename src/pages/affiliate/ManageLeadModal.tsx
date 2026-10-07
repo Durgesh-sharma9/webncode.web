@@ -513,6 +513,19 @@ export default function ManageLeadModal({
             />
           </div>
 
+          {/* Super Admin Closing Note if present */}
+          {lead.adminNotes && (
+            <div className="p-3 bg-blue-50 border-2 border-blue-400 rounded-lg text-xs space-y-1">
+              <div className="flex items-center gap-1.5 font-black text-blue-900 uppercase text-[10px]">
+                <span>📢</span>
+                <span>Note from Super Admin:</span>
+              </div>
+              <p className="text-slate-800 font-bold leading-relaxed text-[11px]">
+                {lead.adminNotes}
+              </p>
+            </div>
+          )}
+
           {/* Commission status note if present */}
           {lead.commissionStatus && (
             <div className="p-2.5 bg-slate-50 border border-slate-300 rounded text-[11px] flex items-center justify-between">
