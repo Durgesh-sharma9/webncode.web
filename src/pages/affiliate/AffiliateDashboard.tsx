@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../../contexts/AuthContext'
 import { API_BASE, type AffiliateLeadItem } from '../admin/types'
-import { showErrorToast, showSuccessToast } from '../../components/ui/Toast'
+import { showErrorToast } from '../../components/ui/Toast'
 import AddLeadModal from './AddLeadModal'
 import RequestWithdrawalModal from './RequestWithdrawalModal'
 import PayoutCongratsModal from './PayoutCongratsModal'
@@ -294,89 +294,6 @@ export default function AffiliateDashboard() {
 
       </div>
 
-      {/* Authorized Discount Coupons Assigned to this Partner */}
-      {data?.assignedCoupons && data.assignedCoupons.length > 0 && (
-        <div className="bg-white border-2 border-slate-900 rounded-xl p-4 sm:p-5 shadow-[4px_4px_0px_0px_#000] space-y-3">
-          <div className="flex items-center justify-between border-b-2 border-slate-900 pb-2.5">
-            <div className="flex items-center gap-2">
-              <span className="text-xl">🏷️</span>
-              <div>
-                <h3 className="font-black text-xs sm:text-sm uppercase tracking-wider text-slate-900">
-                  Your Authorized Discount Coupons
-                </h3>
-                <p className="text-[11px] text-slate-500 font-medium">
-                  Promotional codes approved by Web n Code to offer discounts to your prospective schools and clients.
-                </p>
-              </div>
-            </div>
-            <span className="px-2 py-0.5 bg-[#86efac] border border-slate-900 text-slate-950 font-black text-[10px] rounded uppercase shadow-[1px_1px_0px_0px_#000]">
-              {data.assignedCoupons.length} Active {data.assignedCoupons.length > 1 ? 'Codes' : 'Code'}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {data.assignedCoupons.map((coupon: any) => (
-              <div
-                key={coupon._id}
-                className="bg-amber-50/70 border-2 border-slate-900 rounded-lg p-3 space-y-2 shadow-[2px_2px_0px_0px_#000]"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-mono font-black text-sm text-slate-950 px-2.5 py-0.5 bg-white border border-slate-900 rounded shadow-[1px_1px_0px_0px_#000]">
-                    {coupon.code}
-                  </span>
-                  <span className="font-black text-xs text-emerald-800 bg-emerald-100 border border-emerald-400 px-2 py-0.5 rounded">
-                    {coupon.discountType === 'percentage' ? `${coupon.discountValue}% OFF` : `₹${coupon.discountValue.toLocaleString('en-IN')} OFF`}
-                  </span>
-                </div>
-
-                <div className="text-[11px] text-slate-600 font-bold space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span>Applicable To:</span>
-                    <span className="text-slate-900 font-black text-right truncate max-w-[150px]">
-                      {coupon.applicableProducts && coupon.applicableProducts.length > 0
-                        ? coupon.applicableProducts.join(', ')
-                        : 'All Products'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Usage Limit:</span>
-                    <span className="text-slate-900">
-                      {coupon.usedCount || 0} {coupon.maxUses > 0 ? `/ ${coupon.maxUses} used` : '(Unlimited)'}
-                    </span>
-                  </div>
-                  {coupon.expiryDate && (
-                    <div className="flex items-center justify-between">
-                      <span>Valid Until:</span>
-                      <span className="text-slate-900">
-                        {new Date(coupon.expiryDate).toLocaleDateString('en-IN', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric'
-                        })}
-                      </span>
-                    </div>
-                  )}
-                  {coupon.description && (
-                    <p className="text-[10px] text-slate-500 italic border-t border-slate-200 pt-1 mt-1 font-medium">
-                      "{coupon.description}"
-                    </p>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(coupon.code)
-                    showSuccessToast(`Copied coupon code ${coupon.code}!`)
-                  }}
-                  className="w-full py-1 text-center bg-white hover:bg-slate-100 border border-slate-900 rounded text-[10px] font-black uppercase text-slate-900 shadow-[1px_1px_0px_0px_#000] cursor-pointer"
-                >
-                  📋 Copy Code
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Recent Leads Table */}
       <div className="space-y-3">
