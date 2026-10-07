@@ -107,8 +107,78 @@ export default function AdminLayout() {
     )
   }
 
-  if (!isAuthenticated || user?.role !== 'admin') {
-    return null
+  if (!isAuthenticated) {
+    return (
+      <div className={`min-h-screen portal-theme-${theme} ${
+        theme === 'dark' ? 'bg-[#080c14]' : theme === 'emerald' ? 'bg-[#02140c]' : 'bg-[#fafafa]'
+      } flex items-center justify-center font-mono p-4`}>
+        <div className="max-w-md w-full bg-white border-2 border-slate-900 rounded-xl p-6 shadow-[6px_6px_0px_0px_#000] text-center space-y-4">
+          <span className="text-3xl block">🔒</span>
+          <h2 className="text-xl font-black uppercase text-slate-900">Admin Sign In Required</h2>
+          <p className="text-xs text-slate-600 font-bold">
+            Please log in with your SuperAdmin account to access this panel.
+          </p>
+          <button
+            onClick={() => navigate('/login', { replace: true })}
+            className="w-full py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-lg font-black uppercase text-xs shadow-[3px_3px_0px_0px_#000] hover:bg-[#4ade80] cursor-pointer"
+          >
+            Go to Sign In →
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (user?.role === 'affiliate') {
+    return (
+      <div className={`min-h-screen portal-theme-${theme} ${
+        theme === 'dark' ? 'bg-[#080c14]' : theme === 'emerald' ? 'bg-[#02140c]' : 'bg-[#fafafa]'
+      } flex items-center justify-center font-mono p-4`}>
+        <div className="max-w-md w-full bg-white border-2 border-slate-900 rounded-xl p-6 shadow-[6px_6px_0px_0px_#000] text-center space-y-4">
+          <span className="text-3xl block">🤝</span>
+          <h2 className="text-xl font-black uppercase text-slate-900">Partner Account Detected</h2>
+          <p className="text-xs text-slate-600 font-bold">
+            You are logged in as a Partner ({user?.email}). The Admin section is reserved for SuperAdmin.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center gap-2 pt-2">
+            <button
+              onClick={() => navigate('/affiliate/dashboard', { replace: true })}
+              className="w-full sm:flex-1 py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-lg font-black uppercase text-xs shadow-[3px_3px_0px_0px_#000] hover:bg-[#4ade80] cursor-pointer"
+            >
+              Partner Portal →
+            </button>
+            <button
+              onClick={handleLogout}
+              className="w-full sm:flex-1 py-2.5 bg-slate-100 border-2 border-slate-900 rounded-lg font-bold uppercase text-xs hover:bg-slate-200 cursor-pointer"
+            >
+              Switch Account
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (user?.role !== 'admin') {
+    return (
+      <div className={`min-h-screen portal-theme-${theme} ${
+        theme === 'dark' ? 'bg-[#080c14]' : theme === 'emerald' ? 'bg-[#02140c]' : 'bg-[#fafafa]'
+      } flex items-center justify-center font-mono p-4`}>
+        <div className="max-w-md w-full bg-white border-2 border-slate-900 rounded-xl p-6 shadow-[6px_6px_0px_0px_#000] text-center space-y-4">
+          <span className="text-3xl block">⛔</span>
+          <h2 className="text-xl font-black uppercase text-slate-900">Access Restricted</h2>
+          <p className="text-xs text-slate-600 font-bold">
+            Your account ({user?.email}) does not have SuperAdmin privileges.
+          </p>
+          <button
+            onClick={() => navigate('/login', { replace: true })}
+            className="w-full py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-lg font-black uppercase text-xs shadow-[3px_3px_0px_0px_#000] hover:bg-[#4ade80] cursor-pointer"
+          >
+            Sign In with Another Account →
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (

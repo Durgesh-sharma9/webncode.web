@@ -279,7 +279,7 @@ export default function AffiliateModal({ isOpen, onClose, affiliate, token, onSa
                   <input
                     type="number"
                     min="0"
-                    step="500"
+                    step="1"
                     required
                     value={formData.fixedAmount}
                     onChange={(e) => setFormData({ ...formData, fixedAmount: Number(e.target.value) })}

@@ -5,6 +5,7 @@ import { API_BASE, type AffiliateLeadItem } from '../admin/types'
 import { showErrorToast } from '../../components/ui/Toast'
 import AddLeadModal from './AddLeadModal'
 import ManageLeadModal from './ManageLeadModal'
+import ConfirmDealModal from './ConfirmDealModal'
 
 export default function AffiliateLeads() {
   const { token, user } = useAuth()
@@ -15,6 +16,7 @@ export default function AffiliateLeads() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedLeadForManage, setSelectedLeadForManage] = useState<AffiliateLeadItem | null>(null)
   const [isManageModalOpen, setIsManageModalOpen] = useState(false)
+  const [confirmDealModalLead, setConfirmDealModalLead] = useState<AffiliateLeadItem | null>(null)
 
   const payoutType = (user?.affiliate?.payoutType || 'percentage') as 'percentage' | 'fixed'
   const commissionRate = user?.affiliate?.commissionRate ?? 10
@@ -42,13 +44,29 @@ export default function AffiliateLeads() {
     fetchLeads()
   }, [token])
 
+  const isDiscussionStatus = (status: string) =>
+    ['New', 'In Discussion', 'Contacted', 'Demo Scheduled', 'In Negotiation'].includes(status)
+
   const filtered = leads.filter((l) => {
     const matchesSearch =
       l.organizationName.toLowerCase().includes(search.toLowerCase()) ||
       l.contactPerson.toLowerCase().includes(search.toLowerCase()) ||
       l.phone.includes(search) ||
       (l.city && l.city.toLowerCase().includes(search.toLowerCase()))
-    const matchesStatus = statusFilter === 'All' || l.status === statusFilter
+
+    let matchesStatus = true
+    if (statusFilter === 'In Discussion') {
+      matchesStatus = isDiscussionStatus(l.status)
+    } else if (statusFilter === 'Deal Confirmed') {
+      matchesStatus = l.status === 'Deal Confirmed'
+    } else if (statusFilter === 'Deal Won') {
+      matchesStatus = l.status === 'Deal Won'
+    } else if (statusFilter === 'Lost') {
+      matchesStatus = l.status === 'Lost'
+    } else if (statusFilter !== 'All') {
+      matchesStatus = l.status === statusFilter
+    }
+
     return matchesSearch && matchesStatus
   })
 
@@ -92,17 +110,23 @@ export default function AffiliateLeads() {
 
         {/* Status filters */}
         <div className="flex overflow-x-auto no-scrollbar sm:flex-wrap items-center gap-1.5 text-xs py-1">
-          {['All', 'New', 'Contacted', 'Demo Scheduled', 'In Negotiation', 'Deal Won', 'Lost'].map((st) => (
+          {[
+            { id: 'All', label: 'All Leads' },
+            { id: 'In Discussion', label: '💬 In Discussion (Active)' },
+            { id: 'Deal Confirmed', label: '⏳ Confirmed (Waiting Admin)' },
+            { id: 'Deal Won', label: '🎉 Deal Won' },
+            { id: 'Lost', label: '❌ Cancelled' }
+          ].map((st) => (
             <button
-              key={st}
-              onClick={() => setStatusFilter(st)}
+              key={st.id}
+              onClick={() => setStatusFilter(st.id)}
               className={`shrink-0 px-2.5 py-1 text-[11px] font-black uppercase tracking-wider border-2 border-slate-900 rounded transition-all cursor-pointer ${
-                statusFilter === st
+                statusFilter === st.id
                   ? 'bg-slate-900 text-white shadow-[2px_2px_0px_0px_#000]'
                   : 'bg-white text-slate-700 hover:bg-slate-100'
               }`}
             >
-              {st}
+              {st.label}
             </button>
           ))}
         </div>
@@ -152,15 +176,21 @@ export default function AffiliateLeads() {
                   <span
                     className={`shrink-0 px-2 py-0.5 rounded text-[10px] font-black uppercase border border-slate-900 shadow-[1px_1px_0px_0px_#000] ${
                       lead.status === 'Deal Won'
-                        ? 'bg-[#86efac] text-slate-900'
+                        ? 'bg-[#86efac] text-slate-950'
+                        : lead.status === 'Deal Confirmed'
+                        ? 'bg-amber-200 text-amber-950 border-amber-600'
                         : lead.status === 'Lost'
                         ? 'bg-rose-200 text-slate-900'
-                        : lead.status === 'Demo Scheduled'
-                        ? 'bg-[#93c5fd] text-slate-900'
-                        : 'bg-amber-100 text-slate-900'
+                        : 'bg-blue-100 text-blue-900'
                     }`}
                   >
-                    {lead.status === 'Lost' ? 'Cancelled' : lead.status}
+                    {lead.status === 'Deal Won'
+                      ? '🎉 Won (In Wallet)'
+                      : lead.status === 'Deal Confirmed'
+                      ? '⏳ Confirmed (Verifying)'
+                      : lead.status === 'Lost'
+                      ? '❌ Cancelled'
+                      : '💬 In Discussion'}
                   </span>
                 </div>
 
@@ -192,6 +222,11 @@ export default function AffiliateLeads() {
                       "{lead.notes}"
                     </div>
                   )}
+                  {lead.confirmationNotes && lead.status === 'Deal Confirmed' && (
+                    <div className="text-[10px] text-emerald-800 bg-emerald-50 border border-emerald-300 rounded p-1.5 font-bold">
+                      Confirmation Note: "{lead.confirmationNotes}"
+                    </div>
+                  )}
                   {lead.rejectionReason && lead.status === 'Lost' && (
                     <div className="text-[10px] text-rose-800 bg-rose-50 border border-rose-200 rounded p-1.5 font-bold">
                       Reason: {lead.rejectionReason}
@@ -213,41 +248,61 @@ export default function AffiliateLeads() {
                       ₹{(lead.commissionAmount || 0).toLocaleString('en-IN')}
                     </span>
                   </div>
-                  <div>
-                    <span className="text-[9px] font-sans font-black uppercase text-slate-500 block">Payout</span>
-                    <span
-                      className={`inline-block px-1.5 py-0.5 rounded text-[9px] font-sans font-black uppercase ${
-                        lead.commissionStatus === 'Paid'
-                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-400'
-                          : lead.commissionStatus === 'Approved'
-                          ? 'bg-blue-100 text-blue-800 border border-blue-400'
-                          : 'bg-slate-200 text-slate-600'
-                      }`}
-                    >
-                      {lead.commissionStatus || 'Pending'}
-                    </span>
-                  </div>
+                    <div>
+                      <span className="text-[9px] font-sans font-black uppercase text-slate-500 block">Payout</span>
+                      {lead.status !== 'Deal Won' ? (
+                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-sans font-black uppercase bg-slate-200 text-slate-600">
+                          In Pipeline
+                        </span>
+                      ) : lead.commissionStatus === 'Paid' ? (
+                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-sans font-black uppercase bg-emerald-100 text-emerald-900 border border-emerald-400">
+                          ✓ Paid to Bank
+                        </span>
+                      ) : (
+                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-sans font-black uppercase bg-[#86efac] text-slate-950 border border-slate-900 shadow-[1px_1px_0px_0px_#000]">
+                          🟢 In Wallet
+                        </span>
+                      )}
+                    </div>
                 </div>
 
                 {/* Date & Manage Action */}
-                <div className="pt-2 border-t border-slate-200 flex items-center justify-between gap-2">
+                <div className="pt-2 border-t border-slate-200 flex items-center justify-between gap-2 flex-wrap">
                   <span className="text-[10px] text-slate-400">
-                    Submitted: {new Date(lead.createdAt).toLocaleDateString('en-IN', {
+                    {new Date(lead.createdAt).toLocaleDateString('en-IN', {
                       day: 'numeric',
                       month: 'short',
                       year: 'numeric'
                     })}
                   </span>
-                  <button
-                    onClick={() => {
-                      setSelectedLeadForManage(lead)
-                      setIsManageModalOpen(true)
-                    }}
-                    className="px-3 py-1.5 bg-[#86efac] hover:bg-[#6ee7b7] border-2 border-slate-900 rounded font-black text-xs uppercase shadow-[1.5px_1.5px_0px_0px_#000] cursor-pointer flex items-center gap-1 text-slate-950"
-                  >
-                    <span>⚙️</span>
-                    <span>Manage Lead</span>
-                  </button>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {lead.status !== 'Deal Won' && lead.status !== 'Lost' && (
+                      lead.status === 'Deal Confirmed' ? (
+                        <span className="px-2 py-1 bg-amber-100 border border-amber-500 rounded text-[10px] font-black uppercase text-amber-900 inline-flex items-center gap-1">
+                          <span>⏳</span>
+                          <span>Admin Verifying</span>
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmDealModalLead(lead)}
+                          className="px-2.5 py-1.5 bg-[#86efac] hover:bg-[#6ee7b7] border-2 border-slate-900 rounded font-black text-xs uppercase shadow-[1.5px_1.5px_0px_0px_#000] cursor-pointer inline-flex items-center gap-1 text-slate-950"
+                        >
+                          <span>🎉</span>
+                          <span>School Confirmed!</span>
+                        </button>
+                      )
+                    )}
+                    <button
+                      onClick={() => {
+                        setSelectedLeadForManage(lead)
+                        setIsManageModalOpen(true)
+                      }}
+                      className="px-2.5 py-1.5 bg-white hover:bg-slate-100 border-2 border-slate-900 rounded font-black text-xs uppercase shadow-[1.5px_1.5px_0px_0px_#000] cursor-pointer flex items-center gap-1 text-slate-900"
+                    >
+                      <span>⚙️</span>
+                      <span>Manage</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -300,15 +355,26 @@ export default function AffiliateLeads() {
                     <td className="p-3">
                       <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border border-slate-900 shadow-[1px_1px_0px_0px_#000] inline-block ${
                         lead.status === 'Deal Won'
-                          ? 'bg-[#86efac] text-slate-900'
+                          ? 'bg-[#86efac] text-slate-950'
+                          : lead.status === 'Deal Confirmed'
+                          ? 'bg-amber-200 text-amber-950 border-amber-600'
                           : lead.status === 'Lost'
                           ? 'bg-rose-200 text-slate-900'
-                          : lead.status === 'Demo Scheduled'
-                          ? 'bg-[#93c5fd] text-slate-900'
-                          : 'bg-amber-100 text-slate-900'
+                          : 'bg-blue-100 text-blue-900'
                       }`}>
-                        {lead.status === 'Lost' ? 'Cancelled / Lost' : lead.status}
+                        {lead.status === 'Deal Won'
+                          ? '🎉 Won (In Wallet)'
+                          : lead.status === 'Deal Confirmed'
+                          ? '⏳ Confirmed (Verifying)'
+                          : lead.status === 'Lost'
+                          ? '❌ Cancelled'
+                          : '💬 In Discussion'}
                       </span>
+                      {lead.confirmationNotes && lead.status === 'Deal Confirmed' && (
+                        <div className="text-[10px] text-emerald-800 bg-emerald-50 border border-emerald-300 rounded px-1.5 py-0.5 mt-1 font-bold">
+                          "{lead.confirmationNotes}"
+                        </div>
+                      )}
                       {lead.rejectionReason && lead.status === 'Lost' && (
                         <div className="text-[10px] text-rose-700 bg-rose-50 border border-rose-200 rounded px-1.5 py-0.5 mt-1 font-bold">
                           Reason: {lead.rejectionReason}
@@ -328,15 +394,22 @@ export default function AffiliateLeads() {
 
                     {/* Commission / Payout Status */}
                     <td className="p-3">
-                      <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase border ${
-                        lead.commissionStatus === 'Paid'
-                          ? 'bg-emerald-100 text-emerald-800 border-emerald-400'
-                          : lead.commissionStatus === 'Approved'
-                          ? 'bg-blue-100 text-blue-800 border-blue-400'
-                          : 'bg-slate-100 text-slate-600 border-slate-300'
-                      }`}>
-                        {lead.commissionStatus || 'Pending'}
-                      </span>
+                      {lead.status !== 'Deal Won' ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black uppercase bg-slate-100 text-slate-600 border border-slate-300">
+                          <span>⏳</span>
+                          <span>In Pipeline</span>
+                        </span>
+                      ) : lead.commissionStatus === 'Paid' ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black uppercase bg-emerald-100 text-emerald-900 border border-emerald-400">
+                          <span>✓</span>
+                          <span>Paid to Bank</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black uppercase bg-[#86efac] text-slate-950 border border-slate-900 shadow-[1px_1px_0px_0px_#000]">
+                          <span>🟢</span>
+                          <span>In Wallet (Ready)</span>
+                        </span>
+                      )}
                     </td>
 
                     {/* Date */}
@@ -349,13 +422,30 @@ export default function AffiliateLeads() {
                     </td>
 
                     {/* Action */}
-                    <td className="p-3 text-right">
+                    <td className="p-3 text-right space-x-1.5 whitespace-nowrap">
+                      {lead.status !== 'Deal Won' && lead.status !== 'Lost' && (
+                        lead.status === 'Deal Confirmed' ? (
+                          <span className="px-2 py-1 bg-amber-100 border border-amber-500 rounded text-[10px] font-black uppercase text-amber-900 inline-flex items-center gap-1">
+                            <span>⏳</span>
+                            <span>Pending Admin</span>
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => setConfirmDealModalLead(lead)}
+                            className="px-2.5 py-1 bg-[#86efac] hover:bg-[#6ee7b7] border-2 border-slate-900 rounded font-black text-[10px] uppercase shadow-[1.5px_1.5px_0px_0px_#000] hover:translate-y-[-1px] transition-all cursor-pointer inline-flex items-center gap-1 text-slate-950"
+                            title="School agreed to purchase! Submit confirmation to Admin"
+                          >
+                            <span>🎉</span>
+                            <span>School Confirmed!</span>
+                          </button>
+                        )
+                      )}
                       <button
                         onClick={() => {
                           setSelectedLeadForManage(lead)
                           setIsManageModalOpen(true)
                         }}
-                        className="px-3 py-1.5 bg-[#86efac] hover:bg-[#6ee7b7] border-2 border-slate-900 rounded-md font-black text-xs uppercase shadow-[1.5px_1.5px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[0.5px_0.5px_0px_0px_#000] transition-all cursor-pointer inline-flex items-center gap-1 text-slate-950"
+                        className="px-2.5 py-1 bg-white hover:bg-slate-100 border-2 border-slate-900 rounded font-black text-[10px] uppercase shadow-[1.5px_1.5px_0px_0px_#000] cursor-pointer inline-flex items-center gap-1 text-slate-900"
                       >
                         <span>⚙️</span>
                         <span>Manage</span>
@@ -380,6 +470,15 @@ export default function AffiliateLeads() {
         fixedAmount={fixedAmount}
         allowedProducts={allowedProducts}
         onLeadAdded={fetchLeads}
+      />
+
+      {/* School Confirmed Modal */}
+      <ConfirmDealModal
+        isOpen={Boolean(confirmDealModalLead)}
+        onClose={() => setConfirmDealModalLead(null)}
+        lead={confirmDealModalLead}
+        token={token}
+        onSuccess={fetchLeads}
       />
 
       {/* Manage Lead Modal */}

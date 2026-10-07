@@ -113,11 +113,13 @@ export interface AffiliateItem {
   status: 'active' | 'inactive' | 'suspended'
   clicksCount: number
   bankDetails?: {
+    primaryMethod?: 'upi' | 'bank'
     upiId?: string
     accountHolder?: string
     accountNumber?: string
     ifscCode?: string
     bankName?: string
+    accountType?: string
   }
   notes?: string
   createdAt: string
@@ -128,6 +130,7 @@ export interface AffiliateItem {
     totalEarned: number
     totalPaid: number
     pendingPayout: number
+    availableBalance?: number
   }
 }
 
@@ -149,7 +152,9 @@ export interface AffiliateLeadItem {
   email?: string
   city?: string
   product: string
-  status: 'New' | 'Contacted' | 'Demo Scheduled' | 'In Negotiation' | 'Deal Won' | 'Lost'
+  products?: string[]
+  status: 'New' | 'In Discussion' | 'Contacted' | 'Demo Scheduled' | 'In Negotiation' | 'Deal Confirmed' | 'Deal Won' | 'Lost'
+  confirmationNotes?: string
   dealValue: number
   commissionAmount: number
   commissionStatus: 'Pending' | 'Approved' | 'Paid'
@@ -227,3 +232,65 @@ export const AVAILABLE_PRODUCTS = [
   'Daily Test Pro',
   'Custom Software / App'
 ]
+
+export const PROJECT_OPTIONS = [
+  'School ERP Pro',
+  'Web Builder Pro',
+  'Timetable Pro',
+  'Attendance Management System',
+  'Result Management System',
+  'Sports Academy Pro',
+  'Daily Test Pro',
+  'Custom Software / App'
+]
+
+export interface ProductPlan {
+  _id?: string
+  projectName: string
+  planName: string
+  price: number
+  billingCycle: string
+  defaultCommissionRate?: number
+  description?: string
+  features?: string[]
+  status?: 'active' | 'inactive'
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface ProductPlanItem {
+  name: string
+  price: number
+  billing: string
+  description?: string
+}
+
+export const PRODUCT_CATALOG: ProductPlanItem[] = [
+  { name: 'School ERP Pro', price: 50000, billing: '/ Year', description: 'Complete enterprise K-12 school ERP suite' },
+  { name: 'Attendance Management System', price: 20000, billing: '/ Year', description: 'RFID, Biometric & App attendance system' },
+  { name: 'Timetable Pro', price: 15000, billing: '/ Year', description: 'Automated AI timetable scheduling engine' },
+  { name: 'Result Management System', price: 15000, billing: '/ Year', description: 'Automated report card & marksheet generator' },
+  { name: 'Web Builder Pro', price: 25000, billing: '/ Year', description: 'Custom institutional web portal' },
+  { name: 'Sports Academy Pro', price: 30000, billing: '/ Year', description: 'Sports academy management & tournament app' },
+  { name: 'Daily Test Pro', price: 15000, billing: '/ Year', description: 'Online exam & MCQ mock test engine' },
+  { name: 'Custom Software / App', price: 75000, billing: 'Starting', description: 'Custom full-stack web or mobile application' }
+]
+
+export const getProductPrice = (productName: string, plansList?: ProductPlan[]): number => {
+  if (plansList && plansList.length > 0) {
+    const clean = (productName || '').trim().toLowerCase()
+    const found = plansList.find((p) => {
+      const combo = `${p.projectName} - ${p.planName}`.toLowerCase()
+      return p.planName.toLowerCase() === clean || combo === clean || clean.includes(p.planName.toLowerCase()) || p.projectName.toLowerCase() === clean
+    })
+    if (found) return found.price
+  }
+  const item = PRODUCT_CATALOG.find((p) => p.name.toLowerCase() === (productName || '').toLowerCase())
+  return item ? item.price : 25000
+}
+
+export const calculateProductsPrice = (products: string[], plansList?: ProductPlan[]): number => {
+  if (!products || products.length === 0) return 0
+  return products.reduce((sum, p) => sum + getProductPrice(p, plansList), 0)
+}
+

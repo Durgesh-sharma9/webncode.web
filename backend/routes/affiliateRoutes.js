@@ -59,4 +59,12 @@ router.get('/payout-requests', protect, authorize('admin'), affiliateController.
 router.put('/payout-requests/:payoutId/confirm', protect, authorize('admin'), affiliateController.confirmPayoutRequestByAdmin);
 router.put('/payout-requests/:payoutId/reject', protect, authorize('admin'), affiliateController.rejectPayoutRequestByAdmin);
 
+// -------------------------------------------------------------
+// PRODUCT PLANS & PRICING ROUTES
+// -------------------------------------------------------------
+router.get(['/plans', '/portal/plans'], affiliateController.getAllPlans);
+router.post('/plans', protect, authorize('admin'), affiliateController.createPlan);
+router.put('/plans/:id', protect, authorize('admin'), affiliateController.updatePlan);
+router.delete('/plans/:id', protect, authorize('admin'), affiliateController.deletePlan);
+
 module.exports = router;

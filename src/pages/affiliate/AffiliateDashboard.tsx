@@ -225,53 +225,81 @@ export default function AffiliateDashboard() {
       {/* KPI Cards (Clean Responsive Grid) */}
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 text-xs">
         
-        {/* Total Leads */}
-        <div className="bg-white border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_0px_#000]">
-          <span className="text-[10px] font-black uppercase text-slate-500">Leads Submitted</span>
-          <p className="text-2xl sm:text-3xl font-black mt-1 text-slate-900">{stats.totalLeads ?? 0}</p>
-          <span className="text-[10px] text-slate-400 font-bold">In client pipeline</span>
-        </div>
-
-        {/* Closed Deals */}
-        <div className="bg-white border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_0px_#000]">
-          <span className="text-[10px] font-black uppercase text-slate-500">Deals Won</span>
-          <p className="text-2xl sm:text-3xl font-black mt-1 text-emerald-700">{stats.dealsWon ?? 0}</p>
-          <span className="text-[10px] text-slate-400 font-bold">Converted clients</span>
-        </div>
-
-        {/* Available Balance */}
+        {/* Available Balance (Wallet) */}
         <div className="bg-[#f0fdf4] border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_0px_#000] flex flex-col justify-between">
           <div>
-            <span className="text-[10px] font-black uppercase text-slate-500">Available Balance</span>
-            <p className="text-2xl sm:text-3xl font-black mt-1 text-emerald-700">₹{availableBalance.toLocaleString('en-IN')}</p>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-black uppercase text-emerald-800">Available Balance</span>
+              <span className="text-xs">🟢</span>
+            </div>
+            <p className="text-2xl sm:text-3xl font-black mt-1 text-emerald-700 font-mono">
+              ₹{availableBalance.toLocaleString('en-IN')}
+            </p>
           </div>
           {availableBalance > 0 ? (
             <button
               onClick={() => setIsWithdrawModalOpen(true)}
-              className="mt-2 text-[10px] bg-emerald-100 hover:bg-emerald-200 border border-emerald-700 text-emerald-950 font-black py-1 px-2 rounded cursor-pointer uppercase tracking-wider text-center"
+              className="mt-2 text-[10px] bg-emerald-700 hover:bg-emerald-800 text-white font-black py-1.5 px-2 rounded cursor-pointer uppercase tracking-wider text-center transition-colors shadow-[1px_1px_0px_0px_#000]"
             >
-              Withdraw ➔
+              Withdraw Now ➔
             </button>
           ) : (
             <span className="text-[10px] text-emerald-700 font-bold mt-1">Ready to withdraw</span>
           )}
         </div>
 
-        {/* Pending Settlement */}
+        {/* Pending Settlement (Under Process) */}
         <div className="bg-[#fffbeb] border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_0px_#000]">
-          <span className="text-[10px] font-black uppercase text-slate-500">Pending Settlement</span>
-          <p className="text-2xl sm:text-3xl font-black mt-1 text-amber-700">₹{pendingSettlement.toLocaleString('en-IN')}</p>
-          <span className="text-[10px] text-slate-500 font-bold">Under admin verification</span>
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase text-amber-800">In Process (24-48h)</span>
+            <span className="text-xs">⏳</span>
+          </div>
+          <p className="text-2xl sm:text-3xl font-black mt-1 text-amber-700 font-mono">
+            ₹{pendingSettlement.toLocaleString('en-IN')}
+          </p>
+          <span className="text-[10px] text-slate-500 font-bold block mt-1">
+            {pendingSettlement > 0 ? 'Bank transfer pending' : 'No pending requests'}
+          </span>
         </div>
 
-        {/* Total Earned */}
+        {/* Total Paid Out */}
+        <div className="bg-white border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_0px_#000]">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase text-blue-700">Paid to Bank / UPI</span>
+            <span className="text-xs">💳</span>
+          </div>
+          <p className="text-2xl sm:text-3xl font-black mt-1 text-blue-700 font-mono">
+            ₹{(stats.totalPaid ?? 0).toLocaleString('en-IN')}
+          </p>
+          <span className="text-[10px] text-slate-400 font-bold block mt-1">Transferred to account</span>
+        </div>
+
+        {/* Total Earned Commissions */}
+        <div className="bg-white border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_0px_#000]">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase text-slate-600">Total Commissions</span>
+            <span className="text-xs">💰</span>
+          </div>
+          <p className="text-2xl sm:text-3xl font-black mt-1 text-slate-900 font-mono">
+            ₹{(stats.totalEarned ?? 0).toLocaleString('en-IN')}
+          </p>
+          <span className="text-[10px] text-slate-400 font-bold block mt-1">Across {stats.dealsWon ?? 0} won deals</span>
+        </div>
+
+        {/* Pipeline & Deals */}
         <div className="bg-white border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_0px_#000] col-span-2 sm:col-span-2 md:col-span-1">
-          <span className="text-[10px] font-black uppercase text-slate-500">Total Earned</span>
-          <p className="text-2xl sm:text-3xl font-black mt-1 text-slate-900">₹{(stats.totalEarned ?? 0).toLocaleString('en-IN')}</p>
-          <span className="text-[10px] text-slate-400 font-bold">Paid: ₹{(stats.totalPaid ?? 0).toLocaleString('en-IN')}</span>
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase text-slate-600">Pipeline Leads</span>
+            <span className="text-xs">👥</span>
+          </div>
+          <p className="text-2xl sm:text-3xl font-black mt-1 text-slate-900">{stats.totalLeads ?? 0}</p>
+          <span className="text-[10px] text-slate-400 font-bold block mt-1">
+            {stats.dealsWon ?? 0} Won • {(stats.totalLeads ?? 0) - (stats.dealsWon ?? 0)} In Progress
+          </span>
         </div>
 
       </div>
+
 
 
       {/* Recent Leads Table */}
@@ -368,17 +396,19 @@ export default function AffiliateDashboard() {
                     </div>
                     <div>
                       <span className="text-[9px] font-black uppercase text-slate-400 block">Payout</span>
-                      <span
-                        className={`inline-block px-1.5 py-0.2 rounded text-[9px] font-black uppercase ${
-                          lead.commissionStatus === 'Paid'
-                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-400'
-                            : lead.commissionStatus === 'Approved'
-                            ? 'bg-blue-100 text-blue-800 border border-blue-400'
-                            : 'bg-slate-100 text-slate-600'
-                        }`}
-                      >
-                        {lead.commissionStatus || 'Pending'}
-                      </span>
+                      {lead.status !== 'Deal Won' ? (
+                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-slate-100 text-slate-600 border border-slate-300">
+                          In Pipeline
+                        </span>
+                      ) : lead.commissionStatus === 'Paid' ? (
+                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-emerald-100 text-emerald-900 border border-emerald-400">
+                          ✓ Paid to Bank
+                        </span>
+                      ) : (
+                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-[#86efac] text-slate-950 border border-slate-900 shadow-[1px_1px_0px_0px_#000]">
+                          🟢 In Wallet
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -395,7 +425,7 @@ export default function AffiliateDashboard() {
                     <th className="p-3">Status</th>
                     <th className="p-3">Est. Value</th>
                     <th className="p-3">Commission</th>
-                    <th className="p-3">Payout</th>
+                    <th className="p-3">Payout Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y-2 divide-slate-100 font-medium">
@@ -431,15 +461,22 @@ export default function AffiliateDashboard() {
                         ₹{(lead.commissionAmount || 0).toLocaleString('en-IN')}
                       </td>
                       <td className="p-3">
-                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
-                          lead.commissionStatus === 'Paid'
-                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-400'
-                            : lead.commissionStatus === 'Approved'
-                            ? 'bg-blue-100 text-blue-800 border border-blue-400'
-                            : 'bg-slate-100 text-slate-600'
-                        }`}>
-                          {lead.commissionStatus || 'Pending'}
-                        </span>
+                        {lead.status !== 'Deal Won' ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black uppercase bg-slate-100 text-slate-600 border border-slate-300">
+                            <span>⏳</span>
+                            <span>In Pipeline</span>
+                          </span>
+                        ) : lead.commissionStatus === 'Paid' ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black uppercase bg-emerald-100 text-emerald-900 border border-emerald-400">
+                            <span>✓</span>
+                            <span>Paid to Bank</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black uppercase bg-[#86efac] text-slate-950 border border-slate-900 shadow-[1px_1px_0px_0px_#000]">
+                            <span>🟢</span>
+                            <span>In Wallet (Ready)</span>
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))}

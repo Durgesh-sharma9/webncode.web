@@ -1,6 +1,6 @@
 import { useState, useEffect, type FormEvent } from 'react'
 import axios from 'axios'
-import { API_BASE, type AffiliateLeadItem } from '../admin/types'
+import { API_BASE, type AffiliateLeadItem, type ProductPlan, getProductPrice, calculateProductsPrice } from '../admin/types'
 import { showSuccessToast, showErrorToast } from '../../components/ui/Toast'
 
 interface ManageLeadModalProps {
@@ -30,6 +30,26 @@ export default function ManageLeadModal({
 }: ManageLeadModalProps) {
   if (!isOpen || !lead) return null
 
+  const [dbPlans, setDbPlans] = useState<ProductPlan[]>([])
+  const [isLoadingPlans, setIsLoadingPlans] = useState(false)
+
+  useEffect(() => {
+    const fetchDbPlans = async () => {
+      setIsLoadingPlans(true)
+      try {
+        const res = await axios.get(`${API_BASE}/api/affiliates/plans`, { timeout: 10000 })
+        if (res.data?.success && Array.isArray(res.data.data)) {
+          setDbPlans(res.data.data)
+        }
+      } catch (err) {
+        console.warn('Could not load dynamic plans in ManageLeadModal')
+      } finally {
+        setIsLoadingPlans(false)
+      }
+    }
+    fetchDbPlans()
+  }, [])
+
   const availableList =
     allowedProducts && allowedProducts.length > 0
       ? allowedProducts
@@ -50,7 +70,6 @@ export default function ManageLeadModal({
     phone: '',
     email: '',
     city: '',
-    dealValue: '',
     status: 'New',
     notes: ''
   })
@@ -59,6 +78,22 @@ export default function ManageLeadModal({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+
+  // Distinct projects available
+  const distinctProjects = Array.from(
+    new Set(dbPlans.map((p) => p.projectName))
+  )
+  const [activeSelectedProject, setActiveSelectedProject] = useState<string>('')
+
+  useEffect(() => {
+    if (distinctProjects.length > 0 && !activeSelectedProject) {
+      setActiveSelectedProject(distinctProjects[0])
+    }
+  }, [dbPlans])
+
+  const currentProjectPlans = dbPlans.filter(
+    (p) => p.projectName === activeSelectedProject
+  )
 
   // Populate form with current lead data on open
   useEffect(() => {
@@ -69,7 +104,6 @@ export default function ManageLeadModal({
         phone: lead.phone || '',
         email: lead.email || '',
         city: lead.city || '',
-        dealValue: lead.dealValue ? String(lead.dealValue) : '',
         status: lead.status || 'New',
         notes: lead.notes || ''
       })
@@ -85,21 +119,22 @@ export default function ManageLeadModal({
     }
   }, [lead])
 
-  const estVal = Number(formData.dealValue) || 0
+  // Derive official pricing and commission (Admin-controlled from SuperAdmin plans)
+  const catalogPrice = calculateProductsPrice(selectedProducts, dbPlans)
+  const isWonDeal = lead?.status === 'Deal Won' && Number(lead?.dealValue) > 0
+  const effectiveDealValue = isWonDeal ? Number(lead.dealValue) : (catalogPrice > 0 ? catalogPrice : (Number(lead?.dealValue) || 50000))
   const projectedCommission =
     payoutType === 'fixed'
       ? fixedAmount || 0
-      : estVal > 0
-      ? Math.round((estVal * commissionRate) / 100)
-      : 0
+      : Math.round((effectiveDealValue * commissionRate) / 100)
 
-  const toggleProduct = (prod: string) => {
-    if (selectedProducts.includes(prod)) {
+  const toggleProduct = (prodIdentifier: string) => {
+    if (selectedProducts.includes(prodIdentifier)) {
       if (selectedProducts.length > 1) {
-        setSelectedProducts(selectedProducts.filter((p) => p !== prod))
+        setSelectedProducts(selectedProducts.filter((p) => p !== prodIdentifier))
       }
     } else {
-      setSelectedProducts([...selectedProducts, prod])
+      setSelectedProducts([...selectedProducts, prodIdentifier])
     }
   }
 
@@ -134,7 +169,7 @@ export default function ManageLeadModal({
         city: formData.city.trim(),
         products: selectedProducts,
         product: selectedProducts.join(', '),
-        dealValue: estVal,
+        dealValue: effectiveDealValue,
         status: formData.status,
         notes: formData.notes.trim()
       }
@@ -177,17 +212,14 @@ export default function ManageLeadModal({
   const whatsappUrl = `https://wa.me/91${cleanPhone.length > 10 ? cleanPhone.slice(-10) : cleanPhone}?text=Hello%20${encodeURIComponent(formData.contactPerson)},%20this%20is%20regarding%20Web%20n%20Code%20Software%20Solutions.`
 
   const pipelineStages = [
-    { id: 'New', label: 'New Lead', icon: '🌱', color: 'bg-slate-100 text-slate-800' },
-    { id: 'Contacted', label: 'Contacted', icon: '📞', color: 'bg-amber-100 text-amber-900' },
-    { id: 'Demo Scheduled', label: 'Demo Booked', icon: '📅', color: 'bg-blue-100 text-blue-900' },
-    { id: 'In Negotiation', label: 'Negotiation', icon: '🤝', color: 'bg-purple-100 text-purple-900' },
-    { id: 'Deal Won', label: 'Deal Won', icon: '🎉', color: 'bg-[#86efac] text-emerald-950 font-black' },
-    { id: 'Lost', label: 'Cancelled/Lost', icon: '❌', color: 'bg-rose-100 text-rose-900' }
+    { id: 'In Discussion', label: '💬 In Discussion', icon: '💬', color: 'bg-blue-100 text-blue-900', desc: 'School ke saath baat chal rahi hai' },
+    { id: 'Deal Confirmed', label: '🎉 School Confirmed!', icon: '🎉', color: 'bg-[#86efac] text-emerald-950 font-black', desc: 'School ne haan bol diya (Request Admin Verification)' },
+    { id: 'Lost', label: '❌ Cancelled / Declined', icon: '❌', color: 'bg-rose-100 text-rose-900', desc: 'School ne mana kar diya' }
   ]
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-3 sm:p-4 backdrop-blur-xs font-mono">
-      <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white border-2 border-slate-900 rounded-xl p-5 sm:p-7 shadow-[6px_6px_0px_0px_#0f172a]">
+      <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden bg-white border-2 border-slate-900 rounded-xl p-5 sm:p-7 shadow-[6px_6px_0px_0px_#0f172a]">
         
         {/* Top Header */}
         <div className="flex items-start justify-between border-b-2 border-slate-900 pb-3 mb-4">
@@ -346,67 +378,123 @@ export default function ManageLeadModal({
             </div>
           </div>
 
-          {/* Products Pitched (Multi-select) */}
+          {/* STEP 1: Choose Software Product */}
+          <div>
+            <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
+              1. Choose Software Product *
+            </label>
+            <select
+              value={activeSelectedProject}
+              onChange={(e) => setActiveSelectedProject(e.target.value)}
+              className="w-full border-2 border-slate-900 rounded-lg px-3 py-2 font-black text-slate-900 bg-white shadow-[2px_2px_0px_0px_#000] focus:outline-none focus:ring-2 focus:ring-yellow-400 cursor-pointer"
+            >
+              {distinctProjects.map((proj) => (
+                <option key={proj} value={proj}>
+                  📦 {proj}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* STEP 2: Choose Plan for that Selected Product */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="font-black uppercase tracking-wider text-slate-700">
-                Software Products Pitched
+                2. Available Plans for {activeSelectedProject || 'Product'} *
               </label>
-              <span className="text-[10px] font-bold text-slate-500">
+              <span className="text-[10px] font-bold text-blue-700">
                 {selectedProducts.length} Selected
               </span>
             </div>
-            <div className="flex flex-wrap gap-1.5 p-2.5 bg-slate-50 border-2 border-slate-900 rounded-lg max-h-36 overflow-y-auto">
-              {availableList.map((prod) => {
-                const isSelected = selectedProducts.includes(prod)
-                return (
-                  <button
-                    key={prod}
-                    type="button"
-                    onClick={() => toggleProduct(prod)}
-                    className={`px-2.5 py-1 rounded text-[11px] font-black uppercase tracking-wider border-2 border-slate-900 transition-all cursor-pointer ${
-                      isSelected
-                        ? 'bg-[#86efac] text-slate-950 shadow-[1.5px_1.5px_0px_0px_#000]'
-                        : 'bg-white text-slate-700 hover:bg-slate-100'
-                    }`}
-                  >
-                    {isSelected ? '✓ ' : '+ '}
-                    {prod}
-                  </button>
-                )
-              })}
+
+            <div className="space-y-2 p-2.5 bg-slate-50 border-2 border-slate-900 rounded-lg max-h-52 overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+              {isLoadingPlans ? (
+                <div className="p-3 text-center text-xs text-slate-500 font-bold">
+                  Loading official pricing plans...
+                </div>
+              ) : currentProjectPlans.length > 0 ? (
+                currentProjectPlans.map((plan) => {
+                  const planIdentifier = `${plan.projectName} - ${plan.planName}`
+                  const isSelected = selectedProducts.includes(planIdentifier) || selectedProducts.includes(plan.planName)
+                  return (
+                    <label
+                      key={plan._id || plan.planName}
+                      className={`flex items-center justify-between p-2 rounded-lg border-2 cursor-pointer select-none transition-all ${
+                        isSelected
+                          ? 'bg-[#86efac] border-slate-900 font-black text-slate-900 shadow-[1.5px_1.5px_0px_0px_#000]'
+                          : 'bg-white border-slate-300 font-medium text-slate-700 hover:border-slate-500'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleProduct(planIdentifier)}
+                          className="w-4 h-4 accent-slate-900 rounded cursor-pointer"
+                        />
+                        <span className="text-xs font-bold text-slate-900">{plan.planName}</span>
+                      </div>
+                      <span className={`text-[10px] font-black px-1.5 py-0.5 rounded ${
+                        isSelected ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900 border border-slate-300'
+                      }`}>
+                        ₹{plan.price.toLocaleString('en-IN')} {plan.billingCycle}
+                      </span>
+                    </label>
+                  )
+                })
+              ) : (
+                <p className="text-xs text-slate-500 font-bold p-2 text-center">
+                  No plans configured for {activeSelectedProject}.
+                </p>
+              )}
             </div>
+
+            {/* Selected Plans Badges */}
+            {selectedProducts.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5 items-center">
+                <span className="text-[10px] font-bold text-slate-500">Selected Plans:</span>
+                {selectedProducts.map((p) => (
+                  <span
+                    key={p}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-yellow-300 border border-slate-900 rounded text-[10px] font-black text-slate-900 shadow-[1px_1px_0px_0px_#000]"
+                  >
+                    <span>✓ {p} (₹{getProductPrice(p, dbPlans).toLocaleString('en-IN')})</span>
+                    <button
+                      type="button"
+                      onClick={() => toggleProduct(p)}
+                      className="text-slate-900 hover:text-red-700 font-black ml-0.5 cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Deal Value & Projected Commission */}
-          <div className="p-3 bg-[#f0fdf4] border-2 border-slate-900 rounded-lg grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
-            <div>
-              <label className="block font-black uppercase tracking-wider text-slate-800 mb-1">
-                Estimated Deal Value (₹)
-              </label>
-              <div className="flex items-center gap-1.5">
-                <span className="font-black text-slate-900">₹</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="any"
-                  value={formData.dealValue}
-                  onChange={(e) => setFormData({ ...formData, dealValue: e.target.value })}
-                  placeholder="e.g. 50000"
-                  className="w-full border-2 border-slate-900 rounded-md px-3 py-1.5 font-black text-slate-900 bg-white shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-                />
-              </div>
-            </div>
-
+          {/* Deal Value & Projected Commission (Admin-Controlled & Locked) */}
+          <div className="p-3.5 bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-slate-900 rounded-lg grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
             <div className="bg-white border-2 border-slate-900 rounded-md p-2.5 shadow-[1.5px_1.5px_0px_0px_#000]">
               <span className="text-[9px] uppercase font-black text-slate-500 block">
-                Your Commission ({payoutType === 'fixed' ? 'Flat' : `${commissionRate}%`})
+                Official Plan Value (Set by Admin)
               </span>
-              <p className="text-base font-black text-emerald-700 mt-0.5">
-                ₹{projectedCommission.toLocaleString('en-IN')}
+              <p className="text-lg font-black text-slate-900 mt-0.5">
+                ₹{effectiveDealValue.toLocaleString('en-IN')}
               </p>
               <span className="text-[9px] text-slate-400 font-bold block">
-                {payoutType === 'fixed' ? 'Flat reward per closed deal' : 'Calculated on closed deal value'}
+                {isWonDeal ? 'Final Closed Deal Value' : 'Auto-computed from selected products'}
+              </span>
+            </div>
+
+            <div className="bg-[#86efac] border-2 border-slate-900 rounded-md p-2.5 shadow-[1.5px_1.5px_0px_0px_#000]">
+              <span className="text-[9px] uppercase font-black text-slate-800 block">
+                Your Commission ({payoutType === 'fixed' ? 'Flat Reward' : `${commissionRate}%`})
+              </span>
+              <p className="text-lg font-black text-slate-950 mt-0.5">
+                ₹{projectedCommission.toLocaleString('en-IN')}
+              </p>
+              <span className="text-[9px] text-slate-800 font-bold block">
+                {payoutType === 'fixed' ? 'Flat reward per closed deal' : 'Credited upon deal closure'}
               </span>
             </div>
           </div>

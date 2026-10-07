@@ -45,8 +45,13 @@ const affiliateLeadSchema = new mongoose.Schema(
     }],
     status: {
       type: String,
-      enum: ['New', 'Contacted', 'Demo Scheduled', 'In Negotiation', 'Deal Won', 'Lost'],
-      default: 'New'
+      enum: ['New', 'In Discussion', 'Contacted', 'Demo Scheduled', 'In Negotiation', 'Deal Confirmed', 'Deal Won', 'Lost'],
+      default: 'In Discussion'
+    },
+    confirmationNotes: {
+      type: String,
+      default: '',
+      trim: true
     },
     dealValue: {
       type: Number,

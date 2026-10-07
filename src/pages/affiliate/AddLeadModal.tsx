@@ -1,6 +1,6 @@
-import { useState, type FormEvent } from 'react'
+import { useState, useEffect, type FormEvent } from 'react'
 import axios from 'axios'
-import { API_BASE } from '../admin/types'
+import { API_BASE, type ProductPlan, getProductPrice, calculateProductsPrice } from '../admin/types'
 import { showSuccessToast, showErrorToast } from '../../components/ui/Toast'
 
 interface AddLeadModalProps {
@@ -26,22 +26,67 @@ export default function AddLeadModal({
 }: AddLeadModalProps) {
   if (!isOpen) return null
 
-  const availableList = (allowedProducts && allowedProducts.length > 0)
+  const [dbPlans, setDbPlans] = useState<ProductPlan[]>([])
+  const [isLoadingPlans, setIsLoadingPlans] = useState(false)
+
+  // Fetch official plans created by SuperAdmin
+  useEffect(() => {
+    const fetchDbPlans = async () => {
+      setIsLoadingPlans(true)
+      try {
+        const res = await axios.get(`${API_BASE}/api/affiliates/plans`, { timeout: 10000 })
+        if (res.data?.success && Array.isArray(res.data.data)) {
+          setDbPlans(res.data.data)
+        }
+      } catch (err) {
+        console.warn('Could not load dynamic plans, fallback to default catalog')
+      } finally {
+        setIsLoadingPlans(false)
+      }
+    }
+    fetchDbPlans()
+  }, [])
+
+  const defaultStarterList = (allowedProducts && allowedProducts.length > 0)
     ? allowedProducts
     : [
-        'School ERP Pro',
-        'Timetable Pro',
-        'Attendance Management System',
-        'Result Management System',
-        'Web Builder Pro',
-        'Sports Academy Pro',
-        'Daily Test Pro',
-        'Custom Software / App'
+        'School ERP Pro - Standard Campus',
+        'Web Builder Pro - Starter Institutional Website',
+        'Timetable Pro - Single School Annual License'
       ]
 
-  const [selectedProducts, setSelectedProducts] = useState<string[]>([availableList[0] || 'School ERP Pro'])
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([])
   const [customProduct, setCustomProduct] = useState('')
   const [showCustomInput, setShowCustomInput] = useState(false)
+
+  // Distinct projects available
+  const distinctProjects = Array.from(
+    new Set(dbPlans.map((p) => p.projectName))
+  )
+  const [activeSelectedProject, setActiveSelectedProject] = useState<string>('')
+
+  useEffect(() => {
+    if (distinctProjects.length > 0 && !activeSelectedProject) {
+      setActiveSelectedProject(distinctProjects[0])
+    }
+  }, [dbPlans])
+
+  // Current plans for the selected product
+  const currentProjectPlans = dbPlans.filter(
+    (p) => p.projectName === activeSelectedProject
+  )
+
+  // Initialize selected product once plans load or fallback
+  useEffect(() => {
+    if (selectedProducts.length === 0) {
+      if (dbPlans.length > 0) {
+        const first = `${dbPlans[0].projectName} - ${dbPlans[0].planName}`
+        setSelectedProducts([first])
+      } else {
+        setSelectedProducts([defaultStarterList[0]])
+      }
+    }
+  }, [dbPlans])
 
   const [formData, setFormData] = useState({
     organizationName: '',
@@ -49,23 +94,26 @@ export default function AddLeadModal({
     phone: '',
     email: '',
     city: '',
-    estimatedValue: '',
     notes: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const estVal = Number(formData.estimatedValue) || 0
-  const projectedCommission = estVal > 0 ? Math.round((estVal * commissionRate) / 100) : 0
+  // Official Admin catalog price computed automatically from SuperAdmin's plans
+  const officialPackagePrice = calculateProductsPrice(selectedProducts, dbPlans)
+  const projectedCommission =
+    payoutType === 'fixed'
+      ? fixedAmount || 0
+      : Math.round((officialPackagePrice * commissionRate) / 100)
 
-  const toggleProduct = (prod: string) => {
-    if (selectedProducts.includes(prod)) {
+  const toggleProduct = (prodIdentifier: string) => {
+    if (selectedProducts.includes(prodIdentifier)) {
       if (selectedProducts.length > 1) {
-        setSelectedProducts(selectedProducts.filter((p) => p !== prod))
+        setSelectedProducts(selectedProducts.filter((p) => p !== prodIdentifier))
       } else {
-        showErrorToast('Please select at least one product')
+        showErrorToast('Please select at least one plan/product')
       }
     } else {
-      setSelectedProducts([...selectedProducts, prod])
+      setSelectedProducts([...selectedProducts, prodIdentifier])
     }
   }
 
@@ -101,7 +149,9 @@ export default function AddLeadModal({
         {
           ...formData,
           product: productSummary,
-          products: selectedProducts
+          products: selectedProducts,
+          dealValue: officialPackagePrice,
+          estimatedValue: officialPackagePrice
         },
         config
       )
@@ -119,7 +169,7 @@ export default function AddLeadModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-3 sm:p-4 backdrop-blur-xs font-mono">
-      <div className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto bg-white border-2 border-slate-900 rounded-xl p-4 sm:p-8 shadow-[6px_6px_0px_0px_#0f172a]">
+      <div className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden bg-white border-2 border-slate-900 rounded-xl p-4 sm:p-8 shadow-[6px_6px_0px_0px_#0f172a]">
         
         {/* Header */}
         <div className="flex items-center justify-between border-b-2 border-slate-900 pb-4 mb-5">
@@ -219,62 +269,106 @@ export default function AddLeadModal({
             </div>
           </div>
 
-          {/* Multiple Products Selection */}
+          {/* STEP 1: Choose Software Product */}
+          <div>
+            <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
+              1. Choose Software Product *
+            </label>
+            <select
+              value={activeSelectedProject}
+              onChange={(e) => setActiveSelectedProject(e.target.value)}
+              className="w-full border-2 border-slate-900 rounded-lg px-3 py-2 font-black text-slate-900 bg-white shadow-[2px_2px_0px_0px_#000] focus:outline-none focus:ring-2 focus:ring-yellow-400 cursor-pointer"
+            >
+              {distinctProjects.map((proj) => (
+                <option key={proj} value={proj}>
+                  📦 {proj}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* STEP 2: Choose Plan for that Selected Product */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block font-black uppercase tracking-wider text-slate-700">
-                Products Pitched / Sold (Select 1 or Multiple) *
+              <label className="font-black uppercase tracking-wider text-slate-700">
+                2. Available Plans for {activeSelectedProject || 'Product'} *
               </label>
-              <span className="text-[10px] text-blue-700 font-bold">
+              <span className="text-[10px] font-bold text-blue-700">
                 {selectedProducts.length} Selected
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 bg-slate-50 border-2 border-slate-900 rounded-lg max-h-52 overflow-y-auto">
-              {availableList.map((prod) => {
-                const isSelected = selectedProducts.includes(prod)
-                return (
-                  <label
-                    key={prod}
-                    className={`flex items-center gap-2.5 p-2 rounded-md border-2 cursor-pointer select-none transition-all ${
-                      isSelected
-                        ? 'bg-[#86efac] border-slate-900 font-black text-slate-900 shadow-[2px_2px_0px_0px_#000]'
-                        : 'bg-white border-slate-300 font-bold text-slate-700 hover:border-slate-500'
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleProduct(prod)}
-                      className="w-4 h-4 accent-slate-900 rounded cursor-pointer"
-                    />
-                    <span className="text-xs">{prod}</span>
-                  </label>
-                )
-              })}
+            <div className="space-y-2 p-2.5 bg-slate-50 border-2 border-slate-900 rounded-lg max-h-56 overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+              {isLoadingPlans ? (
+                <div className="p-4 text-center text-[11px] font-bold text-slate-500">
+                  Loading official pricing plans...
+                </div>
+              ) : currentProjectPlans.length > 0 ? (
+                currentProjectPlans.map((plan) => {
+                  const planIdentifier = `${plan.projectName} - ${plan.planName}`
+                  const isSelected = selectedProducts.includes(planIdentifier) || selectedProducts.includes(plan.planName)
+                  return (
+                    <label
+                      key={plan._id || plan.planName}
+                      className={`flex items-center justify-between p-2 rounded-lg border-2 cursor-pointer select-none transition-all ${
+                        isSelected
+                          ? 'bg-[#86efac] border-slate-900 font-black text-slate-900 shadow-[1.5px_1.5px_0px_0px_#000]'
+                          : 'bg-white border-slate-300 font-medium text-slate-700 hover:border-slate-500'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleProduct(planIdentifier)}
+                          className="w-4 h-4 accent-slate-900 rounded cursor-pointer"
+                        />
+                        <div>
+                          <div className="text-xs font-black text-slate-900">{plan.planName}</div>
+                          {plan.description && (
+                            <div className="text-[10px] text-slate-500 line-clamp-1">{plan.description}</div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0 ml-3">
+                        <span className={`text-[11px] font-black px-2 py-0.5 rounded ${
+                          isSelected ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900 border border-slate-300'
+                        }`}>
+                          ₹{plan.price.toLocaleString('en-IN')}
+                        </span>
+                        <div className="text-[9px] text-slate-500 font-bold mt-0.5">{plan.billingCycle}</div>
+                      </div>
+                    </label>
+                  )
+                })
+              ) : (
+                <p className="text-xs text-slate-500 font-bold p-3 text-center">
+                  No plans configured for {activeSelectedProject}.
+                </p>
+              )}
+            </div>
 
-              {/* Any custom products added by affiliate */}
-              {selectedProducts
-                .filter((p) => !availableList.includes(p))
-                .map((custom) => (
-                  <label
-                    key={custom}
-                    className="flex items-center justify-between p-2 rounded-md border-2 bg-blue-100 border-slate-900 font-black text-slate-900 shadow-[2px_2px_0px_0px_#000]"
+            {/* Selected Plans Badges */}
+            {selectedProducts.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5 items-center">
+                <span className="text-[10px] font-bold text-slate-500">Selected Plans:</span>
+                {selectedProducts.map((p) => (
+                  <span
+                    key={p}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-yellow-300 border border-slate-900 rounded text-[10px] font-black text-slate-900 shadow-[1px_1px_0px_0px_#000]"
                   >
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs">★ {custom}</span>
-                    </div>
+                    <span>✓ {p} (₹{getProductPrice(p).toLocaleString('en-IN')})</span>
                     <button
                       type="button"
-                      onClick={() => toggleProduct(custom)}
-                      className="text-rose-700 hover:text-rose-900 font-black text-xs px-1 cursor-pointer"
-                      title="Remove"
+                      onClick={() => toggleProduct(p)}
+                      className="text-slate-900 hover:text-red-700 font-black ml-0.5 cursor-pointer"
                     >
-                      ×
+                      ✕
                     </button>
-                  </label>
+                  </span>
                 ))}
-            </div>
+              </div>
+            )}
 
             {/* Custom product adder */}
             <div className="mt-2">
@@ -322,65 +416,55 @@ export default function AddLeadModal({
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Chips of chosen products */}
-            <div className="flex flex-wrap gap-1.5 mt-2">
-              {selectedProducts.map((p) => (
-                <span
-                  key={p}
-                  className="px-2 py-0.5 bg-[#fef08a] border border-slate-900 rounded font-black text-[10px] text-slate-900 flex items-center gap-1"
-                >
-                  <span>✓ {p}</span>
-                  {selectedProducts.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => toggleProduct(p)}
-                      className="hover:text-rose-700 cursor-pointer text-xs leading-none"
-                    >
-                      ×
-                    </button>
-                  )}
+          {/* Locked Official Admin Pricing & Partner Commission Breakdown */}
+          <div className="p-4 bg-gradient-to-br from-emerald-50 via-teal-50 to-green-100 border-2 border-slate-900 rounded-xl shadow-[4px_4px_0px_0px_#0f172a] space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-300 pb-2">
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm">🔒</span>
+                <span className="text-xs font-black uppercase text-slate-900 tracking-wider">
+                  Official Pricing & Your Commission
                 </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Estimated Value */}
-          <div>
-            <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
-              Estimated Total Deal Value (₹ Optional)
-            </label>
-            <div className="flex items-center gap-2">
-              <span className="font-black text-sm text-slate-900">₹</span>
-              <input
-                type="number"
-                min="0"
-                step="any"
-                value={formData.estimatedValue}
-                onChange={(e) => setFormData({ ...formData, estimatedValue: e.target.value })}
-                className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-bold text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-                placeholder="e.g. 50000"
-              />
-            </div>
-            <p className="text-[10px] text-slate-500 mt-1">
-              If client wants multiple products bundled together, enter estimated total package cost.
-            </p>
-          </div>
-
-          {/* Projected Commission / Reward Badge */}
-          {payoutType === 'fixed' ? (
-            <div className="p-3 bg-emerald-50 border-2 border-emerald-500 rounded-md flex items-center justify-between text-xs font-black">
-              <span className="text-emerald-900">Your Fixed Payout Reward on Deal Win:</span>
-              <span className="text-emerald-700 text-sm">₹{(fixedAmount || 0).toLocaleString('en-IN')} Flat</span>
-            </div>
-          ) : (
-            estVal > 0 && (
-              <div className="p-3 bg-emerald-50 border-2 border-emerald-500 rounded-md flex items-center justify-between text-xs font-black">
-                <span className="text-emerald-900">Your Projected Commission ({commissionRate}%):</span>
-                <span className="text-emerald-700 text-sm">₹{projectedCommission.toLocaleString('en-IN')}</span>
               </div>
-            )
-          )}
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-slate-900 text-white rounded">
+                Admin Fixed Rates
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-0.5">
+              <div className="bg-white border-2 border-slate-900 rounded-lg p-3 shadow-[2px_2px_0px_0px_#000]">
+                <span className="text-[10px] font-black uppercase text-slate-600 block">
+                  Official Package Price
+                </span>
+                <p className="text-xl font-black text-slate-950 mt-0.5">
+                  ₹{officialPackagePrice.toLocaleString('en-IN')}
+                </p>
+                <span className="text-[9px] text-slate-500 font-bold block mt-0.5">
+                  {selectedProducts.length} product{selectedProducts.length > 1 ? 's' : ''} bundled
+                </span>
+              </div>
+
+              <div className="bg-[#86efac] border-2 border-slate-900 rounded-lg p-3 shadow-[2px_2px_0px_0px_#000]">
+                <span className="text-[10px] font-black uppercase text-slate-800 block">
+                  Your Commission ({payoutType === 'fixed' ? 'Fixed Reward' : `${commissionRate}%`})
+                </span>
+                <p className="text-xl font-black text-slate-950 mt-0.5">
+                  ₹{projectedCommission.toLocaleString('en-IN')}
+                </p>
+                <span className="text-[9px] text-slate-800 font-black block mt-0.5">
+                  {payoutType === 'fixed' ? 'Flat payout per closed deal' : 'Credited to wallet upon deal won'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-1.5 text-[10px] text-slate-700 font-bold bg-white/80 p-2 rounded border border-slate-300">
+              <span className="text-xs">💡</span>
+              <span>
+                Standard rates are set by Admin. When Admin closes this client deal, your commission will be credited directly to your partner wallet.
+              </span>
+            </div>
+          </div>
 
           {/* Meeting Notes */}
           <div>

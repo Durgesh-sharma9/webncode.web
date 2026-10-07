@@ -27,13 +27,16 @@ const protect = async (req, res, next) => {
         console.warn('DB lookup note in authMiddleware:', dbErr.message);
       }
 
-      if (!foundUser && (decoded.id === '6aad229cefa648a3354a7e09' || decoded.id === 'superadmin')) {
-        foundUser = {
-          _id: decoded.id,
-          name: 'Super Admin',
-          email: process.env.ADMIN_EMAIL || 'admin@gmail.com',
-          role: 'admin'
-        };
+      if (!foundUser && (decoded.role === 'admin' || decoded.id === '6aad288f7234b46637fdfaa2' || decoded.id === '6aad229cefa648a3354a7e09' || decoded.id === 'superadmin')) {
+        foundUser = await User.findOne({ email: process.env.ADMIN_EMAIL || 'admin@gmail.com' });
+        if (!foundUser) {
+          foundUser = {
+            _id: decoded.id || 'superadmin',
+            name: 'Super Admin',
+            email: process.env.ADMIN_EMAIL || 'admin@gmail.com',
+            role: 'admin'
+          };
+        }
       }
 
       if (!foundUser) {

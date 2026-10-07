@@ -7,10 +7,17 @@ import AffiliateModal from './AffiliateModal'
 import RecordPayoutModal from './RecordPayoutModal'
 import ReviewLeadModal from './ReviewLeadModal'
 import ConfirmPayoutModal from './ConfirmPayoutModal'
+import ViewAffiliateModal from './ViewAffiliateModal'
+import ProductPlansTab from './ProductPlansTab'
 
 export default function AffiliatesTab() {
   const { token } = useAuth()
-  const [activeSubTab, setActiveSubTab] = useState<'partners' | 'leads' | 'payouts'>('partners')
+  const [activeSubTab, setActiveSubTab] = useState<'partners' | 'leads' | 'payouts' | 'plans'>('partners')
+
+  const getAuthHeaders = () => {
+    const activeToken = token || localStorage.getItem('wnc_token')
+    return activeToken ? { Authorization: `Bearer ${activeToken}` } : {}
+  }
 
   // Affiliates state
   const [affiliates, setAffiliates] = useState<AffiliateItem[]>([])
@@ -32,6 +39,9 @@ export default function AffiliatesTab() {
   const [isAffiliateModalOpen, setIsAffiliateModalOpen] = useState(false)
   const [selectedAffiliate, setSelectedAffiliate] = useState<AffiliateItem | null>(null)
   
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+  const [viewAffiliateData, setViewAffiliateData] = useState<AffiliateItem | null>(null)
+
   const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false)
   const [payoutAffiliate, setPayoutAffiliate] = useState<AffiliateItem | null>(null)
 
@@ -43,7 +53,8 @@ export default function AffiliatesTab() {
     setIsLoadingAffiliates(true)
     try {
       const res = await axios.get(`${API_BASE}/api/affiliates`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined
+        headers: getAuthHeaders(),
+        timeout: 10000
       })
       if (res.data?.success && Array.isArray(res.data.data)) {
         setAffiliates(res.data.data)
@@ -61,7 +72,8 @@ export default function AffiliatesTab() {
     setIsLoadingLeads(true)
     try {
       const res = await axios.get(`${API_BASE}/api/affiliates/leads`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined
+        headers: getAuthHeaders(),
+        timeout: 10000
       })
       if (res.data?.success && Array.isArray(res.data.data)) {
         setLeads(res.data.data)
@@ -78,7 +90,8 @@ export default function AffiliatesTab() {
     setIsLoadingPayoutRequests(true)
     try {
       const res = await axios.get(`${API_BASE}/api/affiliates/payout-requests`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined
+        headers: getAuthHeaders(),
+        timeout: 10000
       })
       if (res.data?.success && Array.isArray(res.data.data)) {
         setPayoutRequests(res.data.data)
@@ -93,6 +106,7 @@ export default function AffiliatesTab() {
 
   useEffect(() => {
     fetchAffiliates()
+    fetchLeads()
     fetchPayoutRequests()
   }, [token])
 
@@ -178,6 +192,17 @@ export default function AffiliatesTab() {
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             onClick={() => {
+              fetchAffiliates()
+              fetchLeads()
+              fetchPayoutRequests()
+            }}
+            title="Refresh All Data"
+            className="p-2.5 bg-white border-2 border-slate-900 rounded-md font-black text-xs shadow-[2px_2px_0px_0px_#000] hover:bg-slate-100 transition cursor-pointer"
+          >
+            🔄
+          </button>
+          <button
+            onClick={() => {
               setSelectedAffiliate(null)
               setIsAffiliateModalOpen(true)
             }}
@@ -251,6 +276,17 @@ export default function AffiliatesTab() {
             </span>
           )}
         </button>
+
+        <button
+          onClick={() => setActiveSubTab('plans')}
+          className={`shrink-0 px-3.5 py-2 text-xs font-black uppercase tracking-wider border-2 border-b-0 border-slate-900 rounded-t-md transition-all flex items-center gap-1.5 cursor-pointer ${
+            activeSubTab === 'plans'
+              ? 'bg-slate-900 text-white shadow-[2px_2px_0px_0px_#fff]'
+              : 'bg-white text-slate-700 hover:bg-slate-100'
+          }`}
+        >
+          <span>📦 Product Plans & Pricing</span>
+        </button>
       </div>
 
       {/* ======================================================== */}
@@ -259,15 +295,34 @@ export default function AffiliatesTab() {
       {activeSubTab === 'partners' && (
         <div className="space-y-4">
           
-          {/* Search bar */}
-          <div className="flex items-center gap-3">
-            <input
-              type="text"
-              placeholder="Search partners by name, email..."
-              value={searchAffiliate}
-              onChange={(e) => setSearchAffiliate(e.target.value)}
-              className="w-full sm:w-80 border-2 border-slate-900 rounded-md px-3 py-2 text-xs font-bold text-slate-900 bg-white shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-            />
+          {/* Search bar & Count */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-black uppercase text-slate-900 tracking-wider">
+                👥 Registered Partners ({affiliates.length})
+              </span>
+              <span className="text-[10px] font-bold text-slate-500 bg-slate-100 border border-slate-300 px-2 py-0.5 rounded">
+                Click any partner or "View Info" to see full dossier & leads
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Search partners by name, email, code..."
+                value={searchAffiliate}
+                onChange={(e) => setSearchAffiliate(e.target.value)}
+                className="w-full sm:w-80 border-2 border-slate-900 rounded-md px-3 py-2 text-xs font-bold text-slate-900 bg-white shadow-[2px_2px_0px_0px_#000] focus:outline-none"
+              />
+              {searchAffiliate && (
+                <button
+                  onClick={() => setSearchAffiliate('')}
+                  className="px-2 py-1.5 bg-slate-200 border border-slate-900 rounded text-xs font-black cursor-pointer hover:bg-slate-300"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Affiliates Table / List */}
@@ -345,7 +400,17 @@ export default function AffiliatesTab() {
                       </div>
 
                       {/* Actions */}
-                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                      <div className="flex items-center justify-end gap-1.5 pt-2 border-t border-slate-100 flex-wrap">
+                        <button
+                          onClick={() => {
+                            setViewAffiliateData(aff)
+                            setIsViewModalOpen(true)
+                          }}
+                          className="px-3 py-1.5 bg-[#fef08a] border border-slate-900 rounded font-black text-xs uppercase hover:bg-amber-300 shadow-[1px_1px_0px_0px_#000] cursor-pointer inline-flex items-center gap-1"
+                        >
+                          <span>🔍</span>
+                          <span>View Info</span>
+                        </button>
                         {pending > 0 && (
                           <button
                             onClick={() => {
@@ -398,7 +463,16 @@ export default function AffiliatesTab() {
                       return (
                         <tr key={aff._id} className="hover:bg-slate-50 transition-colors">
                           <td className="p-3">
-                            <div className="font-black text-slate-900">{aff.name}</div>
+                            <div
+                              onClick={() => {
+                                setViewAffiliateData(aff)
+                                setIsViewModalOpen(true)
+                              }}
+                              className="font-black text-slate-900 cursor-pointer hover:text-blue-700 hover:underline flex items-center gap-1.5"
+                            >
+                              <span>{aff.name}</span>
+                              <span className="text-[10px] text-blue-600 font-normal">➔</span>
+                            </div>
                             <div className="text-[11px] text-slate-500">{aff.email}</div>
                             {aff.phone && <div className="text-[10px] text-slate-400">{aff.phone}</div>}
                           </td>
@@ -455,6 +529,17 @@ export default function AffiliatesTab() {
                           </td>
 
                           <td className="p-3 text-right space-x-1.5 whitespace-nowrap">
+                            <button
+                              onClick={() => {
+                                setViewAffiliateData(aff)
+                                setIsViewModalOpen(true)
+                              }}
+                              className="px-2.5 py-1 bg-[#fef08a] border border-slate-900 rounded font-black text-[10px] uppercase hover:bg-amber-300 shadow-[1px_1px_0px_0px_#000] cursor-pointer inline-flex items-center gap-1 text-slate-950"
+                              title="View full affiliate dossier & leads"
+                            >
+                              <span>🔍</span>
+                              <span>View Info</span>
+                            </button>
                             {pending > 0 && (
                               <button
                                 onClick={() => {
@@ -563,6 +648,8 @@ export default function AffiliatesTab() {
                         className={`shrink-0 font-black uppercase text-[10px] px-2 py-1 rounded border-2 border-slate-900 shadow-[1px_1px_0px_0px_#000] focus:outline-none ${
                           lead.status === 'Deal Won'
                             ? 'bg-[#86efac] text-slate-900'
+                            : lead.status === 'Deal Confirmed'
+                            ? 'bg-[#fef08a] text-slate-950 border-amber-500'
                             : lead.status === 'Lost'
                             ? 'bg-rose-200 text-slate-900'
                             : lead.status === 'Demo Scheduled'
@@ -570,10 +657,8 @@ export default function AffiliatesTab() {
                             : 'bg-amber-100 text-slate-900'
                         }`}
                       >
-                        <option value="New">New</option>
-                        <option value="Contacted">Contacted</option>
-                        <option value="Demo Scheduled">Demo Scheduled</option>
-                        <option value="In Negotiation">In Negotiation</option>
+                        <option value="New">In Discussion</option>
+                        <option value="Deal Confirmed">🎉 Deal Confirmed (Review)</option>
                         <option value="Deal Won">Deal Won</option>
                         <option value="Lost">Lost / Cancelled</option>
                       </select>
@@ -768,6 +853,8 @@ export default function AffiliatesTab() {
                             className={`font-black uppercase text-[10px] px-2 py-1 rounded border-2 border-slate-900 shadow-[1px_1px_0px_0px_#000] focus:outline-none ${
                               lead.status === 'Deal Won'
                                 ? 'bg-[#86efac] text-slate-900'
+                                : lead.status === 'Deal Confirmed'
+                                ? 'bg-[#fef08a] text-slate-950 border-amber-500'
                                 : lead.status === 'Lost'
                                 ? 'bg-rose-200 text-slate-900'
                                 : lead.status === 'Demo Scheduled'
@@ -775,10 +862,8 @@ export default function AffiliatesTab() {
                                 : 'bg-amber-100 text-slate-900'
                             }`}
                           >
-                            <option value="New">New</option>
-                            <option value="Contacted">Contacted</option>
-                            <option value="Demo Scheduled">Demo Scheduled</option>
-                            <option value="In Negotiation">In Negotiation</option>
+                            <option value="New">In Discussion</option>
+                            <option value="Deal Confirmed">🎉 Deal Confirmed (Review)</option>
                             <option value="Deal Won">Deal Won (Closed)</option>
                             <option value="Lost">Lost / Cancelled</option>
                           </select>
@@ -1138,6 +1223,13 @@ export default function AffiliatesTab() {
         </div>
       )}
 
+      {/* ======================================================== */}
+      {/* SUBTAB 4: PRODUCT PLANS & PRICING */}
+      {/* ======================================================== */}
+      {activeSubTab === 'plans' && (
+        <ProductPlansTab token={token} />
+      )}
+
       {/* Onboard / Edit Affiliate Modal */}
       <AffiliateModal
         isOpen={isAffiliateModalOpen}
@@ -1190,6 +1282,25 @@ export default function AffiliatesTab() {
         onSuccess={() => {
           fetchPayoutRequests()
           fetchAffiliates()
+        }}
+      />
+
+      {/* View Affiliate Details Dossier Modal */}
+      <ViewAffiliateModal
+        isOpen={isViewModalOpen}
+        onClose={() => {
+          setIsViewModalOpen(false)
+          setViewAffiliateData(null)
+        }}
+        affiliate={viewAffiliateData}
+        leads={leads}
+        onEdit={(aff) => {
+          setSelectedAffiliate(aff)
+          setIsAffiliateModalOpen(true)
+        }}
+        onPay={(aff) => {
+          setPayoutAffiliate(aff)
+          setIsPayoutModalOpen(true)
         }}
       />
 

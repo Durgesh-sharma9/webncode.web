@@ -30,6 +30,7 @@ import AffiliateDashboard from './pages/affiliate/AffiliateDashboard'
 import AffiliateLeads from './pages/affiliate/AffiliateLeads'
 import AffiliateEarnings from './pages/affiliate/AffiliateEarnings'
 import AffiliateSettings from './pages/affiliate/AffiliateSettings'
+import ErrorBoundary from './components/ui/ErrorBoundary'
 
 export default function App() {
   return (
@@ -38,7 +39,8 @@ export default function App() {
         <PortalThemeProvider>
           <ScrollToTop />
           <Toast />
-          <Routes>
+          <ErrorBoundary>
+            <Routes>
           {/* Public Website with Navbar and Footer */}
           <Route element={<Layout />}>
             <Route index element={<Home />} />
@@ -78,6 +80,7 @@ export default function App() {
             <Route path="settings" element={<AffiliateSettings />} />
           </Route>
         </Routes>
+        </ErrorBoundary>
         </PortalThemeProvider>
       </AuthProvider>
     </BrowserRouter>

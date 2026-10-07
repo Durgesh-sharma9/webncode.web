@@ -117,6 +117,17 @@
     border: 1px solid var(--color-border);
   }
 
+  /* Hide scrollbar while preserving smooth scrolling */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
   /* Gradient Text */
   .gradient-text {
     background: linear-gradient(135deg, #2563EB 0%, #06B6D4 50%, #22C55E 100%);

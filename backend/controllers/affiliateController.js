@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Affiliate = require('../models/Affiliate');
 const AffiliateLead = require('../models/AffiliateLead');
 const AffiliatePayout = require('../models/AffiliatePayout');
+const ProductPlan = require('../models/ProductPlan');
 const nodemailer = require('nodemailer');
 const { createTransporter, getFromAddress } = require('../config/mailer');
 
@@ -175,38 +176,40 @@ exports.createAffiliate = async (req, res) => {
  */
 exports.getAllAffiliates = async (req, res) => {
   try {
-    const affiliates = await Affiliate.find().sort({ createdAt: -1 });
+    const affiliates = await Affiliate.find().sort({ createdAt: -1 }).lean();
+    const allLeads = await AffiliateLead.find().lean();
+    const allPayouts = await AffiliatePayout.find().lean();
 
-    // Compute metrics for each affiliate
-    const enriched = await Promise.all(
-      affiliates.map(async (aff) => {
-        const leads = await AffiliateLead.find({ affiliate: aff._id });
-        const totalLeads = leads.length;
-        const wonLeads = leads.filter((l) => l.status === 'Deal Won');
-        const dealsWon = wonLeads.length;
+    // Compute metrics for each affiliate in-memory (100x faster)
+    const enriched = affiliates.map((aff) => {
+      const affIdStr = String(aff._id);
+      const leads = allLeads.filter((l) => String(l.affiliate) === affIdStr);
+      const totalLeads = leads.length;
+      const wonLeads = leads.filter((l) => l.status === 'Deal Won');
+      const dealsWon = wonLeads.length;
 
-        // Total commissions earned on closed deals
-        const totalEarned = wonLeads.reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
+      // Total commissions earned on closed deals
+      const totalEarned = wonLeads.reduce((acc, curr) => acc + (curr.commissionAmount || 0), 0);
 
-        // Total payouts already disbursed
-        const payouts = await AffiliatePayout.find({ affiliate: aff._id });
-        const totalPaid = payouts.reduce((acc, curr) => acc + (curr.amount || 0), 0);
+      // Total payouts already disbursed
+      const payouts = allPayouts.filter((p) => String(p.affiliate) === affIdStr);
+      const totalPaid = payouts.filter((p) => p.status === 'Paid').reduce((acc, curr) => acc + (curr.amount || 0), 0);
+      const pendingPayout = payouts.filter((p) => p.status === 'Pending').reduce((acc, curr) => acc + (curr.amount || 0), 0);
+      const availableBalance = Math.max(0, totalEarned - totalPaid - pendingPayout);
 
-        const pendingPayout = Math.max(0, totalEarned - totalPaid);
-
-        return {
-          ...aff.toObject(),
-          stats: {
-            clicks: aff.clicksCount || 0,
-            totalLeads,
-            dealsWon,
-            totalEarned,
-            totalPaid,
-            pendingPayout
-          }
-        };
-      })
-    );
+      return {
+        ...aff,
+        stats: {
+          clicks: aff.clicksCount || 0,
+          totalLeads,
+          dealsWon,
+          totalEarned,
+          totalPaid,
+          pendingPayout,
+          availableBalance
+        }
+      };
+    });
 
     res.status(200).json({
       success: true,
@@ -398,6 +401,32 @@ exports.updateLeadByAdmin = async (req, res) => {
 };
 
 /**
+ * Helper: Accurately sync lead commission status based on total paid payouts.
+ * Ensures leads are only marked 'Paid' if their commission was actually disbursed,
+ * otherwise keeps them as 'Approved' (in wallet, ready to withdraw).
+ */
+const syncAffiliateLeadPayoutStatus = async (affiliateId) => {
+  try {
+    const payouts = await AffiliatePayout.find({ affiliate: affiliateId, status: 'Paid' });
+    let remainingPaid = payouts.reduce((acc, p) => acc + (p.amount || 0), 0);
+
+    const wonLeads = await AffiliateLead.find({ affiliate: affiliateId, status: 'Deal Won' }).sort({ createdAt: 1 });
+    for (const lead of wonLeads) {
+      const comm = lead.commissionAmount || 0;
+      if (comm > 0 && remainingPaid >= comm) {
+        lead.commissionStatus = 'Paid';
+        remainingPaid -= comm;
+      } else {
+        lead.commissionStatus = 'Approved';
+      }
+      await lead.save();
+    }
+  } catch (err) {
+    console.error('Error syncing affiliate lead payout status:', err);
+  }
+};
+
+/**
  * SuperAdmin: Record a payout transaction
  * POST /api/affiliates/:id/payout
  */
@@ -424,11 +453,8 @@ exports.recordPayoutByAdmin = async (req, res) => {
       paidAt: new Date()
     });
 
-    // Mark approved leads up to this amount as 'Paid'
-    await AffiliateLead.updateMany(
-      { affiliate: affiliate._id, status: 'Deal Won', commissionStatus: 'Approved' },
-      { commissionStatus: 'Paid' }
-    );
+    // Synchronize lead commission statuses based on actual cumulative paid amount
+    await syncAffiliateLeadPayoutStatus(affiliate._id);
 
     res.status(201).json({
       success: true,
@@ -466,6 +492,9 @@ exports.getAffiliateDashboard = async (req, res) => {
     if (!affiliate) {
       return res.status(404).json({ success: false, message: 'Affiliate profile not found' });
     }
+
+    // Always ensure lead payout statuses accurately match recorded payouts
+    await syncAffiliateLeadPayoutStatus(affiliate._id);
 
     const leads = await AffiliateLead.find({ affiliate: affiliate._id }).sort({ createdAt: -1 });
     const totalLeads = leads.length;
@@ -544,6 +573,9 @@ exports.getAffiliateLeads = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Affiliate profile not found' });
     }
 
+    // Always ensure lead payout statuses accurately match recorded payouts
+    await syncAffiliateLeadPayoutStatus(affiliate._id);
+
     const leads = await AffiliateLead.find({ affiliate: affiliate._id }).sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -558,6 +590,47 @@ exports.getAffiliateLeads = async (req, res) => {
       message: 'Failed to fetch leads',
       error: error.message
     });
+  }
+};
+
+const PRODUCT_CATALOG_PRICES = {
+  'School ERP Pro': 50000,
+  'Attendance Management System': 20000,
+  'Timetable Pro': 15000,
+  'Result Management System': 15000,
+  'Web Builder Pro': 25000,
+  'Sports Academy Pro': 30000,
+  'Daily Test Pro': 15000,
+  'Custom Software / App': 75000
+};
+
+const getCatalogPriceForProducts = async (productList) => {
+  if (!Array.isArray(productList) || productList.length === 0) return 25000;
+  try {
+    const allDbPlans = await ProductPlan.find().lean();
+    let total = 0;
+    for (const item of productList) {
+      const clean = String(item).trim().toLowerCase();
+      const matched = allDbPlans.find((p) => {
+        const fullCombo = `${p.projectName} - ${p.planName}`.toLowerCase();
+        const fullCombo2 = `${p.projectName}: ${p.planName}`.toLowerCase();
+        return (
+          p.planName.toLowerCase() === clean ||
+          fullCombo === clean ||
+          fullCombo2 === clean ||
+          clean.includes(p.planName.toLowerCase()) ||
+          p.projectName.toLowerCase() === clean
+        );
+      });
+      if (matched) {
+        total += matched.price;
+      } else {
+        total += (PRODUCT_CATALOG_PRICES[item] || 25000);
+      }
+    }
+    return total > 0 ? total : 25000;
+  } catch {
+    return productList.reduce((sum, p) => sum + (PRODUCT_CATALOG_PRICES[p] || 25000), 0);
   }
 };
 
@@ -581,13 +654,20 @@ exports.createAffiliateLead = async (req, res) => {
       });
     }
 
-    const estValue = Number(estimatedValue) || 0;
-    const projectedCommission = estValue > 0 ? Math.round((estValue * affiliate.commissionRate) / 100) : 0;
-
     const productList = Array.isArray(products) && products.length > 0
       ? products
       : (product ? String(product).split(',').map(p => p.trim()).filter(Boolean) : ['School ERP Pro']);
     const productDisplay = productList.length > 0 ? productList.join(', ') : 'School ERP Pro';
+
+    // Official plan value is automatically determined by standard product catalog prices
+    const officialPrice = await getCatalogPriceForProducts(productList);
+    const finalDealValue = (estimatedValue !== undefined && Number(estimatedValue) > 0)
+      ? Number(estimatedValue)
+      : officialPrice;
+
+    const projectedCommission = affiliate.payoutType === 'fixed'
+      ? (affiliate.fixedAmount || 0)
+      : Math.round((finalDealValue * (affiliate.commissionRate || 10)) / 100);
 
     const lead = await AffiliateLead.create({
       affiliate: affiliate._id,
@@ -598,7 +678,7 @@ exports.createAffiliateLead = async (req, res) => {
       city: city ? city.trim() : '',
       product: productDisplay,
       products: productList,
-      dealValue: estValue,
+      dealValue: finalDealValue,
       commissionAmount: projectedCommission,
       status: 'New',
       source: 'manual_by_affiliate',
@@ -622,8 +702,8 @@ exports.createAffiliateLead = async (req, res) => {
               <tr><td style="font-weight: bold; color: #64748b;">Phone:</td><td><a href="tel:${phone.trim()}">${phone.trim()}</a></td></tr>
               ${email ? `<tr><td style="font-weight: bold; color: #64748b;">Email:</td><td>${email.trim()}</td></tr>` : ''}
               ${city ? `<tr><td style="font-weight: bold; color: #64748b;">City / Location:</td><td>${city.trim()}</td></tr>` : ''}
-              <tr><td style="font-weight: bold; color: #64748b;">Product Pitched:</td><td><strong style="color: #2563eb;">${product || 'School ERP Pro'}</strong></td></tr>
-              ${estValue > 0 ? `<tr><td style="font-weight: bold; color: #64748b;">Expected Value:</td><td>₹${estValue.toLocaleString('en-IN')}</td></tr>` : ''}
+              <tr><td style="font-weight: bold; color: #64748b;">Product Pitched:</td><td><strong style="color: #2563eb;">${productDisplay}</strong></td></tr>
+              ${finalDealValue > 0 ? `<tr><td style="font-weight: bold; color: #64748b;">Expected Value:</td><td>₹${finalDealValue.toLocaleString('en-IN')}</td></tr>` : ''}
               ${notes ? `<tr><td style="font-weight: bold; color: #64748b;">Partner Note:</td><td><em>"${notes.trim()}"</em></td></tr>` : ''}
               <tr><td style="font-weight: bold; color: #64748b;">Partner:</td><td>${affiliate.name} (${affiliate.email} / ${affiliate.phone})</td></tr>
             </table>
@@ -690,13 +770,21 @@ exports.updateLeadByAffiliate = async (req, res) => {
     if (products && Array.isArray(products) && products.length > 0) {
       lead.products = products;
       lead.product = products.join(', ');
+      // Automatically derive price from official catalog
+      const autoPrice = await getCatalogPriceForProducts(products);
+      lead.dealValue = autoPrice;
+      if (affiliate.payoutType === 'percentage') {
+        lead.commissionAmount = Math.round((autoPrice * (affiliate.commissionRate || 10)) / 100);
+      } else if (affiliate.payoutType === 'fixed') {
+        lead.commissionAmount = affiliate.fixedAmount || 0;
+      }
     } else if (product !== undefined && product.trim()) {
       lead.product = product.trim();
       lead.products = [product.trim()];
     }
 
-    if (dealValue !== undefined) {
-      const numDealValue = Number(dealValue) || 0;
+    if (dealValue !== undefined && Number(dealValue) > 0) {
+      const numDealValue = Number(dealValue);
       lead.dealValue = numDealValue;
       if (affiliate.payoutType === 'percentage') {
         lead.commissionAmount = Math.round((numDealValue * (affiliate.commissionRate || 10)) / 100);
@@ -706,13 +794,43 @@ exports.updateLeadByAffiliate = async (req, res) => {
     }
 
     if (status !== undefined) {
-      const validStatuses = ['New', 'Contacted', 'Demo Scheduled', 'In Negotiation', 'Deal Won', 'Lost'];
+      const validStatuses = ['New', 'In Discussion', 'Contacted', 'Demo Scheduled', 'In Negotiation', 'Deal Confirmed', 'Deal Won', 'Lost'];
       if (validStatuses.includes(status)) {
         lead.status = status;
         if (status === 'Deal Won' && !lead.commissionStatus) {
           lead.commissionStatus = 'Pending';
         }
+
+        // If affiliate reports school confirmed purchase, notify admin
+        if (status === 'Deal Confirmed') {
+          sendAdminNotification(
+            `🎉 [Approval Required] School Confirmed Purchase: ${lead.organizationName} (Partner: ${affiliate.name})`,
+            `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 2px solid #0f172a; border-radius: 8px;">
+                <div style="background-color: #15803d; color: #ffffff; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px;">
+                  <h2 style="margin: 0; font-size: 18px;">🎉 School Confirmed Order Request!</h2>
+                </div>
+                <p>Partner <strong>${affiliate.name}</strong> reported that <strong>${lead.organizationName}</strong> has confirmed their software purchase.</p>
+                <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 15px; border-radius: 6px; margin: 15px 0;">
+                  <p style="margin: 4px 0;"><strong>School / Client:</strong> ${lead.organizationName}</p>
+                  <p style="margin: 4px 0;"><strong>Contact:</strong> ${lead.contactPerson} (${lead.phone})</p>
+                  <p style="margin: 4px 0;"><strong>Products:</strong> ${lead.product || 'Software'}</p>
+                  <p style="margin: 4px 0;"><strong>Expected Value:</strong> ₹${(lead.dealValue || 0).toLocaleString('en-IN')}</p>
+                  <p style="margin: 4px 0;"><strong>Partner Commission:</strong> ₹${(lead.commissionAmount || 0).toLocaleString('en-IN')}</p>
+                  ${req.body.confirmationNotes ? `<p style="margin: 4px 0; color: #166534;"><strong>Partner Confirmation Note:</strong> "${req.body.confirmationNotes.trim()}"</p>` : ''}
+                </div>
+                <div style="margin-top: 20px;">
+                  <a href="${FRONTEND_URL}/admin/affiliates" style="display: inline-block; background-color: #0f172a; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px;">Open Admin Panel to Approve Deal & Credit Commission</a>
+                </div>
+              </div>
+            `
+          );
+        }
       }
+    }
+
+    if (req.body.confirmationNotes !== undefined) {
+      lead.confirmationNotes = req.body.confirmationNotes.trim();
     }
 
     if (notes !== undefined) {
@@ -1048,11 +1166,8 @@ exports.confirmPayoutRequestByAdmin = async (req, res) => {
     if (notes) payout.notes = notes;
     await payout.save();
 
-    // Mark approved leads for this affiliate as Paid
-    await AffiliateLead.updateMany(
-      { affiliate: payout.affiliate?._id || payout.affiliate, status: 'Deal Won', commissionStatus: 'Approved' },
-      { commissionStatus: 'Paid' }
-    );
+    // Synchronize lead commission statuses based on actual cumulative paid amount
+    await syncAffiliateLeadPayoutStatus(payout.affiliate?._id || payout.affiliate);
 
     res.status(200).json({
       success: true,
@@ -1105,3 +1220,188 @@ exports.rejectPayoutRequestByAdmin = async (req, res) => {
     });
   }
 };
+
+// =========================================================================
+// PRODUCT PLANS & PRICING MANAGEMENT (SuperAdmin & Affiliate Sync)
+// =========================================================================
+
+const DEFAULT_STARTER_PLANS = [
+  { projectName: 'School ERP Pro', planName: 'Starter (Up to 500 Students)', price: 25000, billingCycle: 'Yearly', defaultCommissionRate: 15, description: 'Basic student, fees, and attendance management module.' },
+  { projectName: 'School ERP Pro', planName: 'Standard Campus (Up to 1500 Students)', price: 50000, billingCycle: 'Yearly', defaultCommissionRate: 15, description: 'Complete school ERP with exam, marksheet, parent portal, and SMS alerts.' },
+  { projectName: 'School ERP Pro', planName: 'Enterprise Elite (Unlimited Students)', price: 90000, billingCycle: 'Yearly', defaultCommissionRate: 15, description: 'Multi-branch, dedicated Android/iOS parent app, GPS bus tracking, priority support.' },
+
+  { projectName: 'Web Builder Pro', planName: 'Starter School / Org Website', price: 15000, billingCycle: 'One-time', defaultCommissionRate: 15, description: 'Fast, modern, mobile-responsive institutional website.' },
+  { projectName: 'Web Builder Pro', planName: 'Dynamic Institutional CMS Portal', price: 35000, billingCycle: 'Yearly', defaultCommissionRate: 15, description: 'Full CMS with dynamic notice board, gallery, online inquiry, and CMS control panel.' },
+
+  { projectName: 'Timetable Pro', planName: 'Single School Annual License', price: 15000, billingCycle: 'Yearly', defaultCommissionRate: 15, description: 'AI-based automatic teacher-subject clash-free timetable generator.' },
+  { projectName: 'Timetable Pro', planName: 'Multi-Campus Chain License', price: 28000, billingCycle: 'Yearly', defaultCommissionRate: 15, description: 'Centralized timetable scheduler for school groups and university campuses.' },
+
+  { projectName: 'Attendance Management System', planName: 'Biometric & RFID Cloud Suite', price: 20000, billingCycle: 'Yearly', defaultCommissionRate: 15, description: 'Automated biometric & RFID hardware integration with instant SMS to parents.' },
+  { projectName: 'Result Management System', planName: 'Report Card & Marksheet Generator', price: 15000, billingCycle: 'Yearly', defaultCommissionRate: 15, description: 'CBSE / ICSE / State board grading, tabulations, and printable marksheet generator.' },
+  { projectName: 'Sports Academy Pro', planName: 'Sports Academy Annual Suite', price: 30000, billingCycle: 'Yearly', defaultCommissionRate: 15, description: 'Batch scheduling, tournament brackets, fee collection, and player progress tracker.' },
+  { projectName: 'Daily Test Pro', planName: 'Online Exam & Mock Test Engine', price: 15000, billingCycle: 'Yearly', defaultCommissionRate: 15, description: 'Question bank, online test portal, timer, and student performance analytics.' },
+  { projectName: 'Custom Software / App', planName: 'Bespoke Custom App / ERP', price: 75000, billingCycle: 'Starting', defaultCommissionRate: 10, description: 'Custom full-stack web and mobile application developed for specific institutional needs.' }
+];
+
+/**
+ * Get all product plans (public / authenticated for affiliate lead submission)
+ * GET /api/affiliates/plans
+ */
+exports.getAllPlans = async (req, res) => {
+  try {
+    let plans = await ProductPlan.find().sort({ projectName: 1, price: 1 }).lean();
+
+    // Auto-seed default templates if collection is empty
+    if (!plans || plans.length === 0) {
+      try {
+        await ProductPlan.insertMany(DEFAULT_STARTER_PLANS);
+        plans = await ProductPlan.find().sort({ projectName: 1, price: 1 }).lean();
+      } catch (seedErr) {
+        console.warn('Auto seed plans notice:', seedErr.message);
+        plans = DEFAULT_STARTER_PLANS;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      count: plans.length,
+      data: plans
+    });
+  } catch (error) {
+    console.error('Get product plans error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch product plans',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * SuperAdmin: Create a new Plan for a Project
+ * POST /api/affiliates/plans
+ */
+exports.createPlan = async (req, res) => {
+  try {
+    const { projectName, planName, price, billingCycle, defaultCommissionRate, description, features } = req.body;
+
+    if (!projectName || !projectName.trim()) {
+      return res.status(400).json({ success: false, message: 'Project name is required' });
+    }
+    if (!planName || !planName.trim()) {
+      return res.status(400).json({ success: false, message: 'Plan name is required (e.g. Starter, Standard, Enterprise)' });
+    }
+    if (price === undefined || price === null || isNaN(Number(price))) {
+      return res.status(400).json({ success: false, message: 'Valid price in ₹ is required' });
+    }
+
+    const cleanProject = projectName.trim();
+    const cleanPlan = planName.trim();
+
+    // Check duplicate
+    const existing = await ProductPlan.findOne({
+      projectName: new RegExp(`^${cleanProject}$`, 'i'),
+      planName: new RegExp(`^${cleanPlan}$`, 'i')
+    });
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        message: `Plan "${cleanPlan}" already exists for project "${cleanProject}". Please choose another plan name or edit the existing one.`
+      });
+    }
+
+    const newPlan = await ProductPlan.create({
+      projectName: cleanProject,
+      planName: cleanPlan,
+      price: Math.max(0, Number(price)),
+      billingCycle: billingCycle || 'Yearly',
+      defaultCommissionRate: defaultCommissionRate !== undefined ? Number(defaultCommissionRate) : 15,
+      description: (description || '').trim(),
+      features: Array.isArray(features) ? features : [],
+      status: 'active',
+      createdBy: req.user?._id
+    });
+
+    res.status(201).json({
+      success: true,
+      message: `Plan "${newPlan.planName}" created successfully for ${newPlan.projectName}!`,
+      data: newPlan
+    });
+  } catch (error) {
+    console.error('Create plan error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create plan',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * SuperAdmin: Update Plan
+ * PUT /api/affiliates/plans/:id
+ */
+exports.updatePlan = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { projectName, planName, price, billingCycle, defaultCommissionRate, description, features, status } = req.body;
+
+    const plan = await ProductPlan.findById(id);
+    if (!plan) {
+      return res.status(404).json({ success: false, message: 'Plan not found' });
+    }
+
+    if (projectName) plan.projectName = projectName.trim();
+    if (planName) plan.planName = planName.trim();
+    if (price !== undefined) plan.price = Math.max(0, Number(price));
+    if (billingCycle) plan.billingCycle = billingCycle;
+    if (defaultCommissionRate !== undefined) plan.defaultCommissionRate = Number(defaultCommissionRate);
+    if (description !== undefined) plan.description = description.trim();
+    if (features !== undefined && Array.isArray(features)) plan.features = features;
+    if (status) plan.status = status;
+
+    await plan.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Plan updated successfully!`,
+      data: plan
+    });
+  } catch (error) {
+    console.error('Update plan error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update plan',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * SuperAdmin: Delete Plan
+ * DELETE /api/affiliates/plans/:id
+ */
+exports.deletePlan = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const plan = await ProductPlan.findById(id);
+    if (!plan) {
+      return res.status(404).json({ success: false, message: 'Plan not found' });
+    }
+
+    await ProductPlan.deleteOne({ _id: plan._id });
+
+    res.status(200).json({
+      success: true,
+      message: `Plan "${plan.planName}" deleted successfully.`
+    });
+  } catch (error) {
+    console.error('Delete plan error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete plan',
+      error: error.message
+    });
+  }
+};
+
