@@ -253,9 +253,14 @@ export default function RequestWithdrawalModal({
 
             {/* Amount input */}
             <div>
-              <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
-                Withdrawal Request Amount (₹) *
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block font-black uppercase tracking-wider text-slate-700">
+                  Withdrawal Request Amount (₹) *
+                </label>
+                <span className="text-[10px] font-bold text-slate-500">
+                  Max: <strong className="text-emerald-700">₹{availableBalance.toLocaleString('en-IN')}</strong>
+                </span>
+              </div>
               <div className="flex items-center gap-2">
                 <span className="font-black text-sm text-slate-900">₹</span>
                 <input
@@ -267,11 +272,41 @@ export default function RequestWithdrawalModal({
                   disabled={availableBalance < 100}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-black text-slate-900 shadow-[2px_2px_0px_0px_#000] focus:outline-none disabled:bg-slate-100"
+                  className={`w-full border-2 rounded-md px-3 py-2 font-black shadow-[2px_2px_0px_0px_#000] focus:outline-none disabled:bg-slate-100 transition-colors ${
+                    Number(amount || 0) > availableBalance
+                      ? 'border-red-600 bg-red-50 text-red-900 ring-2 ring-red-400'
+                      : 'border-slate-900 text-slate-900'
+                  }`}
                   placeholder="e.g. 750"
                 />
               </div>
-              <p className="text-[10px] text-slate-500 mt-1">Minimum withdrawal request amount is ₹100.</p>
+
+              {Number(amount || 0) > availableBalance && (
+                <div className="mt-1.5 p-2 bg-red-50 border-2 border-red-500 rounded-md text-red-700 font-bold text-[11px] flex items-center justify-between shadow-[1px_1px_0px_0px_#000]">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs">⚠️</span>
+                    <span>Amount cannot exceed your available balance of ₹{availableBalance.toLocaleString('en-IN')}.</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAmount(String(availableBalance))}
+                    className="underline font-black text-red-900 hover:text-black ml-2 shrink-0 cursor-pointer text-[10px]"
+                  >
+                    Set Max
+                  </button>
+                </div>
+              )}
+
+              {Number(amount || 0) > 0 && Number(amount || 0) < 100 && (
+                <div className="mt-1.5 p-2 bg-amber-50 border border-amber-500 rounded text-amber-800 font-bold text-[11px] flex items-center gap-1.5">
+                  <span className="text-xs">⚠️</span>
+                  <span>Minimum withdrawal request amount is ₹100.</span>
+                </div>
+              )}
+
+              {Number(amount || 0) <= availableBalance && Number(amount || 0) >= 100 && (
+                <p className="text-[10px] text-slate-500 mt-1">Minimum withdrawal request amount is ₹100.</p>
+              )}
             </div>
 
             {/* Optional Note */}
@@ -292,8 +327,15 @@ export default function RequestWithdrawalModal({
             <div className="pt-2">
               <button
                 type="submit"
-                disabled={isSubmitting || availableBalance < 100}
-                className="w-full py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-50 transition-all text-center cursor-pointer"
+                disabled={
+                  isSubmitting ||
+                  availableBalance < 100 ||
+                  !amount ||
+                  Number(amount) <= 0 ||
+                  Number(amount) > availableBalance ||
+                  Number(amount) < 100
+                }
+                className="w-full py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-50 disabled:cursor-not-allowed transition-all text-center cursor-pointer"
               >
                 {isSubmitting ? 'Submitting Request...' : `Submit Withdrawal Request (₹${Number(amount || 0).toLocaleString('en-IN')})`}
               </button>
