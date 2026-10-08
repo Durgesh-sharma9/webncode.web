@@ -324,9 +324,9 @@ SMTP_HOST=mail.webncode.in
 SMTP_PORT=465
 SMTP_SECURE=true
 SMTP_USER=business@webncode.in
-SMTP_PASS=Webncode2026@hostycare
+SMTP_PASS=your_smtp_password_here
 EMAIL_USER=business@webncode.in
-EMAIL_PASS=Webncode2026@hostycare
+EMAIL_PASS=your_smtp_password_here
 COMPANY_EMAIL=webncodetechnologies@gmail.com
 EMAIL_FROM_NAME="Web n Code Technologies"
 

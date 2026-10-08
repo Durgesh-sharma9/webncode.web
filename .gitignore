@@ -22,3 +22,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment & Secret files
+.env
+.env.*
+*.env
+backend/.env
+
+# Archive and distribution bundles
+*.zip
+*.tar.gz
