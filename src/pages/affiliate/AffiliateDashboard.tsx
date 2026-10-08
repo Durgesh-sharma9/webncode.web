@@ -53,11 +53,14 @@ export default function AffiliateDashboard() {
   const [isPayoutBannerDismissed, setIsPayoutBannerDismissed] = useState(false)
 
   const latestPayoutId = data?.latestPaidPayout?.id
-  const isBannerDismissed = isPayoutBannerDismissed || Boolean(latestPayoutId && sessionStorage.getItem(`dismissed_payout_bar_${latestPayoutId}`))
+  const isBannerDismissed = isPayoutBannerDismissed || Boolean(
+    latestPayoutId && (localStorage.getItem(`dismissed_payout_bar_${latestPayoutId}`) === 'true' || sessionStorage.getItem(`dismissed_payout_bar_${latestPayoutId}`) === 'true')
+  )
 
   const handleDismissPayoutBanner = () => {
     setIsPayoutBannerDismissed(true)
     if (latestPayoutId) {
+      localStorage.setItem(`dismissed_payout_bar_${latestPayoutId}`, 'true')
       sessionStorage.setItem(`dismissed_payout_bar_${latestPayoutId}`, 'true')
     }
   }
@@ -73,8 +76,15 @@ export default function AffiliateDashboard() {
         const payout = res.data.data?.latestPaidPayout
         if (payout?.id) {
           const seenKey = `payout_congrats_seen_${payout.id}`
-          if (!sessionStorage.getItem(seenKey)) {
+          const alreadySeen = localStorage.getItem(seenKey) === 'true' || sessionStorage.getItem(seenKey) === 'true'
+          
+          // Only auto-show if not seen before AND disbursed within the last 24 hours
+          const isRecent = payout.paidAt ? (Date.now() - new Date(payout.paidAt).getTime() < 24 * 60 * 60 * 1000) : false
+          if (!alreadySeen && isRecent) {
             setShowCongrats(true)
+          } else if (!alreadySeen && !isRecent) {
+            // Older payout: mark as seen so it never auto-pops
+            localStorage.setItem(seenKey, 'true')
           }
         }
       }
@@ -88,6 +98,7 @@ export default function AffiliateDashboard() {
 
   const handleDismissCongrats = () => {
     if (data?.latestPaidPayout?.id) {
+      localStorage.setItem(`payout_congrats_seen_${data.latestPaidPayout.id}`, 'true')
       sessionStorage.setItem(`payout_congrats_seen_${data.latestPaidPayout.id}`, 'true')
     }
     setShowCongrats(false)

@@ -20,9 +20,22 @@ export default function PayoutCongratsModal({
   if (!isOpen || !payout) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-3 sm:p-4 backdrop-blur-xs font-mono animate-in fade-in duration-200">
+    <div
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-3 sm:p-4 backdrop-blur-xs font-mono animate-in fade-in duration-200"
+    >
       <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-white border-3 border-slate-900 rounded-2xl p-5 sm:p-8 shadow-[8px_8px_0px_0px_#0f172a] text-center space-y-4 sm:space-y-5">
         
+        {/* Top-right close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-3.5 right-3.5 w-7 h-7 flex items-center justify-center bg-slate-100 hover:bg-slate-200 border border-slate-900 rounded-lg text-slate-700 font-bold text-xs shadow-[1px_1px_0px_0px_#000] cursor-pointer transition-transform hover:scale-105"
+          title="Close"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+
         {/* Confetti & Trophy Badge */}
         <div className="relative inline-block">
           <div className="w-20 h-20 bg-[#86efac] border-3 border-slate-900 rounded-2xl flex items-center justify-center mx-auto text-4xl shadow-[4px_4px_0px_0px_#000] rotate-[-3deg] hover:rotate-0 transition-transform">
