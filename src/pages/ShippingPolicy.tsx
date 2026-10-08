@@ -83,7 +83,7 @@ export default function ShippingPolicy() {
               1. Digital Services & No Physical Shipping
             </h2>
             <p>
-              <strong>{company.name}</strong> (&ldquo;Web n Code&rdquo;) operates exclusively as a technological software product company. We engineer and deliver cloud-hosted SaaS (Software-as-a-Service) applications, school management portals, website builder instances, and digital institutional platforms.
+              <strong>{company.name}</strong> (&ldquo;Web n Code&rdquo;) operates exclusively as a technological software product company. We engineer and deliver cloud-hosted SaaS applications under our umbrella domain <strong>webncode.in</strong> (including <strong>Syllabus Tracker</strong>, <strong>CampusCRM</strong>, <strong>TimeTablePro</strong>, <strong>TestMaster</strong>, and <strong>School ERP Pro</strong>).
             </p>
             <div className="p-4 bg-emerald-50 border-2 border-emerald-600 rounded-xl font-mono text-xs sm:text-sm text-emerald-950 font-bold space-y-1">
               <p>📦 <strong>Notice on Physical Goods:</strong></p>

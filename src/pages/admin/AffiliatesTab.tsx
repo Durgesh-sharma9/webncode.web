@@ -29,6 +29,7 @@ export default function AffiliatesTab() {
   const [leads, setLeads] = useState<AffiliateLeadItem[]>([])
   const [isLoadingLeads, setIsLoadingLeads] = useState(false)
   const [leadStatusFilter, setLeadStatusFilter] = useState('All')
+  const [selectedPartnerFilter, setSelectedPartnerFilter] = useState('All')
 
   // Payout requests state
   const [payoutRequests, setPayoutRequests] = useState<AffiliatePayoutItem[]>([])
@@ -206,7 +207,17 @@ export default function AffiliatesTab() {
 
   // Filter leads
   const filteredLeads = leads.filter((l) => {
+    // Partner filter
+    if (selectedPartnerFilter !== 'All') {
+      const affId = l.affiliate?._id || (l.affiliate as any)
+      if (affId !== selectedPartnerFilter) return false
+    }
+    // Status filter
     if (leadStatusFilter === 'All') return true
+    if (leadStatusFilter === 'Deal Confirmed') return l.status === 'Deal Confirmed'
+    if (leadStatusFilter === 'In Discussion') {
+      return ['New', 'In Discussion', 'Contacted', 'Demo Scheduled', 'In Negotiation'].includes(l.status)
+    }
     return l.status === leadStatusFilter
   })
 
@@ -290,13 +301,18 @@ export default function AffiliatesTab() {
 
         <button
           onClick={() => setActiveSubTab('leads')}
-          className={`shrink-0 px-3.5 py-2 text-xs font-black uppercase tracking-wider border-2 border-b-0 border-slate-900 rounded-t-md transition-all cursor-pointer ${
+          className={`shrink-0 px-3.5 py-2 text-xs font-black uppercase tracking-wider border-2 border-b-0 border-slate-900 rounded-t-md transition-all flex items-center gap-1.5 cursor-pointer ${
             activeSubTab === 'leads'
               ? 'bg-slate-900 text-white shadow-[2px_2px_0px_0px_#fff]'
               : 'bg-white text-slate-700 hover:bg-slate-100'
           }`}
         >
-          🎯 Referred Leads Pipeline ({leads.length})
+          <span>🎯 Referred Leads Pipeline ({leads.length})</span>
+          {leads.filter((l) => l.status === 'Deal Confirmed').length > 0 && (
+            <span className="px-1.5 py-0.5 bg-amber-400 text-slate-950 font-black rounded-full text-[10px] animate-pulse">
+              🔔 {leads.filter((l) => l.status === 'Deal Confirmed').length} Needs Commission
+            </span>
+          )}
         </button>
 
         <button
@@ -452,10 +468,20 @@ export default function AffiliatesTab() {
                       <div className="flex items-center justify-end gap-1.5 pt-2 border-t border-slate-100 flex-wrap">
                         <button
                           onClick={() => {
+                            setSelectedPartnerFilter(aff._id)
+                            setActiveSubTab('leads')
+                          }}
+                          className="px-2.5 py-1.5 bg-blue-100 border border-blue-900 text-blue-950 rounded font-black text-xs uppercase hover:bg-blue-200 shadow-[1px_1px_0px_0px_#000] cursor-pointer inline-flex items-center gap-1"
+                        >
+                          <span>📋</span>
+                          <span>View Leads ({leads.filter((l) => (l.affiliate?._id || l.affiliate) === aff._id).length})</span>
+                        </button>
+                        <button
+                          onClick={() => {
                             setViewAffiliateData(aff)
                             setIsViewModalOpen(true)
                           }}
-                          className="px-3 py-1.5 bg-[#fef08a] border border-slate-900 rounded font-black text-xs uppercase hover:bg-amber-300 shadow-[1px_1px_0px_0px_#000] cursor-pointer inline-flex items-center gap-1"
+                          className="px-2.5 py-1.5 bg-[#fef08a] border border-slate-900 rounded font-black text-xs uppercase hover:bg-amber-300 shadow-[1px_1px_0px_0px_#000] cursor-pointer inline-flex items-center gap-1"
                         >
                           <span>🔍</span>
                           <span>View Info</span>
@@ -588,6 +614,17 @@ export default function AffiliatesTab() {
                           <td className="p-3 text-right space-x-1.5 whitespace-nowrap">
                             <button
                               onClick={() => {
+                                setSelectedPartnerFilter(aff._id)
+                                setActiveSubTab('leads')
+                              }}
+                              className="px-2.5 py-1 bg-blue-100 border border-blue-900 text-blue-950 rounded font-black text-[10px] uppercase hover:bg-blue-200 shadow-[1px_1px_0px_0px_#000] cursor-pointer inline-flex items-center gap-1"
+                              title="View all leads submitted by this partner"
+                            >
+                              <span>📋</span>
+                              <span>View Leads ({leads.filter((l) => (l.affiliate?._id || l.affiliate) === aff._id).length})</span>
+                            </button>
+                            <button
+                              onClick={() => {
                                 setViewAffiliateData(aff)
                                 setIsViewModalOpen(true)
                               }}
@@ -650,206 +687,293 @@ export default function AffiliatesTab() {
       {activeSubTab === 'leads' && (
         <div className="space-y-4">
           
-          {/* Status Filter */}
-          <div className="flex overflow-x-auto no-scrollbar sm:flex-wrap items-center gap-1.5 py-1">
-            {['All', 'New', 'Contacted', 'Demo Scheduled', 'In Negotiation', 'Deal Won', 'Lost'].map((st) => (
+          {/* Attention Banner: Purchases Reported by Partners */}
+          {leads.filter((l) => l.status === 'Deal Confirmed').length > 0 && (
+            <div className="bg-amber-100 border-2 border-amber-600 rounded-xl p-3.5 sm:p-4 shadow-[3px_3px_0px_0px_#000] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl shrink-0">🔔</span>
+                <div>
+                  <h4 className="font-black text-xs sm:text-sm text-amber-950 uppercase">
+                    {leads.filter((l) => l.status === 'Deal Confirmed').length} School Purchase(s) Reported by Partners!
+                  </h4>
+                  <p className="text-[11px] text-amber-900 font-bold">
+                    Affiliate partners reported schools bought products. Review deal values & credit their commissions below.
+                  </p>
+                </div>
+              </div>
               <button
-                key={st}
-                onClick={() => setLeadStatusFilter(st)}
-                className={`shrink-0 px-3 py-1 text-xs font-black uppercase tracking-wider border-2 border-slate-900 rounded-md transition-all cursor-pointer ${
-                  leadStatusFilter === st
-                    ? 'bg-slate-900 text-white shadow-[2px_2px_0px_0px_#000]'
-                    : 'bg-white text-slate-700 hover:bg-slate-100'
-                }`}
+                onClick={() => setLeadStatusFilter('Deal Confirmed')}
+                className="shrink-0 px-3.5 py-1.5 bg-amber-400 hover:bg-amber-500 text-slate-950 border-2 border-slate-900 rounded-lg font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000] cursor-pointer"
               >
-                {st}
+                Review Reported ({leads.filter((l) => l.status === 'Deal Confirmed').length})
               </button>
-            ))}
+            </div>
+          )}
+
+          {/* Filter Bar: Individual Partner Dropdown + Status Tabs */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white border-2 border-slate-900 rounded-xl p-3 shadow-[2px_2px_0px_0px_#000]">
+            
+            {/* Filter by Individual Affiliate Partner */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-black uppercase text-slate-700 whitespace-nowrap">Filter by Partner:</span>
+              <select
+                value={selectedPartnerFilter}
+                onChange={(e) => setSelectedPartnerFilter(e.target.value)}
+                className="border-2 border-slate-900 rounded-lg px-2.5 py-1.5 text-xs font-black bg-[#f8fafc] shadow-[1px_1px_0px_0px_#000] focus:outline-none cursor-pointer"
+              >
+                <option value="All">All Affiliate Partners ({leads.length} leads)</option>
+                {affiliates.map((aff) => {
+                  const count = leads.filter((l) => (l.affiliate?._id || l.affiliate) === aff._id).length
+                  return (
+                    <option key={aff._id} value={aff._id}>
+                      {aff.name} ({count} leads)
+                    </option>
+                  )
+                })}
+              </select>
+            </div>
+
+            {/* Pipeline Stage Filter Tabs */}
+            <div className="flex overflow-x-auto no-scrollbar items-center gap-1.5 py-0.5">
+              {[
+                { id: 'All', label: 'All Leads' },
+                { id: 'Deal Confirmed', label: `🔔 Reported (${leads.filter((l) => l.status === 'Deal Confirmed').length})` },
+                { id: 'In Discussion', label: '💬 In Discussion' },
+                { id: 'Deal Won', label: '🎉 Won' },
+                { id: 'Lost', label: '❌ Cancelled' }
+              ].map((st) => (
+                <button
+                  key={st.id}
+                  onClick={() => setLeadStatusFilter(st.id)}
+                  className={`shrink-0 px-2.5 py-1 text-[11px] font-black uppercase tracking-wider border-2 border-slate-900 rounded-lg transition-all cursor-pointer ${
+                    leadStatusFilter === st.id
+                      ? 'bg-slate-900 text-white shadow-[2px_2px_0px_0px_#000]'
+                      : 'bg-white text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  {st.label}
+                </button>
+              ))}
+            </div>
           </div>
+
+          {/* Active Partner Filter Banner */}
+          {selectedPartnerFilter !== 'All' && (
+            <div className="flex items-center justify-between gap-2 bg-blue-50 border-2 border-blue-900 rounded-lg px-3 py-2 text-xs font-bold text-blue-950">
+              <div className="flex items-center gap-2">
+                <span>🎯 Viewing leads exclusively for:</span>
+                <span className="font-black text-blue-900 underline text-sm">
+                  {affiliates.find((a) => a._id === selectedPartnerFilter)?.name || 'Partner'}
+                </span>
+                <span className="text-slate-500 text-[11px]">
+                  ({filteredLeads.length} leads found)
+                </span>
+              </div>
+              <button
+                onClick={() => setSelectedPartnerFilter('All')}
+                className="text-[10px] font-black uppercase px-2.5 py-1 bg-white border border-blue-900 rounded hover:bg-rose-100 cursor-pointer shadow-xs"
+              >
+                ✕ Show All Partners
+              </button>
+            </div>
+          )}
 
           {isLoadingLeads ? (
             <div className="p-8 text-center text-xs font-bold uppercase text-slate-500">
               Loading referred leads...
             </div>
           ) : filteredLeads.length === 0 ? (
-            <div className="bg-white border-2 border-slate-900 rounded-lg p-8 text-center">
+            <div className="bg-white border-2 border-slate-900 rounded-lg p-8 text-center shadow-[2px_2px_0px_0px_#000]">
               <p className="text-sm font-black uppercase text-slate-600">No referred leads found</p>
-              <p className="text-xs text-slate-500 mt-1">Leads submitted directly by affiliate partners will show up here.</p>
+              <p className="text-xs text-slate-500 mt-1">
+                {selectedPartnerFilter !== 'All'
+                  ? 'This partner has not submitted any leads matching this filter.'
+                  : 'Leads submitted by affiliate partners will show up here.'}
+              </p>
             </div>
           ) : (
             <div>
               {/* Mobile Cards View (< md) */}
               <div className="block md:hidden space-y-3">
-                {filteredLeads.map((lead) => (
-                  <div
-                    key={lead._id}
-                    className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-[3px_3px_0px_0px_#000] space-y-3 text-xs"
-                  >
-                    {/* Header: School & Pipeline Select */}
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h3 className="font-black text-slate-900 text-sm leading-snug">
-                          {lead.organizationName}
-                        </h3>
-                        <div className="text-[11px] text-blue-700 font-bold mt-0.5">
-                          Partner: {lead.affiliate?.name || 'Unknown'} ({lead.affiliate?.referralCode || '—'})
+                {filteredLeads.map((lead) => {
+                  const isConfirmed = lead.status === 'Deal Confirmed'
+                  return (
+                    <div
+                      key={lead._id}
+                      className={`bg-white border-2 rounded-xl p-4 shadow-[3px_3px_0px_0px_#000] space-y-3 text-xs ${
+                        isConfirmed
+                          ? 'border-amber-500 ring-2 ring-amber-400 bg-amber-50/20'
+                          : 'border-slate-900'
+                      }`}
+                    >
+                      {/* Banner if affiliate reported purchase */}
+                      {isConfirmed && (
+                        <div className="p-2 bg-amber-200 border border-amber-600 rounded-lg text-amber-950 font-black text-[11px] flex items-center justify-between gap-1">
+                          <span>🔔 School Bought Product! Affiliate reported order.</span>
+                          <span className="text-[10px] bg-white px-1.5 py-0.5 rounded border border-amber-600">Action Needed</span>
                         </div>
-                      </div>
+                      )}
 
-                      <select
-                        value={lead.status}
-                        onChange={(e) => {
-                          const newStatus = e.target.value as any
-                          if (newStatus === 'Deal Won') {
-                            setReviewModalLead(lead)
-                            setReviewModalMode('approve')
-                          } else if (newStatus === 'Lost') {
-                            setReviewModalLead(lead)
-                            setReviewModalMode('reject')
-                          } else {
-                            handleUpdateLead(lead._id, { status: newStatus })
-                          }
-                        }}
-                        className={`shrink-0 font-black uppercase text-[10px] px-2 py-1 rounded border-2 border-slate-900 shadow-[1px_1px_0px_0px_#000] focus:outline-none ${
-                          lead.status === 'Deal Won'
-                            ? 'bg-[#86efac] text-slate-900'
-                            : lead.status === 'Deal Confirmed'
-                            ? 'bg-[#fef08a] text-slate-950 border-amber-500'
+                      {/* Header: School & Status */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h3 className="font-black text-slate-900 text-sm leading-snug">
+                            {lead.organizationName}
+                          </h3>
+                          <div className="text-[11px] text-blue-700 font-bold mt-0.5">
+                            Partner: {lead.affiliate?.name || 'Unknown'} ({lead.affiliate?.referralCode || '—'})
+                          </div>
+                        </div>
+
+                        <span
+                          className={`shrink-0 font-black uppercase text-[10px] px-2 py-0.5 rounded border border-slate-900 shadow-[1px_1px_0px_0px_#000] ${
+                            lead.status === 'Deal Won'
+                              ? 'bg-[#86efac] text-slate-950'
+                              : isConfirmed
+                              ? 'bg-amber-300 text-amber-950 border-amber-600 animate-pulse'
+                              : lead.status === 'Lost'
+                              ? 'bg-rose-200 text-slate-900'
+                              : 'bg-blue-100 text-blue-900'
+                          }`}
+                        >
+                          {lead.status === 'Deal Won'
+                            ? '🎉 Won'
+                            : isConfirmed
+                            ? '🔔 Needs Commission'
                             : lead.status === 'Lost'
-                            ? 'bg-rose-200 text-slate-900'
-                            : lead.status === 'Demo Scheduled'
-                            ? 'bg-[#93c5fd] text-slate-900'
-                            : 'bg-amber-100 text-slate-900'
-                        }`}
-                      >
-                        <option value="New">In Discussion</option>
-                        <option value="Deal Confirmed">🎉 Deal Confirmed (Review)</option>
-                        <option value="Deal Won">Deal Won</option>
-                        <option value="Lost">Lost / Cancelled</option>
-                      </select>
-                    </div>
-
-                    {/* Contact & Phone */}
-                    <div className="bg-[#f8fafc] border border-slate-200 rounded-lg p-2.5 flex items-center justify-between gap-2">
-                      <div>
-                        <span className="text-[9px] uppercase font-black text-slate-400 block">Contact</span>
-                        <span className="font-black text-slate-900 text-xs">{lead.contactPerson}</span>
-                      </div>
-                      <a
-                        href={`tel:${lead.phone}`}
-                        className="inline-flex items-center gap-1 text-xs font-black text-blue-700 bg-white border border-blue-400 px-2.5 py-1 rounded shadow-[1px_1px_0px_0px_#2563eb]"
-                      >
-                        <span>📞</span>
-                        <span>{lead.phone}</span>
-                      </a>
-                    </div>
-
-                    {/* Product & Notes */}
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase">Product:</span>
-                        <span className="text-[10px] font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-300">
-                          {lead.product}
+                            ? '✕ Cancelled'
+                            : '💬 Discussion'}
                         </span>
                       </div>
-                      {lead.city && (
-                        <div className="text-[10px] text-slate-500 font-bold">
-                          📍 Location: {lead.city}
-                        </div>
-                      )}
-                      {lead.notes && (
-                        <div className="text-[10px] text-slate-600 bg-amber-50/70 border border-amber-200 rounded p-1.5 italic">
-                          "{lead.notes}"
-                        </div>
-                      )}
-                      {lead.rejectionReason && lead.status === 'Lost' && (
-                        <div className="text-[10px] text-rose-800 bg-rose-50 border border-rose-200 rounded p-1.5 font-bold">
-                          Reason: {lead.rejectionReason}
-                        </div>
-                      )}
-                    </div>
 
-                    {/* Key Values & Commission Grid */}
-                    <div className="grid grid-cols-3 gap-2 bg-[#f1f5f9] border border-slate-200 rounded-lg p-2 text-center font-mono">
-                      <div>
-                        <span className="text-[9px] font-sans font-black uppercase text-slate-500 block">Deal Value</span>
-                        <span className="text-xs font-black text-slate-900">
-                          ₹{(lead.dealValue || 0).toLocaleString('en-IN')}
-                        </span>
+                      {/* Contact & Phone */}
+                      <div className="bg-[#f8fafc] border border-slate-200 rounded-lg p-2.5 flex items-center justify-between gap-2">
+                        <div>
+                          <span className="text-[9px] uppercase font-black text-slate-400 block">Contact</span>
+                          <span className="font-black text-slate-900 text-xs">{lead.contactPerson}</span>
+                        </div>
+                        <a
+                          href={`tel:${lead.phone}`}
+                          className="inline-flex items-center gap-1 text-xs font-black text-blue-700 bg-white border border-blue-400 px-2.5 py-1 rounded shadow-[1px_1px_0px_0px_#2563eb]"
+                        >
+                          <span>📞</span>
+                          <span>{lead.phone}</span>
+                        </a>
                       </div>
-                      <div>
-                        <span className="text-[9px] font-sans font-black uppercase text-slate-500 block">Commission</span>
-                        <span className="text-xs font-black text-slate-900">
-                          ₹{(lead.commissionAmount || 0).toLocaleString('en-IN')}
-                        </span>
+
+                      {/* Product & Notes */}
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[10px] font-bold text-slate-500 uppercase">Product:</span>
+                          <span className="text-[10px] font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-300">
+                            {lead.product}
+                          </span>
+                        </div>
+                        {lead.city && (
+                          <div className="text-[10px] text-slate-500 font-bold">
+                            📍 Location: {lead.city}
+                          </div>
+                        )}
+                        {lead.confirmationNotes && (
+                          <div className="text-[10px] text-emerald-900 bg-emerald-50 border border-emerald-300 rounded p-1.5 font-bold">
+                            Partner Note: "{lead.confirmationNotes}"
+                          </div>
+                        )}
+                        {lead.notes && (
+                          <div className="text-[10px] text-slate-600 bg-amber-50/70 border border-amber-200 rounded p-1.5 italic">
+                            "{lead.notes}"
+                          </div>
+                        )}
                       </div>
-                      <div>
-                        <span className="text-[9px] font-sans font-black uppercase text-slate-500 block">Payout</span>
-                        <select
-                          value={lead.commissionStatus || 'Pending'}
-                          onChange={(e) => handleUpdateLead(lead._id, { commissionStatus: e.target.value as any })}
-                          className={`font-black uppercase text-[9px] px-1 py-0.5 rounded border border-slate-900 ${
+
+                      {/* Key Values & Commission Grid */}
+                      <div className="grid grid-cols-3 gap-2 bg-[#f1f5f9] border border-slate-200 rounded-lg p-2 text-center font-mono">
+                        <div>
+                          <span className="text-[9px] font-sans font-black uppercase text-slate-500 block">Deal Value</span>
+                          <span className="text-xs font-black text-slate-900">
+                            ₹{(lead.dealValue || 0).toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] font-sans font-black uppercase text-slate-500 block">Commission</span>
+                          <span className="text-xs font-black text-slate-900">
+                            ₹{(lead.commissionAmount || 0).toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] font-sans font-black uppercase text-slate-500 block">Payout</span>
+                          <span className={`text-[10px] font-black uppercase px-1.5 py-0.5 rounded inline-block mt-0.5 ${
                             lead.commissionStatus === 'Paid'
                               ? 'bg-emerald-100 text-emerald-900'
                               : lead.commissionStatus === 'Approved'
                               ? 'bg-blue-100 text-blue-900'
-                              : 'bg-white text-slate-700'
-                          }`}
-                        >
-                          <option value="Pending">Pending</option>
-                          <option value="Approved">Approved</option>
-                          <option value="Paid">Paid</option>
-                        </select>
+                              : 'bg-white text-slate-600'
+                          }`}>
+                            {lead.commissionStatus || 'Pending'}
+                          </span>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Action buttons */}
-                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-                      {lead.status === 'Deal Won' ? (
-                        <button
-                          onClick={() => {
-                            setReviewModalLead(lead)
-                            setReviewModalMode('approve')
-                          }}
-                          className="px-3 py-1.5 bg-white border border-slate-900 rounded font-bold text-xs uppercase hover:bg-slate-100 cursor-pointer shadow-[1px_1px_0px_0px_#000]"
-                        >
-                          Edit Deal / Payout
-                        </button>
-                      ) : lead.status === 'Lost' ? (
-                        <button
-                          onClick={() => {
-                            setReviewModalLead(lead)
-                            setReviewModalMode('approve')
-                          }}
-                          className="px-3 py-1.5 bg-white border border-slate-900 rounded font-bold text-xs uppercase hover:bg-slate-100 cursor-pointer shadow-[1px_1px_0px_0px_#000]"
-                        >
-                          Reopen & Approve
-                        </button>
-                      ) : (
-                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                      {/* Action buttons */}
+                      <div className="pt-2 border-t border-slate-100">
+                        {isConfirmed ? (
                           <button
                             onClick={() => {
                               setReviewModalLead(lead)
                               setReviewModalMode('approve')
                             }}
-                            className="flex-1 sm:flex-initial px-3 py-1.5 bg-[#86efac] border-2 border-slate-900 rounded font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000] hover:bg-[#6ee7b7] cursor-pointer text-center"
+                            className="w-full py-2 bg-[#86efac] hover:bg-[#6ee7b7] border-2 border-slate-900 rounded-lg font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000] cursor-pointer flex items-center justify-center gap-1.5 text-slate-950"
                           >
-                            ✓ Approve Deal
+                            <span>💰</span>
+                            <span>Set Commission & Close Deal</span>
                           </button>
+                        ) : lead.status === 'Deal Won' ? (
                           <button
                             onClick={() => {
                               setReviewModalLead(lead)
-                              setReviewModalMode('reject')
+                              setReviewModalMode('approve')
                             }}
-                            className="flex-1 sm:flex-initial px-3 py-1.5 bg-rose-100 border border-slate-900 rounded font-bold text-xs uppercase text-rose-900 hover:bg-rose-200 cursor-pointer text-center"
+                            className="w-full py-1.5 bg-white border border-slate-900 rounded font-bold text-xs uppercase hover:bg-slate-100 cursor-pointer shadow-[1px_1px_0px_0px_#000] text-center"
                           >
-                            ✕ Cancel
+                            ✏️ Edit Deal / Commission
                           </button>
-                        </div>
-                      )}
+                        ) : lead.status === 'Lost' ? (
+                          <button
+                            onClick={() => {
+                              setReviewModalLead(lead)
+                              setReviewModalMode('approve')
+                            }}
+                            className="w-full py-1.5 bg-white border border-slate-900 rounded font-bold text-xs uppercase hover:bg-slate-100 cursor-pointer shadow-[1px_1px_0px_0px_#000] text-center"
+                          >
+                            Reopen & Close Deal
+                          </button>
+                        ) : (
+                          <div className="flex items-center gap-2 w-full">
+                            <button
+                              onClick={() => {
+                                setReviewModalLead(lead)
+                                setReviewModalMode('approve')
+                              }}
+                              className="flex-1 py-1.5 bg-[#86efac] border-2 border-slate-900 rounded font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000] hover:bg-[#6ee7b7] cursor-pointer text-center"
+                              title="Close deal and set commission anytime"
+                            >
+                              💰 Close Deal & Commission
+                            </button>
+                            <button
+                              onClick={() => {
+                                setReviewModalLead(lead)
+                                setReviewModalMode('reject')
+                              }}
+                              className="px-3 py-1.5 bg-rose-50 border border-slate-900 rounded font-bold text-xs uppercase text-rose-900 hover:bg-rose-100 cursor-pointer text-center"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
 
               {/* Desktop Table (>= md) */}
@@ -860,171 +984,188 @@ export default function AffiliatesTab() {
                       <th className="p-3">School / Client</th>
                       <th className="p-3">Partner Attributed</th>
                       <th className="p-3">Product</th>
-                      <th className="p-3">Pipeline Status</th>
+                      <th className="p-3">Status</th>
                       <th className="p-3">Deal Value</th>
                       <th className="p-3">Commission</th>
                       <th className="p-3">Comm. Status</th>
-                      <th className="p-3 text-right">Quick Actions</th>
+                      <th className="p-3 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y-2 divide-slate-100 font-medium">
-                    {filteredLeads.map((lead) => (
-                      <tr key={lead._id} className="hover:bg-slate-50 transition-colors">
-                        
-                        {/* Organization & Contact */}
-                        <td className="p-3">
-                          <div className="font-black text-slate-900">{lead.organizationName}</div>
-                          <div className="text-[11px] text-slate-600">Contact: {lead.contactPerson} ({lead.phone})</div>
-                          {lead.city && <div className="text-[10px] text-slate-400">City: {lead.city}</div>}
-                          {lead.notes && <div className="text-[10px] text-slate-500 italic mt-0.5">"{lead.notes}"</div>}
-                          {lead.rejectionReason && lead.status === 'Lost' && (
-                            <div className="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 rounded px-1.5 py-0.5 mt-1">
-                              Reason: {lead.rejectionReason}
+                    {filteredLeads.map((lead) => {
+                      const isConfirmed = lead.status === 'Deal Confirmed'
+                      return (
+                        <tr
+                          key={lead._id}
+                          className={`transition-colors ${
+                            isConfirmed ? 'bg-amber-50/70 hover:bg-amber-100/60' : 'hover:bg-slate-50'
+                          }`}
+                        >
+                          {/* Organization & Contact */}
+                          <td className="p-3">
+                            <div className="font-black text-slate-900 flex items-center gap-1.5">
+                              <span>{lead.organizationName}</span>
+                              {isConfirmed && (
+                                <span className="text-[9px] px-1.5 py-0.2 bg-amber-400 text-slate-950 font-black rounded border border-slate-900">
+                                  🔔 Reported
+                                </span>
+                              )}
                             </div>
-                          )}
-                        </td>
+                            <div className="text-[11px] text-slate-600">Contact: {lead.contactPerson} ({lead.phone})</div>
+                            {lead.city && <div className="text-[10px] text-slate-400">City: {lead.city}</div>}
+                            {lead.confirmationNotes && (
+                              <div className="text-[10px] text-emerald-900 bg-emerald-50 border border-emerald-300 rounded px-1.5 py-0.5 mt-0.5 font-bold">
+                                Partner Note: "{lead.confirmationNotes}"
+                              </div>
+                            )}
+                            {lead.notes && <div className="text-[10px] text-slate-500 italic mt-0.5">"{lead.notes}"</div>}
+                          </td>
 
-                        {/* Affiliate Partner */}
-                        <td className="p-3">
-                          <div className="font-bold text-slate-900">
-                            {lead.affiliate?.name || 'Unknown Affiliate'}
-                          </div>
-                          <span className="font-mono text-[10px] text-blue-600">
-                            {lead.affiliate?.email || lead.affiliate?.referralCode}
-                          </span>
-                        </td>
+                          {/* Affiliate Partner */}
+                          <td className="p-3">
+                            <div className="font-bold text-slate-900">
+                              {lead.affiliate?.name || 'Unknown Affiliate'}
+                            </div>
+                            <span className="font-mono text-[10px] text-blue-600">
+                              {lead.affiliate?.email || lead.affiliate?.referralCode}
+                            </span>
+                          </td>
 
-                        {/* Product */}
-                        <td className="p-3 font-bold text-slate-800">
-                          {lead.product}
-                        </td>
+                          {/* Product */}
+                          <td className="p-3 font-bold text-slate-800">
+                            <span className="bg-slate-100 border border-slate-300 px-2 py-0.5 rounded text-[11px]">
+                              {lead.product}
+                            </span>
+                          </td>
 
-                        {/* Pipeline Status Select */}
-                        <td className="p-3">
-                          <select
-                            value={lead.status}
-                            onChange={(e) => {
-                              const newStatus = e.target.value as any
-                              if (newStatus === 'Deal Won') {
-                                setReviewModalLead(lead)
-                                setReviewModalMode('approve')
-                              } else if (newStatus === 'Lost') {
-                                setReviewModalLead(lead)
-                                setReviewModalMode('reject')
-                              } else {
-                                handleUpdateLead(lead._id, { status: newStatus })
-                              }
-                            }}
-                            className={`font-black uppercase text-[10px] px-2 py-1 rounded border-2 border-slate-900 shadow-[1px_1px_0px_0px_#000] focus:outline-none ${
-                              lead.status === 'Deal Won'
-                                ? 'bg-[#86efac] text-slate-900'
-                                : lead.status === 'Deal Confirmed'
-                                ? 'bg-[#fef08a] text-slate-950 border-amber-500'
+                          {/* Status Badge */}
+                          <td className="p-3">
+                            <span
+                              className={`px-2 py-1 rounded text-[10px] font-black uppercase border border-slate-900 shadow-[1px_1px_0px_0px_#000] inline-block ${
+                                lead.status === 'Deal Won'
+                                  ? 'bg-[#86efac] text-slate-950'
+                                  : isConfirmed
+                                  ? 'bg-amber-300 text-amber-950 border-amber-600 animate-pulse'
+                                  : lead.status === 'Lost'
+                                  ? 'bg-rose-200 text-slate-900'
+                                  : 'bg-blue-100 text-blue-900'
+                              }`}
+                            >
+                              {lead.status === 'Deal Won'
+                                ? '🎉 Deal Won'
+                                : isConfirmed
+                                ? '🔔 School Bought!'
                                 : lead.status === 'Lost'
-                                ? 'bg-rose-200 text-slate-900'
-                                : lead.status === 'Demo Scheduled'
-                                ? 'bg-[#93c5fd] text-slate-900'
-                                : 'bg-amber-100 text-slate-900'
-                            }`}
-                          >
-                            <option value="New">In Discussion</option>
-                            <option value="Deal Confirmed">🎉 Deal Confirmed (Review)</option>
-                            <option value="Deal Won">Deal Won (Closed)</option>
-                            <option value="Lost">Lost / Cancelled</option>
-                          </select>
-                        </td>
+                                ? '✕ Cancelled'
+                                : '💬 Discussion'}
+                            </span>
+                          </td>
 
-                        {/* Deal Value */}
-                        <td className="p-3 font-mono font-bold text-slate-900">
-                          ₹{(lead.dealValue || 0).toLocaleString('en-IN')}
-                        </td>
+                          {/* Deal Value */}
+                          <td className="p-3 font-mono font-bold text-slate-900">
+                            ₹{(lead.dealValue || 0).toLocaleString('en-IN')}
+                          </td>
 
-                        {/* Commission Amount */}
-                        <td className="p-3 font-mono font-black text-slate-900">
-                          ₹{(lead.commissionAmount || 0).toLocaleString('en-IN')}
-                        </td>
+                          {/* Commission Amount */}
+                          <td className="p-3 font-mono font-black text-slate-900">
+                            ₹{(lead.commissionAmount || 0).toLocaleString('en-IN')}
+                          </td>
 
-                        {/* Commission Status */}
-                        <td className="p-3">
-                          <select
-                            value={lead.commissionStatus || 'Pending'}
-                            onChange={(e) => handleUpdateLead(lead._id, { commissionStatus: e.target.value as any })}
-                            className={`font-black uppercase text-[9px] px-1.5 py-0.5 rounded border border-slate-900 ${
-                              lead.commissionStatus === 'Paid'
-                                ? 'bg-emerald-100 text-emerald-900'
-                                : lead.commissionStatus === 'Approved'
-                                ? 'bg-blue-100 text-blue-900'
-                                : 'bg-slate-100 text-slate-700'
-                            }`}
-                          >
-                            <option value="Pending">Pending</option>
-                            <option value="Approved">Approved</option>
-                            <option value="Paid">Paid</option>
-                          </select>
-                        </td>
+                          {/* Commission Status */}
+                          <td className="p-3">
+                            <select
+                              value={lead.commissionStatus || 'Pending'}
+                              onChange={(e) => handleUpdateLead(lead._id, { commissionStatus: e.target.value as any })}
+                              className={`font-black uppercase text-[9px] px-1.5 py-0.5 rounded border border-slate-900 ${
+                                lead.commissionStatus === 'Paid'
+                                  ? 'bg-emerald-100 text-emerald-900'
+                                  : lead.commissionStatus === 'Approved'
+                                  ? 'bg-blue-100 text-blue-900'
+                                  : 'bg-slate-100 text-slate-700'
+                              }`}
+                            >
+                              <option value="Pending">Pending</option>
+                              <option value="Approved">Approved</option>
+                              <option value="Paid">Paid</option>
+                            </select>
+                          </td>
 
-                        {/* Quick Actions */}
-                        <td className="p-3 text-right">
-                          {lead.status === 'Deal Won' ? (
-                            <div className="flex items-center justify-end gap-1.5">
-                              <span className="px-2 py-0.5 bg-emerald-100 border border-emerald-600 text-emerald-900 rounded font-black text-[10px]">
-                                ✓ Won
-                              </span>
+                          {/* Quick Actions */}
+                          <td className="p-3 text-right whitespace-nowrap">
+                            {isConfirmed ? (
                               <button
                                 onClick={() => {
                                   setReviewModalLead(lead)
                                   setReviewModalMode('approve')
                                 }}
-                                className="px-2 py-0.5 bg-white border border-slate-900 rounded font-bold text-[10px] hover:bg-slate-100 cursor-pointer shadow-[1px_1px_0px_0px_#000]"
-                                title="Edit deal amount or commission"
+                                className="px-3 py-1.5 bg-[#86efac] hover:bg-[#6ee7b7] border-2 border-slate-900 rounded font-black text-[11px] uppercase shadow-[2px_2px_0px_0px_#000] cursor-pointer flex items-center gap-1.5 ml-auto text-slate-950"
+                                title="School confirmed purchase! Set deal value and credit commission."
                               >
-                                Edit
+                                <span>💰</span>
+                                <span>Set Commission & Close</span>
                               </button>
-                            </div>
-                          ) : lead.status === 'Lost' ? (
-                            <div className="flex items-center justify-end gap-1.5">
-                              <span className="px-2 py-0.5 bg-rose-100 border border-rose-500 text-rose-900 rounded font-black text-[10px]">
-                                ✕ Cancelled
-                              </span>
-                              <button
-                                onClick={() => {
-                                  setReviewModalLead(lead)
-                                  setReviewModalMode('approve')
-                                }}
-                                className="px-2 py-0.5 bg-white border border-slate-900 rounded font-bold text-[10px] hover:bg-slate-100 cursor-pointer shadow-[1px_1px_0px_0px_#000]"
-                                title="Re-open and approve deal"
-                              >
-                                Reopen
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="flex items-center justify-end gap-1.5">
-                              <button
-                                onClick={() => {
-                                  setReviewModalLead(lead)
-                                  setReviewModalMode('approve')
-                                }}
-                                className="px-2.5 py-1 bg-[#86efac] border-2 border-slate-900 rounded font-black text-[10px] shadow-[2px_2px_0px_0px_#000] hover:bg-[#6ee7b7] cursor-pointer flex items-center gap-1 active:translate-y-0.5"
-                              >
-                                <span>✓</span>
-                                <span>Approve</span>
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setReviewModalLead(lead)
-                                  setReviewModalMode('reject')
-                                }}
-                                className="px-2 py-1 bg-rose-100 border border-slate-900 rounded font-bold text-[10px] shadow-[1px_1px_0px_0px_#000] text-rose-900 hover:bg-rose-200 cursor-pointer flex items-center gap-0.5"
-                              >
-                                <span>✕</span>
-                                <span>Cancel</span>
-                              </button>
-                            </div>
-                          )}
-                        </td>
+                            ) : lead.status === 'Deal Won' ? (
+                              <div className="flex items-center justify-end gap-1.5">
+                                <span className="px-2 py-0.5 bg-emerald-100 border border-emerald-600 text-emerald-900 rounded font-black text-[10px]">
+                                  ✓ Won
+                                </span>
+                                <button
+                                  onClick={() => {
+                                    setReviewModalLead(lead)
+                                    setReviewModalMode('approve')
+                                  }}
+                                  className="px-2 py-0.5 bg-white border border-slate-900 rounded font-bold text-[10px] hover:bg-slate-100 cursor-pointer shadow-[1px_1px_0px_0px_#000]"
+                                  title="Edit deal amount or commission"
+                                >
+                                  Edit
+                                </button>
+                              </div>
+                            ) : lead.status === 'Lost' ? (
+                              <div className="flex items-center justify-end gap-1.5">
+                                <span className="px-2 py-0.5 bg-rose-100 border border-rose-500 text-rose-900 rounded font-black text-[10px]">
+                                  ✕ Cancelled
+                                </span>
+                                <button
+                                  onClick={() => {
+                                    setReviewModalLead(lead)
+                                    setReviewModalMode('approve')
+                                  }}
+                                  className="px-2 py-0.5 bg-white border border-slate-900 rounded font-bold text-[10px] hover:bg-slate-100 cursor-pointer shadow-[1px_1px_0px_0px_#000]"
+                                  title="Re-open and approve deal"
+                                >
+                                  Reopen
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  onClick={() => {
+                                    setReviewModalLead(lead)
+                                    setReviewModalMode('approve')
+                                  }}
+                                  className="px-2.5 py-1 bg-[#86efac] border-2 border-slate-900 rounded font-black text-[10px] shadow-[2px_2px_0px_0px_#000] hover:bg-[#6ee7b7] cursor-pointer flex items-center gap-1 active:translate-y-0.5"
+                                  title="Close deal and set commission anytime"
+                                >
+                                  <span>💰</span>
+                                  <span>Close Deal</span>
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setReviewModalLead(lead)
+                                    setReviewModalMode('reject')
+                                  }}
+                                  className="px-2 py-1 bg-rose-50 border border-slate-900 rounded font-bold text-[10px] text-rose-900 hover:bg-rose-100 cursor-pointer flex items-center gap-0.5"
+                                  title="Cancel deal"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            )}
+                          </td>
 
-                      </tr>
-                    ))}
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>

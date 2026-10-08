@@ -85,6 +85,7 @@ export default function AdminLayout() {
     { to: '/admin/leads', label: 'Client Leads', icon: '📬' },
     { to: '/admin/careers', label: 'Careers & Resumes', icon: '💼' },
     { to: '/admin/affiliates', label: 'Affiliates & Partners', icon: '🤝' },
+    { to: '/admin/analytics', label: 'Affiliates Analytics', icon: '📊' },
     { to: '/admin/developers', label: 'Developers Team', icon: '👨‍💻' },
     { to: '/admin/projects', label: 'Projects Directory', icon: '📁' },
     { to: '/admin/projects/new', label: '+ Add Project', icon: '✨' },

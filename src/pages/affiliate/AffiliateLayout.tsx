@@ -56,6 +56,7 @@ export default function AffiliateLayout() {
   const navItems = [
     { to: '/affiliate/dashboard', label: 'Overview', icon: '📊' },
     { to: '/affiliate/leads', label: 'My Client Leads', icon: '🎯' },
+    { to: '/affiliate/analytics', label: 'Analytics', icon: '📈' },
     { to: '/affiliate/earnings', label: 'Earnings & Payouts', icon: '💰' },
     { to: '/affiliate/settings', label: 'Bank & UPI Settings', icon: '🏦' },
   ]
@@ -312,13 +313,13 @@ export default function AffiliateLayout() {
       </div>
 
       {/* Mobile Bottom Navigation Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t-2 border-slate-900 grid grid-cols-4 py-1.5 px-2 shadow-[0_-4px_12px_rgba(0,0,0,0.1)] font-mono">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t-2 border-slate-900 grid grid-cols-5 py-1.5 px-1 shadow-[0_-4px_12px_rgba(0,0,0,0.1)] font-mono">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center py-1.5 px-1 rounded-lg text-[10px] font-black uppercase tracking-tight transition-all ${
+              `flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg text-[10px] font-black uppercase tracking-tight transition-all ${
                 isActive
                   ? 'bg-slate-900 text-white shadow-[2px_2px_0px_0px_#ff9e7d]'
                   : 'text-slate-600 hover:text-slate-900'
@@ -326,7 +327,7 @@ export default function AffiliateLayout() {
             }
           >
             <span className="text-base leading-none mb-1">{item.icon}</span>
-            <span className="truncate max-w-[70px] text-[9px]">{item.label.split(' ')[0]}</span>
+            <span className="truncate max-w-[62px] text-[8.5px]">{item.label.split(' ')[0]}</span>
           </NavLink>
         ))}
       </nav>

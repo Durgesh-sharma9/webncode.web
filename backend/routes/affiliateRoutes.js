@@ -48,6 +48,7 @@ router.delete(['/leads/:leadId', '/portal/leads/:leadId'], protect, (req, res, n
 // -------------------------------------------------------------
 // SUPERADMIN MANAGEMENT ROUTES (Role: admin)
 // -------------------------------------------------------------
+router.get('/analytics', protect, authorize('admin'), affiliateController.getAffiliateAnalyticsForAdmin);
 router.post('/', protect, authorize('admin'), affiliateController.createAffiliate);
 router.get('/', protect, authorize('admin'), affiliateController.getAllAffiliates);
 router.put('/:id', protect, authorize('admin'), affiliateController.updateAffiliate);

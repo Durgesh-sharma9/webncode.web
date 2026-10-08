@@ -86,7 +86,7 @@ export default function TermsOfService() {
               These Terms of Service (&ldquo;Terms&rdquo;) establish a legally binding contractual agreement between you (whether individually or representing an educational institution, organization, or corporate entity) and <strong>{company.name}</strong> (&ldquo;Company&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;), having its principal office at {company.address}.
             </p>
             <p>
-              By accessing our website (<strong>webncode.com</strong>), registering an administrative account, subscribing to any software product (including School ERP Pro, Attendance Management System, Web Builder Pro, Campus CRM), or using our Affiliate portal, you explicitly acknowledge that you have read, understood, and agreed to be bound by all of these Terms.
+              By accessing our website (<strong>webncode.in</strong> / <strong>webncode.com</strong>), registering an account, signing in with Google, subscribing to any software product (including <strong>Syllabus Tracker</strong>, <strong>CampusCRM</strong>, <strong>TimeTablePro</strong>, <strong>TestMaster</strong>, <strong>School ERP Pro</strong>, and <strong>Attendance Management System</strong>), or using our Affiliate portal, you explicitly acknowledge that you have read, understood, and agreed to be bound by all of these Terms.
             </p>
             <p className="text-xs text-slate-600 bg-amber-50 p-3 border border-amber-300 rounded font-mono">
               <strong>Notice:</strong> If you do not agree with all of these terms, you are expressly prohibited from using our services and must discontinue use immediately.

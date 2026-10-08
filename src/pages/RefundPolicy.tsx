@@ -83,7 +83,7 @@ export default function RefundPolicy() {
               1. Overview & Service Nature
             </h2>
             <p>
-              At <strong>{company.name}</strong> (&ldquo;Web n Code&rdquo;), we develop and operate specialized software products and cloud SaaS platforms for schools, colleges, sports academies, and educational institutions.
+              At <strong>{company.name}</strong> (&ldquo;Web n Code&rdquo;), we develop and operate specialized software products and cloud SaaS platforms under our umbrella domain <strong>webncode.in</strong> (including <strong>Syllabus Tracker</strong>, <strong>CampusCRM</strong>, <strong>TimeTablePro</strong>, <strong>TestMaster</strong>, and <strong>School ERP Pro</strong>) for schools, colleges, sports academies, and educational institutions.
             </p>
             <p>
               Because our solutions involve digital cloud infrastructure provisioning, institutional database configuration, data migration, and dedicated server instance allocation, we maintain a transparent, fair, and legally compliant Cancellation and Refund Policy.

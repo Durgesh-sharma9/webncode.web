@@ -1810,4 +1810,209 @@ exports.validateCoupon = async (req, res) => {
   }
 };
 
+/**
+ * SuperAdmin: Comprehensive Affiliate Ecosystem Analytics
+ * Tracks locations/cities where leads were submitted ("Kitne jaghe leads di")
+ * and products demonstrated/pitched ("Kon kon se products dekhaye")
+ * GET /api/affiliates/analytics
+ */
+exports.getAffiliateAnalyticsForAdmin = async (req, res) => {
+  try {
+    const affiliates = await Affiliate.find().sort({ createdAt: -1 });
+    const leads = await AffiliateLead.find()
+      .populate('affiliate', 'name email referralCode phone commissionRate payoutType fixedAmount')
+      .sort({ createdAt: -1 });
+
+    // 1. Overall Stats
+    const totalAffiliates = affiliates.length;
+    const totalLeads = leads.length;
+    const totalClicks = affiliates.reduce((sum, a) => sum + (a.clicksCount || 0), 0);
+    const totalPipelineValue = leads.reduce((sum, l) => sum + (l.dealValue || 0), 0);
+    const wonLeads = leads.filter(l => l.status === 'Deal Won' || l.status === 'Deal Confirmed');
+    const totalWonRevenue = wonLeads.reduce((sum, l) => sum + (l.dealValue || 0), 0);
+    const totalCommissionsEarned = leads.reduce((sum, l) => sum + (l.commissionAmount || 0), 0);
+    const totalCommissionsPaid = affiliates.reduce((sum, a) => sum + (a.stats?.totalPaid || 0), 0);
+    const conversionRate = totalLeads > 0 ? Number(((wonLeads.length / totalLeads) * 100).toFixed(1)) : 0;
+
+    // 2. Locations / Cities Breakdown ("Kitne jaghe leads di")
+    const cityMap = {};
+    leads.forEach(l => {
+      const city = (l.city && l.city.trim()) ? l.city.trim() : 'Unspecified Location';
+      if (!cityMap[city]) {
+        cityMap[city] = {
+          city,
+          totalLeads: 0,
+          wonLeads: 0,
+          totalDealValue: 0,
+          affiliates: new Set(),
+          productsPitched: {},
+          organizations: []
+        };
+      }
+      cityMap[city].totalLeads += 1;
+      cityMap[city].totalDealValue += (l.dealValue || 0);
+      if (l.status === 'Deal Won' || l.status === 'Deal Confirmed') {
+        cityMap[city].wonLeads += 1;
+      }
+      if (l.affiliate && l.affiliate.name) {
+        cityMap[city].affiliates.add(l.affiliate.name);
+      }
+      if (l.organizationName) {
+        cityMap[city].organizations.push({
+          name: l.organizationName,
+          contactPerson: l.contactPerson,
+          affiliate: l.affiliate?.name || 'Unknown Partner',
+          status: l.status,
+          dealValue: l.dealValue || 0,
+          products: (l.products && l.products.length > 0) ? l.products : [l.product || 'School ERP Pro'],
+          createdAt: l.createdAt
+        });
+      }
+
+      // Collect products pitched in this city
+      const prods = (l.products && l.products.length > 0) ? l.products : [l.product || 'School ERP Pro'];
+      prods.forEach(p => {
+        if (p) {
+          cityMap[city].productsPitched[p] = (cityMap[city].productsPitched[p] || 0) + 1;
+        }
+      });
+    });
+
+    const locationsData = Object.values(cityMap).map(c => ({
+      city: c.city,
+      totalLeads: c.totalLeads,
+      wonLeads: c.wonLeads,
+      totalDealValue: c.totalDealValue,
+      affiliatesCount: c.affiliates.size,
+      affiliatesList: Array.from(c.affiliates),
+      topProducts: Object.entries(c.productsPitched)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count),
+      organizations: c.organizations
+    })).sort((a, b) => b.totalLeads - a.totalLeads);
+
+    // 3. Products Pitched Breakdown ("Kon kon se products dekhaye")
+    const productMap = {};
+    leads.forEach(l => {
+      const prods = (l.products && l.products.length > 0) ? l.products : [l.product || 'School ERP Pro'];
+      prods.forEach(p => {
+        const prodName = p || 'School ERP Pro';
+        if (!productMap[prodName]) {
+          productMap[prodName] = {
+            productName: prodName,
+            pitchCount: 0,
+            wonCount: 0,
+            inDiscussionCount: 0,
+            lostCount: 0,
+            totalDealValue: 0,
+            affiliates: new Set(),
+            cities: new Set()
+          };
+        }
+        productMap[prodName].pitchCount += 1;
+        productMap[prodName].totalDealValue += (l.dealValue || 0);
+        if (l.status === 'Deal Won' || l.status === 'Deal Confirmed') {
+          productMap[prodName].wonCount += 1;
+        } else if (l.status === 'Lost') {
+          productMap[prodName].lostCount += 1;
+        } else {
+          productMap[prodName].inDiscussionCount += 1;
+        }
+        if (l.affiliate?.name) productMap[prodName].affiliates.add(l.affiliate.name);
+        if (l.city && l.city.trim()) productMap[prodName].cities.add(l.city.trim());
+      });
+    });
+
+    const productsData = Object.values(productMap).map(p => ({
+      productName: p.productName,
+      pitchCount: p.pitchCount,
+      wonCount: p.wonCount,
+      inDiscussionCount: p.inDiscussionCount,
+      lostCount: p.lostCount,
+      totalDealValue: p.totalDealValue,
+      affiliatesCount: p.affiliates.size,
+      affiliatesList: Array.from(p.affiliates),
+      citiesCount: p.cities.size,
+      citiesList: Array.from(p.cities),
+      winRate: p.pitchCount > 0 ? Number(((p.wonCount / p.pitchCount) * 100).toFixed(1)) : 0
+    })).sort((a, b) => b.pitchCount - a.pitchCount);
+
+    // 4. Per-Affiliate Detailed Territory & Pitch Matrix
+    const affiliateAnalytics = affiliates.map(aff => {
+      const affLeads = leads.filter(l => l.affiliate && String(l.affiliate._id || l.affiliate) === String(aff._id));
+      const affCities = new Set();
+      const affProductsMap = {};
+      let affPipeline = 0;
+      let affWonValue = 0;
+      let affWonCount = 0;
+
+      affLeads.forEach(l => {
+        if (l.city && l.city.trim()) affCities.add(l.city.trim());
+        affPipeline += (l.dealValue || 0);
+        if (l.status === 'Deal Won' || l.status === 'Deal Confirmed') {
+          affWonCount += 1;
+          affWonValue += (l.dealValue || 0);
+        }
+        const prods = (l.products && l.products.length > 0) ? l.products : [l.product || 'School ERP Pro'];
+        prods.forEach(p => {
+          if (p) {
+            affProductsMap[p] = (affProductsMap[p] || 0) + 1;
+          }
+        });
+      });
+
+      return {
+        affiliateId: aff._id,
+        name: aff.name,
+        email: aff.email,
+        phone: aff.phone || '',
+        referralCode: aff.referralCode,
+        status: aff.status,
+        totalLeads: affLeads.length,
+        clicksCount: aff.clicksCount || 0,
+        citiesCount: affCities.size,
+        citiesList: Array.from(affCities),
+        productsPitched: Object.entries(affProductsMap).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count),
+        totalPipeline: affPipeline,
+        wonValue: affWonValue,
+        wonCount: affWonCount,
+        conversionRate: affLeads.length > 0 ? Number(((affWonCount / affLeads.length) * 100).toFixed(1)) : 0,
+        totalEarned: aff.stats?.totalEarned || 0,
+        totalPaid: aff.stats?.totalPaid || 0,
+        pendingPayout: aff.stats?.pendingPayout || 0
+      };
+    }).sort((a, b) => b.totalLeads - a.totalLeads);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        overview: {
+          totalAffiliates,
+          totalLeads,
+          totalClicks,
+          totalPipelineValue,
+          totalWonRevenue,
+          wonLeadsCount: wonLeads.length,
+          conversionRate,
+          totalCommissionsEarned,
+          totalCommissionsPaid,
+          uniqueCitiesCount: locationsData.length,
+          uniqueProductsCount: productsData.length
+        },
+        locations: locationsData,
+        products: productsData,
+        affiliates: affiliateAnalytics
+      }
+    });
+  } catch (error) {
+    console.error('Affiliate analytics error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch affiliate analytics',
+      error: error.message
+    });
+  }
+};
+
+
 

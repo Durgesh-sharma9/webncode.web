@@ -5,6 +5,7 @@ import { API_BASE, type AffiliateLeadItem } from '../admin/types'
 import { showErrorToast } from '../../components/ui/Toast'
 import AddLeadModal from './AddLeadModal'
 import ManageLeadModal from './ManageLeadModal'
+import ReportPurchaseModal from './ReportPurchaseModal'
 
 export default function AffiliateLeads() {
   const { token, user } = useAuth()
@@ -15,6 +16,8 @@ export default function AffiliateLeads() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedLeadForManage, setSelectedLeadForManage] = useState<AffiliateLeadItem | null>(null)
   const [isManageModalOpen, setIsManageModalOpen] = useState(false)
+  const [selectedLeadForPurchase, setSelectedLeadForPurchase] = useState<AffiliateLeadItem | null>(null)
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false)
 
   const payoutType = (user?.affiliate?.payoutType || 'percentage') as 'percentage' | 'fixed'
   const commissionRate = user?.affiliate?.commissionRate ?? 10
@@ -362,6 +365,39 @@ export default function AffiliateLeads() {
                         <span className="truncate">Edit</span>
                       </button>
                     </div>
+
+                    {/* Prominent Conversion Notification Flow */}
+                    {lead.status === 'Deal Won' ? (
+                      <div className="p-2.5 bg-emerald-100 border-2 border-emerald-600 rounded-lg text-center font-black text-xs text-emerald-950 shadow-[1px_1px_0px_0px_#000]">
+                        🎉 Deal Closed! ₹{(lead.commissionAmount || 0).toLocaleString('en-IN')} Commission Credited
+                      </div>
+                    ) : lead.status === 'Deal Confirmed' ? (
+                      <div className="p-2.5 bg-amber-100 border-2 border-amber-500 rounded-lg flex items-center justify-between gap-2 shadow-[1px_1px_0px_0px_#000]">
+                        <div className="text-[11px] font-black text-amber-950 leading-tight">
+                          ⏳ Purchase Reported! Super Admin verifying & crediting commission.
+                        </div>
+                        <button
+                          onClick={() => {
+                            setSelectedLeadForPurchase(lead)
+                            setIsPurchaseModalOpen(true)
+                          }}
+                          className="shrink-0 px-2 py-1 bg-white border border-amber-600 rounded text-[10px] font-black uppercase text-amber-950 cursor-pointer"
+                        >
+                          Edit
+                        </button>
+                      </div>
+                    ) : lead.status !== 'Lost' ? (
+                      <button
+                        onClick={() => {
+                          setSelectedLeadForPurchase(lead)
+                          setIsPurchaseModalOpen(true)
+                        }}
+                        className="w-full py-2.5 px-3 bg-[#86efac] hover:bg-[#6ee7b7] active:scale-[0.98] text-slate-950 border-2 border-slate-900 rounded-lg font-black text-xs uppercase shadow-[2.5px_2.5px_0px_0px_#000] flex items-center justify-center gap-2 cursor-pointer transition-transform"
+                      >
+                        <span className="text-sm">🎉</span>
+                        <span>School Bought Product! (Notify Admin)</span>
+                      </button>
+                    ) : null}
                   </div>
 
                   {/* Compact Product Tags & Accordion Toggle Bar */}
@@ -578,6 +614,38 @@ export default function AffiliateLeads() {
                       {/* Quick Connect & Action (Right Aligned) */}
                       <td className="py-2.5 px-3 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5">
+                          {lead.status === 'Deal Won' ? (
+                            <span className="px-2 py-0.5 bg-emerald-100 border border-emerald-600 text-emerald-950 rounded font-black text-[10px]">
+                              🎉 Won (₹{(lead.commissionAmount || 0).toLocaleString('en-IN')})
+                            </span>
+                          ) : lead.status === 'Deal Confirmed' ? (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setSelectedLeadForPurchase(lead)
+                                setIsPurchaseModalOpen(true)
+                              }}
+                              className="px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-600 rounded font-black text-[10px] uppercase flex items-center gap-1 cursor-pointer"
+                              title="Purchase reported to Admin. Click to review or edit."
+                            >
+                              <span>⏳</span>
+                              <span>Reported (Admin Review)</span>
+                            </button>
+                          ) : lead.status !== 'Lost' ? (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setSelectedLeadForPurchase(lead)
+                                setIsPurchaseModalOpen(true)
+                              }}
+                              className="px-2.5 py-1 bg-[#86efac] hover:bg-[#6ee7b7] text-slate-950 border-2 border-slate-900 rounded font-black text-[10px] uppercase shadow-[1.5px_1.5px_0px_0px_#000] flex items-center gap-1 hover:translate-y-[-1px] transition-all cursor-pointer"
+                              title="School bought product - Notify Super Admin to credit commission"
+                            >
+                              <span>🎉</span>
+                              <span>School Bought!</span>
+                            </button>
+                          ) : null}
+
                           <a
                             href={getWhatsappUrl(lead)}
                             target="_blank"
@@ -831,6 +899,19 @@ export default function AffiliateLeads() {
         token={token}
         allowedProducts={allowedProducts}
         onLeadUpdated={fetchLeads}
+      />
+
+      {/* Report School Purchase Modal */}
+      <ReportPurchaseModal
+        isOpen={isPurchaseModalOpen}
+        onClose={() => {
+          setIsPurchaseModalOpen(false)
+          setSelectedLeadForPurchase(null)
+        }}
+        lead={selectedLeadForPurchase}
+        token={token}
+        allowedProducts={allowedProducts}
+        onSuccess={fetchLeads}
       />
 
     </div>
