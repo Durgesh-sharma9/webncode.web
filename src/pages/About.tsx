@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { CheckIcon } from '../components/ui/Icons'
 
@@ -16,6 +15,10 @@ import pranav2 from '../assets/team/pranav2.png'
 
 import dev1 from '../assets/team/dev1.png'
 import dev2 from '../assets/team/dev2.png'
+import devStage1 from '../assets/team/dev_stage1_helmet.png'
+import devStage2 from '../assets/team/dev_stage2_sniper.png'
+
+import { SniperModal, SniperShotEffect, playHelmetEquipSound, playSniperAimSound, playSniperShotSound } from '../components/ui/SniperModal'
 
 
 const themeGradients = [
@@ -114,37 +117,129 @@ const developers: ProfileMember[] = [
 
 function CollectibleCard({ member, themeIndex, isFounder }: { member: ProfileMember; themeIndex: number; isFounder: boolean }) {
   const [isHovered, setIsHovered] = useState(false)
+  const [tapCount, setTapCount] = useState(0)
+  const [isFiring, setIsFiring] = useState(false)
+  const [isSniperModalOpen, setIsSniperModalOpen] = useState(false)
   const theme = themeGradients[themeIndex % themeGradients.length]
+
+  const isDev = member.id === 'dev' || (Boolean(member.name) && member.name.toLowerCase().includes('durgesh'))
 
   // Conditional sizing for 4-grid layout (making devs slightly smaller)
   const cardHeight = isFounder ? 'h-[450px]' : 'h-[380px]'
   const imgHeight = isFounder ? 'h-[320px]' : 'h-[270px]'
 
+  let displayedImage = isHovered ? member.hoverImage : member.image
+  if (isDev) {
+    if (tapCount === 1) {
+      displayedImage = devStage1
+    } else if (tapCount >= 2) {
+      displayedImage = devStage2
+    }
+  }
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (isDev) {
+      e.preventDefault()
+      e.stopPropagation()
+      if (tapCount === 0) {
+        // Step 1: Wear tactical helmet
+        setTapCount(1)
+        playHelmetEquipSound()
+      } else if (tapCount === 1) {
+        // Step 2: Aim sniper directly at the screen
+        setTapCount(2)
+        playSniperAimSound()
+      } else if (tapCount >= 2) {
+        // Step 3: Fire sniper shot at screen!
+        setTapCount(3)
+        playSniperShotSound()
+        setIsFiring(true)
+        setTimeout(() => {
+          setIsFiring(false)
+          setIsSniperModalOpen(true)
+        }, 650)
+      }
+    }
+  }
+
   return (
-    <Link 
-      to={`/people/${member.id}`} 
-      className="relative block pt-10 group"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className={`w-full ${cardHeight} bg-white rounded-xl border-2 border-slate-900 shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] flex flex-col relative overflow-visible select-none z-20 transition-all duration-300 group-hover:shadow-[12px_12px_0px_0px_rgba(15,23,42,1)]`}>
-        
-        {/* UPPER AVATAR BOX LAYER */}
-        <div className={`h-[62%] w-full ${theme.bg} relative shrink-0 overflow-visible rounded-t-lg`}>
+    <>
+      <div 
+        className={`relative block pt-10 group ${isDev ? 'cursor-crosshair' : ''}`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onClick={handleCardClick}
+      >
+        <div className={`w-full ${cardHeight} bg-white rounded-xl border-2 border-slate-900 shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] flex flex-col relative overflow-visible select-none z-20 transition-all duration-300 group-hover:shadow-[12px_12px_0px_0px_rgba(15,23,42,1)]`}>
           
-          {/* MASK CONTROL */}
-          <div className="absolute inset-x-0 bottom-0 top-[-140px] overflow-x-hidden overflow-y-visible rounded-t-lg pointer-events-none">
-            <motion.img
-              src={isHovered ? member.hoverImage : member.image}
-              alt={member.name}
-              animate={{ 
-                y: 0, 
-                scale: isHovered ? 1.15 : 1 
-              }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-[95%] ${imgHeight} object-cover object-top origin-bottom`}
-            />
-          </div>
+          {/* UPPER AVATAR BOX LAYER */}
+          <div className={`h-[62%] w-full ${theme.bg} relative shrink-0 overflow-visible rounded-t-lg`}>
+            
+            {/* MASK CONTROL */}
+            <div className="absolute inset-x-0 bottom-0 top-[-140px] overflow-x-hidden overflow-y-visible rounded-t-lg pointer-events-none">
+              <motion.img
+                key={displayedImage}
+                src={displayedImage}
+                alt={member.name}
+                initial={{ scale: 1 }}
+                animate={{ 
+                  y: 0, 
+                  scale: (isHovered || tapCount > 0) ? 1.15 : 1 
+                }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-[95%] ${imgHeight} object-cover object-top origin-bottom`}
+              />
+            </div>
+
+            {/* LASER RETICLE OVERLAY ON STAGE 2 */}
+            {isDev && tapCount === 2 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center"
+              >
+                <div className="relative">
+                  <div className="w-16 h-16 rounded-full border border-rose-500/80 animate-ping opacity-40" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="w-3 h-3 rounded-full bg-rose-500 shadow-[0_0_15px_#f43f5e] animate-pulse" />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* DURGESH SNIPER TARGET HUD BADGE */}
+            {isDev && (
+              <div className="absolute top-3 right-3 z-30 pointer-events-none">
+                {tapCount === 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-950/80 border border-emerald-400 text-emerald-400 text-[9px] font-black tracking-wider uppercase font-mono shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    🎯 Tap 1: Wear Helmet
+                  </span>
+                )}
+                {tapCount === 1 && (
+                  <motion.span
+                    initial={{ scale: 0.8 }}
+                    animate={{ scale: 1 }}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-400 text-slate-950 border border-slate-900 text-[9px] font-black tracking-wider uppercase font-mono shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                  >
+                    🪖 [1/3] Helmet On! Tap for Sniper
+                  </motion.span>
+                )}
+                {tapCount === 2 && (
+                  <motion.span
+                    animate={{ scale: [1, 1.12, 1] }}
+                    transition={{ repeat: Infinity, duration: 0.35 }}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-rose-500 text-white border border-slate-900 text-[9px] font-black tracking-wider uppercase font-mono shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                  >
+                    🎯 [2/3] SNIPER AIMED! TAP TO FIRE!
+                  </motion.span>
+                )}
+                {tapCount === 3 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-rose-600 text-white border border-slate-900 text-[9px] font-black tracking-wider uppercase font-mono shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                    💥 SHOT FIRED!
+                  </span>
+                )}
+              </div>
+            )}
 
           {/* DYNAMIC ICONS & TOOLTIPS */}
           <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-20">
@@ -249,7 +344,20 @@ function CollectibleCard({ member, themeIndex, isFounder }: { member: ProfileMem
           </div>
         </div>
       </div>
-    </Link>
+    </div>
+
+    {/* DURGESH SNIPER EASTER EGG OVERLAYS */}
+    {isDev && (
+      <>
+        <SniperShotEffect isFiring={isFiring} />
+        <SniperModal
+          isOpen={isSniperModalOpen}
+          onClose={() => setIsSniperModalOpen(false)}
+          onReload={() => setTapCount(0)}
+        />
+      </>
+    )}
+  </>
   )
 }
 
