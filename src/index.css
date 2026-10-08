@@ -423,7 +423,7 @@ img {
 /* Does NOT affect the main public website */
 /* ======================================================== */
 
-/* --- DARK OBSIDIAN THEME --- */
+/* --- DARK OBSIDIAN / CYBER DARK THEME --- */
 .portal-theme-dark {
   background-color: #080c14 !important;
   color: #f1f5f9 !important;
@@ -437,11 +437,50 @@ img {
 .portal-theme-dark .bg-\[\#f8fafc\],
 .portal-theme-dark .bg-\[\#f1f5f9\],
 .portal-theme-dark .bg-\[\#f0fdf4\],
+.portal-theme-dark .bg-\[\#fffbeb\],
 .portal-theme-dark .bg-slate-50 {
   background-color: #0f172a !important;
   color: #f1f5f9 !important;
 }
 
+/* Sidebar Top Brand Header */
+.portal-theme-dark aside .bg-\[\#fde047\] {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.portal-theme-dark aside .bg-\[\#fde047\] .text-slate-950,
+.portal-theme-dark aside .bg-\[\#fde047\] .text-slate-800 {
+  color: #f8fafc !important;
+}
+
+.portal-theme-dark aside .bg-\[\#fde047\] .bg-white {
+  background-color: #090e1a !important;
+  border-color: #38bdf8 !important;
+}
+
+/* Active and inactive sidebar nav items */
+.portal-theme-dark aside nav .bg-slate-900 {
+  background-color: #1e293b !important;
+  color: #38bdf8 !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 2px 2px 0px 0px #38bdf8 !important;
+}
+
+.portal-theme-dark aside nav .bg-white {
+  background-color: transparent !important;
+  color: #94a3b8 !important;
+  border-color: transparent !important;
+}
+
+.portal-theme-dark aside nav .bg-white:hover {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+/* Surface backgrounds */
 .portal-theme-dark .bg-slate-100,
 .portal-theme-dark .bg-slate-200 {
   background-color: #1e293b !important;
@@ -474,6 +513,7 @@ img {
   color: #64748b !important;
 }
 
+/* Inputs, textareas, selects */
 .portal-theme-dark input,
 .portal-theme-dark select,
 .portal-theme-dark textarea {
@@ -487,6 +527,7 @@ img {
   color: #64748b !important;
 }
 
+/* Theme trigger & dropdown panel */
 .portal-theme-dark .portal-theme-trigger-btn {
   background-color: #1e293b !important;
   border-color: #475569 !important;
@@ -503,6 +544,7 @@ img {
   background-color: #1e293b !important;
 }
 
+/* Tables */
 .portal-theme-dark table th {
   background-color: #162032 !important;
   color: #cbd5e1 !important;
@@ -517,35 +559,102 @@ img {
   background-color: #172236 !important;
 }
 
-.portal-theme-dark .bg-\[\#86efac\],
-.portal-theme-dark .bg-\[\#fef08a\],
-.portal-theme-dark .bg-\[\#ff9e7d\],
-.portal-theme-dark .bg-\[\#fde047\],
-.portal-theme-dark .bg-emerald-100,
-.portal-theme-dark .bg-amber-100,
-.portal-theme-dark .bg-rose-100 {
-  color: #0f172a !important;
+/* Buttons in table rows */
+.portal-theme-dark table button.bg-white,
+.portal-theme-dark table button.bg-slate-50 {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-color: #334155 !important;
 }
 
-.portal-theme-dark .bg-\[\#86efac\] .text-white,
-.portal-theme-dark .bg-\[\#fef08a\] .text-white,
-.portal-theme-dark .bg-\[\#fde047\] .text-white {
-  color: #ffffff !important;
+.portal-theme-dark table button.bg-white:hover,
+.portal-theme-dark table button.bg-slate-50:hover {
+  background-color: #334155 !important;
+}
+
+/* Accent buttons: Broadcast, New Project, Platform Config tab */
+.portal-theme-dark .bg-\[\#fde047\] {
+  background-color: #38bdf8 !important;
+  color: #090e1a !important;
+  border-color: #0284c7 !important;
+}
+
+.portal-theme-dark .bg-\[\#fde047\]:hover {
+  background-color: #7dd3fc !important;
 }
 
 .portal-theme-dark .bg-\[\#86efac\] {
-  background-color: #86efac !important;
-  border-color: #334155 !important;
+  background-color: #34d399 !important;
+  color: #090e1a !important;
+  border-color: #059669 !important;
 }
 
+.portal-theme-dark .bg-\[\#86efac\]:hover {
+  background-color: #6ee7b7 !important;
+}
+
+.portal-theme-dark .bg-\[\#7dd3fc\] {
+  background-color: #818cf8 !important;
+  color: #090e1a !important;
+  border-color: #6366f1 !important;
+}
+
+.portal-theme-dark .bg-\[\#7dd3fc\]:hover {
+  background-color: #a5b4fc !important;
+}
+
+/* Badges and Sub-pills */
 .portal-theme-dark .bg-\[\#fef08a\] {
-  background-color: #fef08a !important;
-  border-color: #334155 !important;
+  background-color: #1e293b !important;
+  color: #38bdf8 !important;
+  border-color: #0284c7 !important;
 }
 
-.portal-theme-dark .bg-\[\#fde047\] {
-  background-color: #fde047 !important;
-  border-color: #334155 !important;
+.portal-theme-dark .bg-blue-50,
+.portal-theme-dark .bg-blue-100 {
+  background-color: #172554 !important;
+  color: #93c5fd !important;
+  border-color: #1d4ed8 !important;
+}
+
+.portal-theme-dark .bg-indigo-50,
+.portal-theme-dark .bg-indigo-100 {
+  background-color: #1e1b4b !important;
+  color: #c7d2fe !important;
+  border-color: #4f46e5 !important;
+}
+
+.portal-theme-dark .bg-amber-50,
+.portal-theme-dark .bg-amber-100 {
+  background-color: #271a06 !important;
+  color: #fde047 !important;
+  border-color: #b45309 !important;
+}
+
+.portal-theme-dark .bg-emerald-50,
+.portal-theme-dark .bg-emerald-100 {
+  background-color: #064e3b !important;
+  color: #6ee7b7 !important;
+  border-color: #059669 !important;
+}
+
+.portal-theme-dark .bg-rose-50,
+.portal-theme-dark .bg-rose-100 {
+  background-color: #2a0e14 !important;
+  color: #fca5a5 !important;
+  border-color: #991b1b !important;
+}
+
+.portal-theme-dark .bg-rose-50:hover,
+.portal-theme-dark .bg-rose-100:hover {
+  background-color: #3f131a !important;
+}
+
+/* Active tabs & indicators */
+.portal-theme-dark .bg-slate-900 {
+  background-color: #1e293b !important;
+  color: #38bdf8 !important;
+  border-color: #38bdf8 !important;
 }
 
 /* --- EMERALD ROYALE FINTECH THEME --- */
@@ -562,11 +671,50 @@ img {
 .portal-theme-emerald .bg-\[\#f8fafc\],
 .portal-theme-emerald .bg-\[\#f1f5f9\],
 .portal-theme-emerald .bg-\[\#f0fdf4\],
+.portal-theme-emerald .bg-\[\#fffbeb\],
 .portal-theme-emerald .bg-slate-50 {
   background-color: #062316 !important;
   color: #ecfdf5 !important;
 }
 
+/* Sidebar Top Brand Header */
+.portal-theme-emerald aside .bg-\[\#fde047\] {
+  background-color: #064e3b !important;
+  border-color: #059669 !important;
+  color: #ecfdf5 !important;
+}
+
+.portal-theme-emerald aside .bg-\[\#fde047\] .text-slate-950,
+.portal-theme-emerald aside .bg-\[\#fde047\] .text-slate-800 {
+  color: #ecfdf5 !important;
+}
+
+.portal-theme-emerald aside .bg-\[\#fde047\] .bg-white {
+  background-color: #02140c !important;
+  border-color: #10b981 !important;
+}
+
+/* Active and inactive sidebar nav items */
+.portal-theme-emerald aside nav .bg-slate-900 {
+  background-color: #064e3b !important;
+  color: #ecfdf5 !important;
+  border-color: #10b981 !important;
+  box-shadow: 2px 2px 0px 0px #10b981 !important;
+}
+
+.portal-theme-emerald aside nav .bg-white {
+  background-color: transparent !important;
+  color: #6ee7b7 !important;
+  border-color: transparent !important;
+}
+
+.portal-theme-emerald aside nav .bg-white:hover {
+  background-color: #0b3422 !important;
+  color: #ecfdf5 !important;
+  border-color: #059669 !important;
+}
+
+/* Surface backgrounds */
 .portal-theme-emerald .bg-slate-100,
 .portal-theme-emerald .bg-slate-200 {
   background-color: #0b3422 !important;
@@ -599,6 +747,7 @@ img {
   color: #34d399 !important;
 }
 
+/* Inputs, textareas, selects */
 .portal-theme-emerald input,
 .portal-theme-emerald select,
 .portal-theme-emerald textarea {
@@ -612,6 +761,7 @@ img {
   color: #059669 !important;
 }
 
+/* Theme trigger & dropdown panel */
 .portal-theme-emerald .portal-theme-trigger-btn {
   background-color: #0b3422 !important;
   border-color: #10b981 !important;
@@ -628,6 +778,7 @@ img {
   background-color: #0b3422 !important;
 }
 
+/* Tables */
 .portal-theme-emerald table th {
   background-color: #082d1c !important;
   color: #a7f3d0 !important;
@@ -642,29 +793,91 @@ img {
   background-color: #0b3d26 !important;
 }
 
-.portal-theme-emerald .bg-\[\#86efac\],
-.portal-theme-emerald .bg-\[\#fef08a\],
-.portal-theme-emerald .bg-\[\#ff9e7d\],
-.portal-theme-emerald .bg-\[\#fde047\],
-.portal-theme-emerald .bg-emerald-100,
-.portal-theme-emerald .bg-amber-100,
-.portal-theme-emerald .bg-rose-100 {
-  color: #02140c !important;
+/* Buttons in table rows */
+.portal-theme-emerald table button.bg-white,
+.portal-theme-emerald table button.bg-slate-50 {
+  background-color: #0b3422 !important;
+  color: #ecfdf5 !important;
+  border-color: #059669 !important;
 }
 
-.portal-theme-emerald .bg-\[\#86efac\] .text-white,
-.portal-theme-emerald .bg-\[\#fef08a\] .text-white,
-.portal-theme-emerald .bg-\[\#fde047\] .text-white {
-  color: #ffffff !important;
+.portal-theme-emerald table button.bg-white:hover,
+.portal-theme-emerald table button.bg-slate-50:hover {
+  background-color: #0f452d !important;
+}
+
+/* Accent buttons: Broadcast, New Project, Add Affiliate */
+.portal-theme-emerald .bg-\[\#fde047\] {
+  background-color: #10b981 !important;
+  color: #02140c !important;
+  border-color: #059669 !important;
+}
+
+.portal-theme-emerald .bg-\[\#fde047\]:hover {
+  background-color: #34d399 !important;
 }
 
 .portal-theme-emerald .bg-\[\#86efac\] {
+  background-color: #10b981 !important;
+  color: #02140c !important;
+  border-color: #047857 !important;
+}
+
+.portal-theme-emerald .bg-\[\#86efac\]:hover {
   background-color: #34d399 !important;
+}
+
+/* Badges and Sub-pills */
+.portal-theme-emerald .bg-\[\#fef08a\] {
+  background-color: #064e3b !important;
+  color: #a7f3d0 !important;
   border-color: #059669 !important;
 }
 
-.portal-theme-emerald .bg-\[\#fef08a\] {
-  background-color: #facc15 !important;
+.portal-theme-emerald .bg-blue-50,
+.portal-theme-emerald .bg-blue-100 {
+  background-color: #062e1e !important;
+  color: #93c5fd !important;
+  border-color: #1d4ed8 !important;
+}
+
+.portal-theme-emerald .bg-indigo-50,
+.portal-theme-emerald .bg-indigo-100 {
+  background-color: #0b3422 !important;
+  color: #c7d2fe !important;
+  border-color: #4f46e5 !important;
+}
+
+.portal-theme-emerald .bg-amber-50,
+.portal-theme-emerald .bg-amber-100 {
+  background-color: #201a05 !important;
+  color: #fde047 !important;
+  border-color: #b45309 !important;
+}
+
+.portal-theme-emerald .bg-emerald-50,
+.portal-theme-emerald .bg-emerald-100 {
+  background-color: #064e3b !important;
+  color: #a7f3d0 !important;
   border-color: #059669 !important;
+}
+
+.portal-theme-emerald .bg-rose-50,
+.portal-theme-emerald .bg-rose-100 {
+  background-color: #270e12 !important;
+  color: #fca5a5 !important;
+  border-color: #991b1b !important;
+}
+
+.portal-theme-emerald .bg-rose-50:hover,
+.portal-theme-emerald .bg-rose-100:hover {
+  background-color: #3f131a !important;
+}
+
+/* Active tabs */
+.portal-theme-emerald .bg-slate-900 {
+  background-color: #064e3b !important;
+  color: #ecfdf5 !important;
+  border-color: #10b981 !important;
 }
 

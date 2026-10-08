@@ -28,6 +28,7 @@ import ProjectsTab from './pages/admin/ProjectsTab'
 import ProjectForm from './pages/admin/ProjectForm'
 import UpdatesTab from './pages/admin/UpdatesTab'
 import AffiliateAnalyticsTab from './pages/admin/AffiliateAnalyticsTab'
+import AdminSettingsTab from './pages/admin/AdminSettingsTab'
 
 // Affiliate / Partner Portal Pages
 import AffiliateLayout from './pages/affiliate/AffiliateLayout'
@@ -85,6 +86,8 @@ export default function App() {
             <Route path="affiliates" element={<AffiliatesTab />} />
             <Route path="affiliates/analytics" element={<AffiliateAnalyticsTab />} />
             <Route path="analytics" element={<AffiliateAnalyticsTab />} />
+            <Route path="settings" element={<AdminSettingsTab />} />
+            <Route path="logs" element={<Navigate to="/admin/settings?tab=logs" replace />} />
             <Route path="developers" element={<DevelopersTab />} />
             <Route path="projects" element={<ProjectsTab />} />
             <Route path="projects/new" element={<ProjectForm />} />

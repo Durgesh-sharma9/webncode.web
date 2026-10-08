@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { usePortalTheme, PortalThemeSwitcher } from '../../contexts/PortalThemeContext'
-import axios from 'axios'
-import { showSuccessToast, showErrorToast } from '../../components/ui/Toast'
-import { API_BASE } from './types'
+import { showSuccessToast } from '../../components/ui/Toast'
 import logoImg from '../../assets/logoooo.png'
 import AdminNotificationBell from '../../components/admin/AdminNotificationBell'
 import BroadcastAnnouncementModal from '../../components/admin/BroadcastAnnouncementModal'
@@ -17,13 +15,6 @@ export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isBroadcastModalOpen, setIsBroadcastModalOpen] = useState(false)
 
-  // Global floating <w> logos toggle state
-  const [floatingLogosEnabled, setFloatingLogosEnabled] = useState<boolean>(() => {
-    const saved = localStorage.getItem('wnc_login_floating_logos')
-    return saved === null ? true : saved === 'true'
-  })
-  const [isUpdatingFloatingLogos, setIsUpdatingFloatingLogos] = useState(false)
-
   // Auth guard: redirect to /login if unauthenticated, or to /affiliate/dashboard if affiliate
   useEffect(() => {
     if (!isLoading) {
@@ -34,48 +25,6 @@ export default function AdminLayout() {
       }
     }
   }, [isLoading, isAuthenticated, user, navigate])
-
-  // Fetch current floating logo global setting from backend
-  useEffect(() => {
-    const fetchGlobalSetting = async () => {
-      try {
-        const res = await axios.get(`${API_BASE}/api/settings/floating-logos`)
-        if (res.data?.success) {
-          const val = Boolean(res.data.enabled)
-          setFloatingLogosEnabled(val)
-          localStorage.setItem('wnc_login_floating_logos', String(val))
-        }
-      } catch (err) {
-        console.warn('Failed to fetch global floating logo setting from server:', err)
-      }
-    }
-    fetchGlobalSetting()
-  }, [])
-
-  const handleToggleFloatingLogos = async () => {
-    const next = !floatingLogosEnabled
-    setFloatingLogosEnabled(next)
-    localStorage.setItem('wnc_login_floating_logos', String(next))
-    setIsUpdatingFloatingLogos(true)
-
-    try {
-      await axios.put(
-        `${API_BASE}/api/settings/floating-logos`,
-        { enabled: next },
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined
-        }
-      )
-      showSuccessToast(`Global floating <w> logos turned ${next ? 'ON' : 'OFF'} for all visitors!`)
-    } catch (err) {
-      console.error('Failed to sync global setting with server:', err)
-      setFloatingLogosEnabled(!next)
-      localStorage.setItem('wnc_login_floating_logos', String(!next))
-      showErrorToast('Failed to update global setting on server. Please try again.')
-    } finally {
-      setIsUpdatingFloatingLogos(false)
-    }
-  }
 
   const handleLogout = () => {
     logout()
@@ -93,6 +42,7 @@ export default function AdminLayout() {
     { to: '/admin/projects', label: 'Projects Directory', icon: '📁' },
     { to: '/admin/projects/new', label: '+ Add Project', icon: '✨' },
     { to: '/admin/updates', label: 'Updates & News', icon: '📢' },
+    { to: '/admin/settings', label: 'Settings', icon: '⚙️' },
   ]
 
   // Determine active section title for topbar breadcrumb
@@ -263,34 +213,8 @@ export default function AdminLayout() {
             </nav>
           </div>
 
-          {/* Bottom Controls: Global Setting & User */}
+          {/* Bottom Controls: User Info & Actions */}
           <div className="p-3 border-t-2 border-slate-900 bg-slate-50 space-y-3">
-            {/* Global Floating <w> Logos Toggle */}
-            <div className="p-2.5 bg-white border-2 border-slate-900 rounded-lg shadow-[1.5px_1.5px_0px_0px_#000]">
-              <div className="flex items-center justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="text-[10px] font-black uppercase text-slate-900 truncate">
-                    Global &lt;w&gt; Logos
-                  </div>
-                  <div className="text-[9px] text-slate-500 font-bold">
-                    {floatingLogosEnabled ? 'Visible to visitors' : 'Hidden everywhere'}
-                  </div>
-                </div>
-
-                <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                  <input
-                    type="checkbox"
-                    checked={floatingLogosEnabled}
-                    onChange={handleToggleFloatingLogos}
-                    disabled={isUpdatingFloatingLogos}
-                    className="sr-only peer"
-                  />
-                  <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none border-2 border-slate-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-2 after:border-slate-900 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-400"></div>
-                </label>
-              </div>
-            </div>
-
-            {/* User Info & Actions */}
             <div className="flex items-center justify-between gap-2">
               <div className="min-w-0">
                 <div className="text-[11px] font-black text-slate-900 uppercase truncate">
