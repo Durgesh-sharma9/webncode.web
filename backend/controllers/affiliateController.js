@@ -759,15 +759,7 @@ exports.createAffiliateLead = async (req, res) => {
       : (product ? String(product).split(',').map(p => p.trim()).filter(Boolean) : ['School ERP Pro']);
     const productDisplay = productList.length > 0 ? productList.join(', ') : 'School ERP Pro';
 
-    // For new inquiry leads, deal value and commission remain 0 until finalized at deal closing
-    const finalDealValue = Number(estimatedValue || req.body.dealValue || 0);
-
-    const projectedCommission = finalDealValue > 0
-      ? (affiliate.payoutType === 'fixed'
-          ? (affiliate.fixedAmount || 0)
-          : Math.round((finalDealValue * (affiliate.commissionRate || 10)) / 100))
-      : 0;
-
+    // For new inquiry leads, deal value and commission remain 0 until reviewed & finalized by Admin
     const lead = await AffiliateLead.create({
       affiliate: affiliate._id,
       organizationName: organizationName.trim(),
@@ -777,21 +769,14 @@ exports.createAffiliateLead = async (req, res) => {
       city: city ? city.trim() : '',
       product: productDisplay,
       products: productList,
-      dealValue: finalDealValue,
-      commissionAmount: projectedCommission,
+      dealValue: 0,
+      commissionAmount: 0,
       status: 'New',
       source: 'manual_by_affiliate',
       notes: notes || '',
-      appliedCoupon: appliedCoupon ? appliedCoupon.trim().toUpperCase() : '',
-      discountAmount: Number(discountAmount) || 0
+      appliedCoupon: '',
+      discountAmount: 0
     });
-
-    if (appliedCoupon && appliedCoupon.trim()) {
-      await AffiliateCoupon.findOneAndUpdate(
-        { code: appliedCoupon.trim().toUpperCase() },
-        { $inc: { usedCount: 1 } }
-      ).catch(() => {});
-    }
 
     // Notify SuperAdmin via email (durgesh.csai@gmail.com)
     sendAdminNotification(
@@ -878,39 +863,9 @@ exports.updateLeadByAffiliate = async (req, res) => {
     if (products && Array.isArray(products) && products.length > 0) {
       lead.products = products;
       lead.product = products.join(', ');
-      // Automatically derive price from official catalog
-      const autoPrice = await getCatalogPriceForProducts(products);
-      lead.dealValue = autoPrice;
-      if (affiliate.payoutType === 'percentage') {
-        lead.commissionAmount = Math.round((autoPrice * (affiliate.commissionRate || 10)) / 100);
-      } else if (affiliate.payoutType === 'fixed') {
-        lead.commissionAmount = affiliate.fixedAmount || 0;
-      }
     } else if (product !== undefined && product.trim()) {
       lead.product = product.trim();
       lead.products = [product.trim()];
-    }
-
-    if (dealValue !== undefined && Number(dealValue) > 0) {
-      const numDealValue = Number(dealValue);
-      lead.dealValue = numDealValue;
-      if (affiliate.payoutType === 'percentage') {
-        lead.commissionAmount = Math.round((numDealValue * (affiliate.commissionRate || 10)) / 100);
-      } else if (affiliate.payoutType === 'fixed') {
-        lead.commissionAmount = affiliate.fixedAmount || 0;
-      }
-    }
-
-    if (req.body.commissionAmount !== undefined && Number(req.body.commissionAmount) >= 0) {
-      lead.commissionAmount = Number(req.body.commissionAmount);
-    }
-
-    if (req.body.appliedCoupon !== undefined) {
-      lead.appliedCoupon = String(req.body.appliedCoupon).trim().toUpperCase();
-    }
-
-    if (req.body.discountAmount !== undefined) {
-      lead.discountAmount = Number(req.body.discountAmount) || 0;
     }
 
     if (status !== undefined) {

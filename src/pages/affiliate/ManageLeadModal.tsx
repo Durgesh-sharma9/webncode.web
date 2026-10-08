@@ -199,7 +199,7 @@ export default function ManageLeadModal({
             <label className="block font-black uppercase tracking-wider text-slate-800 mb-1.5">
               Pipeline Stage *
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {pipelineStages.map((stage) => {
                 const isSelected = formData.status === stage.id
                 return (

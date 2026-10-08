@@ -385,36 +385,6 @@ export default function AffiliateDashboard() {
                     </div>
                   )}
 
-                  <div className="grid grid-cols-3 gap-2 bg-[#f8fafc] border border-slate-200 rounded-lg p-2 text-center">
-                    <div>
-                      <span className="text-[9px] font-black uppercase text-slate-400 block">Est. Value</span>
-                      <span className="text-xs font-black text-slate-900">
-                        ₹{(lead.dealValue || 0).toLocaleString('en-IN')}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-[9px] font-black uppercase text-slate-400 block">Commission</span>
-                      <span className="text-xs font-black text-emerald-700">
-                        ₹{(lead.commissionAmount || 0).toLocaleString('en-IN')}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-[9px] font-black uppercase text-slate-400 block">Payout</span>
-                      {lead.status !== 'Deal Won' ? (
-                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-slate-100 text-slate-600 border border-slate-300">
-                          In Pipeline
-                        </span>
-                      ) : lead.commissionStatus === 'Paid' ? (
-                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-emerald-100 text-emerald-900 border border-emerald-400">
-                          ✓ Paid to Bank
-                        </span>
-                      ) : (
-                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-[#86efac] text-slate-950 border border-slate-900 shadow-[1px_1px_0px_0px_#000]">
-                          🟢 In Wallet
-                        </span>
-                      )}
-                    </div>
-                  </div>
                 </div>
               ))}
             </div>
@@ -427,9 +397,6 @@ export default function AffiliateDashboard() {
                     <th className="p-3">School / Client</th>
                     <th className="p-3">Product</th>
                     <th className="p-3">Status</th>
-                    <th className="p-3">Est. Value</th>
-                    <th className="p-3">Commission</th>
-                    <th className="p-3">Payout Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y-2 divide-slate-100 font-medium">
@@ -457,30 +424,6 @@ export default function AffiliateDashboard() {
                         }`}>
                           {lead.status}
                         </span>
-                      </td>
-                      <td className="p-3 font-mono font-bold text-slate-900">
-                        ₹{(lead.dealValue || 0).toLocaleString('en-IN')}
-                      </td>
-                      <td className="p-3 font-mono font-black text-emerald-700">
-                        ₹{(lead.commissionAmount || 0).toLocaleString('en-IN')}
-                      </td>
-                      <td className="p-3">
-                        {lead.status !== 'Deal Won' ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black uppercase bg-slate-100 text-slate-600 border border-slate-300">
-                            <span>⏳</span>
-                            <span>In Pipeline</span>
-                          </span>
-                        ) : lead.commissionStatus === 'Paid' ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black uppercase bg-emerald-100 text-emerald-900 border border-emerald-400">
-                            <span>✓</span>
-                            <span>Paid to Bank</span>
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black uppercase bg-[#86efac] text-slate-950 border border-slate-900 shadow-[1px_1px_0px_0px_#000]">
-                            <span>🟢</span>
-                            <span>In Wallet (Ready)</span>
-                          </span>
-                        )}
                       </td>
                     </tr>
                   ))}
