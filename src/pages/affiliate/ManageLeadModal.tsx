@@ -39,6 +39,7 @@ export default function ManageLeadModal({
 
   const [selectedProducts, setSelectedProducts] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // Populate form with current lead data on open
   useEffect(() => {
@@ -119,6 +120,28 @@ export default function ManageLeadModal({
       showErrorToast(err.response?.data?.message || 'Failed to update lead')
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  // Handle Delete Lead
+  const handleDelete = async () => {
+    if (!window.confirm(`Are you sure you want to delete lead "${formData.organizationName || 'this client'}"?`)) {
+      return
+    }
+    setIsDeleting(true)
+    try {
+      const config = {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined
+      }
+      await axios.delete(`${API_BASE}/api/affiliate-portal/leads/${lead._id}`, config)
+      showSuccessToast('Lead deleted successfully')
+      onLeadUpdated()
+      onClose()
+    } catch (err: any) {
+      console.error('Delete lead error:', err)
+      showErrorToast(err.response?.data?.message || 'Failed to delete lead')
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -354,22 +377,33 @@ export default function ManageLeadModal({
             </div>
           )}
 
-          {/* Action Buttons (Save Changes & Cancel only, NO Delete) */}
-          <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2 pt-3 border-t-2 border-slate-900">
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-3 border-t-2 border-slate-900">
             <button
               type="button"
-              onClick={onClose}
-              className="w-full sm:w-auto px-4 py-2.5 bg-white border-2 border-slate-900 rounded-md font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors text-center cursor-pointer"
+              onClick={handleDelete}
+              disabled={isDeleting || isSubmitting || lead.status === 'Deal Won'}
+              className="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border-2 border-rose-500 rounded-md font-bold text-xs uppercase tracking-wider transition-colors text-center cursor-pointer disabled:opacity-40"
             >
-              Cancel
+              {isDeleting ? 'Deleting...' : '🗑️ Delete Lead'}
             </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full sm:w-auto px-5 py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-50 transition-all text-center cursor-pointer"
-            >
-              {isSubmitting ? 'Saving...' : '✓ Save Changes'}
-            </button>
+
+            <div className="flex items-center gap-2 justify-end">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 bg-white border-2 border-slate-900 rounded-md font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors text-center cursor-pointer text-xs"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting || isDeleting}
+                className="px-5 py-2 bg-[#86efac] border-2 border-slate-900 rounded-md font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] disabled:opacity-50 transition-all text-center cursor-pointer text-xs"
+              >
+                {isSubmitting ? 'Saving...' : '✓ Save Changes'}
+              </button>
+            </div>
           </div>
 
         </form>

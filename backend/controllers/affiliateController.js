@@ -745,7 +745,7 @@ exports.createAffiliateLead = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Affiliate profile not found' });
     }
 
-    const { organizationName, contactPerson, phone, email, city, product, products, notes, estimatedValue, appliedCoupon, discountAmount } = req.body;
+    const { organizationName, contactPerson, phone, email, city, product, products, notes, estimatedValue, dealValue, appliedCoupon, discountAmount } = req.body;
 
     if (!organizationName || !contactPerson || !phone) {
       return res.status(400).json({
@@ -758,6 +758,22 @@ exports.createAffiliateLead = async (req, res) => {
       ? products
       : (product ? String(product).split(',').map(p => p.trim()).filter(Boolean) : ['School ERP Pro']);
     const productDisplay = productList.length > 0 ? productList.join(', ') : 'School ERP Pro';
+    const numericEstimatedValue = Number(estimatedValue || dealValue) || 0;
+
+    // Prevent accidental rapid duplicate submission (within last 60 seconds)
+    const recentDuplicate = await AffiliateLead.findOne({
+      affiliate: affiliate._id,
+      phone: phone.trim(),
+      createdAt: { $gte: new Date(Date.now() - 60 * 1000) }
+    });
+
+    if (recentDuplicate) {
+      return res.status(200).json({
+        success: true,
+        message: 'Lead registered successfully! Web n Code team will reach out for the demo.',
+        data: recentDuplicate
+      });
+    }
 
     // For new inquiry leads, deal value and commission remain 0 until reviewed & finalized by Admin
     const lead = await AffiliateLead.create({
@@ -769,7 +785,7 @@ exports.createAffiliateLead = async (req, res) => {
       city: city ? city.trim() : '',
       product: productDisplay,
       products: productList,
-      dealValue: 0,
+      dealValue: numericEstimatedValue,
       commissionAmount: 0,
       status: 'New',
       source: 'manual_by_affiliate',
@@ -796,7 +812,7 @@ exports.createAffiliateLead = async (req, res) => {
               ${email ? `<tr><td style="font-weight: bold; color: #64748b;">Email:</td><td>${email.trim()}</td></tr>` : ''}
               ${city ? `<tr><td style="font-weight: bold; color: #64748b;">City / Location:</td><td>${city.trim()}</td></tr>` : ''}
               <tr><td style="font-weight: bold; color: #64748b;">Product Pitched:</td><td><strong style="color: #2563eb;">${productDisplay}</strong></td></tr>
-              ${finalDealValue > 0 ? `<tr><td style="font-weight: bold; color: #64748b;">Expected Value:</td><td>₹${finalDealValue.toLocaleString('en-IN')}</td></tr>` : ''}
+              ${numericEstimatedValue > 0 ? `<tr><td style="font-weight: bold; color: #64748b;">Expected Value:</td><td>₹${numericEstimatedValue.toLocaleString('en-IN')}</td></tr>` : ''}
               ${notes ? `<tr><td style="font-weight: bold; color: #64748b;">Partner Note:</td><td><em>"${notes.trim()}"</em></td></tr>` : ''}
               <tr><td style="font-weight: bold; color: #64748b;">Partner:</td><td>${affiliate.name} (${affiliate.email} / ${affiliate.phone})</td></tr>
             </table>

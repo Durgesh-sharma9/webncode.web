@@ -6,7 +6,7 @@ import { showSuccessToast, showErrorToast } from '../../components/ui/Toast'
 
 export default function AffiliateSettings() {
   const { token, user } = useAuth()
-  const [activeTab, setActiveTab] = useState<'payout' | 'profile' | 'notifications' | 'security'>('payout')
+  const [activeTab, setActiveTab] = useState<'payout' | 'profile'>('payout')
 
   // Bank & Payout state
   const [primaryMethod, setPrimaryMethod] = useState<'upi' | 'bank'>('upi')
@@ -24,22 +24,6 @@ export default function AffiliateSettings() {
   // Profile & Contact state
   const [phone, setPhone] = useState('')
   const [isSavingProfile, setIsSavingProfile] = useState(false)
-
-  // Notifications state
-  const [notifications, setNotifications] = useState({
-    emailOnDealWon: true,
-    emailOnPayout: true,
-    monthlySummary: true
-  })
-  const [isSavingNotifications, setIsSavingNotifications] = useState(false)
-
-  // Password state
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  })
-  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
 
   // Full affiliate profile details from server
   const [profileData, setProfileData] = useState<any>(null)
@@ -70,14 +54,6 @@ export default function AffiliateSettings() {
               ifscCode: bd.ifscCode || '',
               bankName: bd.bankName || '',
               accountType: bd.accountType === 'current' ? 'current' : 'savings'
-            })
-          }
-
-          if (prof.notifications) {
-            setNotifications({
-              emailOnDealWon: prof.notifications.emailOnDealWon ?? true,
-              emailOnPayout: prof.notifications.emailOnPayout ?? true,
-              monthlySummary: prof.notifications.monthlySummary ?? true
             })
           }
         }
@@ -173,70 +149,7 @@ export default function AffiliateSettings() {
     }
   }
 
-  // Save Notification Preferences
-  const handleSaveNotifications = async () => {
-    setIsSavingNotifications(true)
-    try {
-      const config = {
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined
-      }
-      const res = await axios.put(`${API_BASE}/api/affiliate-portal/payout-settings`, { notifications }, config)
-      if (res.data?.success) {
-        showSuccessToast('Notification preferences updated!')
-      }
-    } catch (err: any) {
-      showErrorToast(err.response?.data?.message || 'Failed to save notifications')
-    } finally {
-      setIsSavingNotifications(false)
-    }
-  }
-
-  // Change Password
-  const handleUpdatePassword = async (e: FormEvent) => {
-    e.preventDefault()
-    if (!passwordData.currentPassword) {
-      showErrorToast('Please enter your current password')
-      return
-    }
-    if (passwordData.newPassword.length < 6) {
-      showErrorToast('New password must be at least 6 characters')
-      return
-    }
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      showErrorToast('New passwords do not match')
-      return
-    }
-
-    setIsUpdatingPassword(true)
-    try {
-      const config = {
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined
-      }
-      const res = await axios.put(
-        `${API_BASE}/api/auth/update-password`,
-        {
-          currentPassword: passwordData.currentPassword,
-          newPassword: passwordData.newPassword
-        },
-        config
-      )
-      if (res.data?.success) {
-        showSuccessToast('Portal password updated successfully!')
-        setPasswordData({
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: ''
-        })
-      }
-    } catch (err: any) {
-      showErrorToast(err.response?.data?.message || 'Failed to update password')
-    } finally {
-      setIsUpdatingPassword(false)
-    }
-  }
-
   const referralCode = profileData?.referralCode || user?.affiliate?.referralCode || 'PARTNER'
-  const referralLink = `${window.location.origin}/?ref=${referralCode}`
   const payoutType = profileData?.payoutType || user?.affiliate?.payoutType || 'percentage'
   const commissionRate = profileData?.commissionRate ?? user?.affiliate?.commissionRate ?? 10
   const fixedAmount = profileData?.fixedAmount ?? user?.affiliate?.fixedAmount ?? 0
@@ -275,7 +188,7 @@ export default function AffiliateSettings() {
             Account & Payout Settings
           </h1>
           <p className="text-xs text-slate-600 font-bold">
-            Configure your permanent bank details, contact profile, and security preferences.
+            Configure your permanent bank details and contact profile.
           </p>
         </div>
 
@@ -321,30 +234,6 @@ export default function AffiliateSettings() {
         >
           <span>👤</span>
           <span>Partner Profile & ID</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('notifications')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-lg border-2 border-b-0 border-slate-900 text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-            activeTab === 'notifications'
-              ? 'bg-[#86efac] text-slate-900 shadow-[2px_-2px_0px_0px_#000] translate-y-[2px]'
-              : 'bg-white text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          <span>🔔</span>
-          <span>Alerts & Preferences</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('security')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-t-lg border-2 border-b-0 border-slate-900 text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-            activeTab === 'security'
-              ? 'bg-[#86efac] text-slate-900 shadow-[2px_-2px_0px_0px_#000] translate-y-[2px]'
-              : 'bg-white text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          <span>🔒</span>
-          <span>Security & Password</span>
         </button>
       </div>
 
@@ -676,29 +565,6 @@ export default function AffiliateSettings() {
               </div>
             </div>
 
-            {/* Referral Links & Assets */}
-            <div className="p-4 bg-[#f8fafc] border-2 border-slate-900 rounded-xl space-y-3">
-              <span className="font-black uppercase tracking-wider text-xs text-slate-900 block">
-                🔗 Your Personalized Referral Assets
-              </span>
-
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  value={referralLink}
-                  className="flex-1 border-2 border-slate-900 rounded-md px-3 py-2 font-mono text-xs bg-white text-slate-900 select-all"
-                />
-                <button
-                  type="button"
-                  onClick={() => copyToClipboard(referralLink, 'Referral link')}
-                  className="px-4 py-2 bg-slate-900 text-white border-2 border-slate-900 rounded-md font-black text-xs uppercase shadow-[2px_2px_0px_0px_#000] hover:bg-slate-800 transition-colors cursor-pointer text-center"
-                >
-                  Copy Link 📋
-                </button>
-              </div>
-            </div>
-
             {/* Contact Phone Update Form */}
             <form onSubmit={handleSaveProfile} className="space-y-4 pt-2 border-t-2 border-slate-200">
               <span className="font-black uppercase tracking-wider text-xs text-slate-900 block">
@@ -731,168 +597,6 @@ export default function AffiliateSettings() {
               </div>
             </form>
           </div>
-        </div>
-      )}
-
-      {/* ============================================================== */}
-      {/* TAB 3: ALERTS & NOTIFICATIONS */}
-      {/* ============================================================== */}
-      {activeTab === 'notifications' && (
-        <div className="bg-white border-2 border-slate-900 rounded-xl p-5 sm:p-7 shadow-[4px_4px_0px_0px_#000] space-y-6">
-          <div>
-            <h2 className="text-base font-black uppercase tracking-tight text-slate-900 pb-1 border-b-2 border-slate-900 inline-block">
-              Notification Preferences
-            </h2>
-            <p className="text-xs text-slate-600 font-bold mt-1">
-              Control what alerts you receive at <span className="text-blue-700">{user?.email}</span>.
-            </p>
-          </div>
-
-          <div className="space-y-4 text-xs">
-            {/* Deal Won Alert */}
-            <div className="p-4 bg-slate-50 border-2 border-slate-900 rounded-lg flex items-center justify-between gap-4">
-              <div>
-                <span className="font-black text-slate-900 block uppercase">🎯 Deal Won & Commission Notification</span>
-                <p className="text-[11px] text-slate-600 font-bold mt-0.5">
-                  Get notified instantly when one of your client leads signs up and commission is added to your balance.
-                </p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                <input
-                  type="checkbox"
-                  checked={notifications.emailOnDealWon}
-                  onChange={(e) => setNotifications({ ...notifications, emailOnDealWon: e.target.checked })}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none border-2 border-slate-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-2 after:border-slate-900 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-400"></div>
-              </label>
-            </div>
-
-            {/* Payout Disbursed Alert */}
-            <div className="p-4 bg-slate-50 border-2 border-slate-900 rounded-lg flex items-center justify-between gap-4">
-              <div>
-                <span className="font-black text-slate-900 block uppercase">💰 Payout Disbursed (With Bank UTR)</span>
-                <p className="text-[11px] text-slate-600 font-bold mt-0.5">
-                  Receive transfer receipt email with bank transaction reference number once finance transfers money.
-                </p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                <input
-                  type="checkbox"
-                  checked={notifications.emailOnPayout}
-                  onChange={(e) => setNotifications({ ...notifications, emailOnPayout: e.target.checked })}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none border-2 border-slate-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-2 after:border-slate-900 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-400"></div>
-              </label>
-            </div>
-
-            {/* Monthly Earnings Statement */}
-            <div className="p-4 bg-slate-50 border-2 border-slate-900 rounded-lg flex items-center justify-between gap-4">
-              <div>
-                <span className="font-black text-slate-900 block uppercase">📊 Monthly Performance Summary</span>
-                <p className="text-[11px] text-slate-600 font-bold mt-0.5">
-                  Receive a consolidated monthly report of all submitted leads, conversion ratios, and total earnings.
-                </p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                <input
-                  type="checkbox"
-                  checked={notifications.monthlySummary}
-                  onChange={(e) => setNotifications({ ...notifications, monthlySummary: e.target.checked })}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none border-2 border-slate-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-2 after:border-slate-900 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-400"></div>
-              </label>
-            </div>
-
-            <div className="pt-2 flex justify-end">
-              <button
-                type="button"
-                onClick={handleSaveNotifications}
-                disabled={isSavingNotifications}
-                className="px-6 py-2.5 bg-[#86efac] border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000] transition-all cursor-pointer"
-              >
-                {isSavingNotifications ? 'Saving...' : 'Save Notification Preferences'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================== */}
-      {/* TAB 4: SECURITY & PASSWORD */}
-      {/* ============================================================== */}
-      {activeTab === 'security' && (
-        <div className="bg-white border-2 border-slate-900 rounded-xl p-5 sm:p-7 shadow-[4px_4px_0px_0px_#000] space-y-6 max-w-2xl">
-          <div>
-            <h2 className="text-base font-black uppercase tracking-tight text-slate-900 pb-1 border-b-2 border-slate-900 inline-block">
-              Change Account Password
-            </h2>
-            <p className="text-xs text-slate-600 font-bold mt-1">
-              Ensure your account is protected with a strong, secure password.
-            </p>
-          </div>
-
-          <form onSubmit={handleUpdatePassword} className="space-y-4 text-xs">
-            <div>
-              <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
-                Current Password *
-              </label>
-              <input
-                type="password"
-                required
-                value={passwordData.currentPassword}
-                onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-bold text-slate-900 bg-white shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-                placeholder="Enter current password"
-              />
-            </div>
-
-            <div>
-              <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
-                New Password (Minimum 6 Characters) *
-              </label>
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={passwordData.newPassword}
-                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                className="w-full border-2 border-slate-900 rounded-md px-3 py-2 font-bold text-slate-900 bg-white shadow-[2px_2px_0px_0px_#000] focus:outline-none"
-                placeholder="Enter new strong password"
-              />
-            </div>
-
-            <div>
-              <label className="block font-black uppercase tracking-wider text-slate-700 mb-1">
-                Confirm New Password *
-              </label>
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={passwordData.confirmPassword}
-                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                className={`w-full border-2 rounded-md px-3 py-2 font-bold text-slate-900 bg-white shadow-[2px_2px_0px_0px_#000] focus:outline-none ${
-                  passwordData.confirmPassword && passwordData.confirmPassword !== passwordData.newPassword
-                    ? 'border-rose-500 bg-rose-50'
-                    : 'border-slate-900'
-                }`}
-                placeholder="Re-enter new password"
-              />
-            </div>
-
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={isUpdatingPassword}
-                className="w-full sm:w-auto px-6 py-2.5 bg-slate-900 text-white border-2 border-slate-900 rounded-md font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000] hover:bg-slate-800 transition-all cursor-pointer"
-              >
-                {isUpdatingPassword ? 'Updating Password...' : 'Update Password'}
-              </button>
-            </div>
-          </form>
         </div>
       )}
 

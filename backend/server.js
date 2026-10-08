@@ -11,6 +11,7 @@ const developerRoutes = require('./routes/developerRoutes');
 const updateRoutes = require('./routes/updateRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const affiliateRoutes = require('./routes/affiliateRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 // Load environment variables from .env file
 dotenv.config();
@@ -68,6 +69,9 @@ app.use('/api/categories', categoryRoutes);
 // Mount affiliate routes at /api/affiliates and /api/affiliate-portal
 app.use('/api/affiliates', affiliateRoutes);
 app.use('/api/affiliate-portal', affiliateRoutes);
+
+// Mount notification & announcement routes at /api
+app.use('/api', notificationRoutes);
 
 // Root endpoint for health check
 app.get('/', (req, res) => {

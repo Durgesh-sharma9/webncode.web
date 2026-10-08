@@ -65,6 +65,7 @@ export default function AddLeadModal({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    if (isSubmitting) return
 
     if (!formData.organizationName.trim()) {
       showErrorToast('School / Organization name is required')

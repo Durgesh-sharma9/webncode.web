@@ -7,6 +7,8 @@ import { showErrorToast } from '../../components/ui/Toast'
 import AddLeadModal from './AddLeadModal'
 import RequestWithdrawalModal from './RequestWithdrawalModal'
 import PayoutCongratsModal from './PayoutCongratsModal'
+import ReportPurchaseModal from './ReportPurchaseModal'
+import AffiliateAnnouncementBanner from '../../components/affiliate/AffiliateAnnouncementBanner'
 
 interface DashboardData {
   profile: {
@@ -49,6 +51,8 @@ export default function AffiliateDashboard() {
   const [isLoading, setIsLoading] = useState(true)
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false)
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false)
+  const [selectedLeadForPurchase, setSelectedLeadForPurchase] = useState<AffiliateLeadItem | null>(null)
   const [showCongrats, setShowCongrats] = useState(false)
   const [isPayoutBannerDismissed, setIsPayoutBannerDismissed] = useState(false)
 
@@ -137,8 +141,11 @@ export default function AffiliateDashboard() {
   const pendingSettlement = stats.pendingWithdrawal ?? stats.pendingPayout ?? 0
 
   return (
-    <div className="space-y-6 font-mono text-slate-900">
+    <div className="space-y-4 font-mono text-slate-900">
       
+      {/* Official Broadcast Announcements Banner from SuperAdmin */}
+      <AffiliateAnnouncementBanner />
+
       {/* Top Welcome & Lead Action Bar (Compact) */}
       <div className="bg-white border-2 border-slate-900 rounded-xl py-3.5 px-4 sm:px-5 shadow-[3px_3px_0px_0px_#000] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
@@ -291,20 +298,60 @@ export default function AffiliateDashboard() {
           <span className="text-[10px] text-slate-400 font-bold block mt-1">Across {stats.dealsWon ?? 0} won deals</span>
         </div>
 
-        {/* Pipeline & Deals */}
+        {/* Client Leads */}
         <div className="bg-white border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_0px_#000] col-span-2 sm:col-span-2 md:col-span-1">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase text-slate-600">Pipeline Leads</span>
+            <span className="text-[10px] font-black uppercase text-slate-600">Client Leads</span>
             <span className="text-xs">👥</span>
           </div>
           <p className="text-2xl sm:text-3xl font-black mt-1 text-slate-900">{stats.totalLeads ?? 0}</p>
           <span className="text-[10px] text-slate-400 font-bold block mt-1">
-            {stats.dealsWon ?? 0} Won • {(stats.totalLeads ?? 0) - (stats.dealsWon ?? 0)} In Progress
+            {stats.dealsWon ?? 0} Won Deals
           </span>
         </div>
 
       </div>
 
+      {/* Account History Center Quick Access Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 sm:p-3.5 bg-white border-2 border-slate-900 rounded-xl shadow-[3px_3px_0px_0px_#000] text-xs">
+        <div className="flex items-center gap-2">
+          <span className="p-1 bg-[#fde047] border border-slate-900 rounded text-sm shadow-[1px_1px_0px_0px_#000]">
+            📜
+          </span>
+          <div>
+            <span className="font-black uppercase tracking-tight text-slate-900 block">
+              Partner Activity & History Center
+            </span>
+            <span className="text-[10px] text-slate-500 font-bold block">
+              Direct access to withdrawal receipts, wallet commission credits, and purchase reports.
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+          <Link
+            to="/affiliate/earnings?tab=withdrawals"
+            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-900 rounded text-[10px] font-bold text-slate-800 shadow-[1px_1px_0px_0px_#000] transition flex items-center gap-1"
+          >
+            <span>💸</span>
+            <span>Withdrawals History</span>
+          </Link>
+          <Link
+            to="/affiliate/earnings?tab=commissions"
+            className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-700 rounded text-[10px] font-black text-emerald-900 shadow-[1px_1px_0px_0px_#000] transition flex items-center gap-1"
+          >
+            <span>💰</span>
+            <span>Commissions History</span>
+          </Link>
+          <Link
+            to="/affiliate/earnings?tab=reports"
+            className="px-2.5 py-1 bg-[#fde047] hover:bg-[#facc15] border border-slate-900 rounded text-[10px] font-black text-slate-950 shadow-[1px_1px_0px_0px_#000] transition flex items-center gap-1"
+          >
+            <span>📋</span>
+            <span>Report History</span>
+          </Link>
+        </div>
+      </div>
 
       {/* Recent Leads Table */}
       <div className="space-y-3">
@@ -358,9 +405,11 @@ export default function AffiliateDashboard() {
                       </div>
                     </div>
                     <span
-                      className={`shrink-0 px-2 py-0.5 rounded text-[10px] font-black uppercase border border-slate-900 ${
+                      className={`shrink-0 px-2.5 py-0.5 rounded text-[10px] font-black uppercase border border-slate-900 whitespace-nowrap inline-block shadow-[1px_1px_0px_0px_#000] ${
                         lead.status === 'Deal Won'
                           ? 'bg-[#86efac] text-slate-900'
+                          : lead.status === 'Deal Confirmed'
+                          ? 'bg-amber-200 text-amber-950 border-amber-600'
                           : lead.status === 'Lost'
                           ? 'bg-rose-200 text-slate-900'
                           : lead.status === 'Demo Scheduled'
@@ -372,11 +421,43 @@ export default function AffiliateDashboard() {
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-slate-100">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase">Product:</span>
-                    <span className="text-[10px] font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-300">
-                      {lead.product}
-                    </span>
+                  <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase">Product:</span>
+                      <span className="text-[10px] font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-300">
+                        {lead.product}
+                      </span>
+                    </div>
+
+                    {lead.status === 'Deal Won' ? (
+                      <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded text-[10px] font-black uppercase">
+                        ✓ Won
+                      </span>
+                    ) : lead.status === 'Deal Confirmed' ? (
+                      <button
+                        onClick={() => {
+                          setSelectedLeadForPurchase(lead)
+                          setIsPurchaseModalOpen(true)
+                        }}
+                        className="px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-600 rounded font-black text-[10px] uppercase flex items-center gap-1 cursor-pointer"
+                        title="Purchase reported to Admin. Click to review or edit."
+                      >
+                        <span>⏳</span>
+                        <span>Reported</span>
+                      </button>
+                    ) : lead.status !== 'Lost' ? (
+                      <button
+                        onClick={() => {
+                          setSelectedLeadForPurchase(lead)
+                          setIsPurchaseModalOpen(true)
+                        }}
+                        className="px-2.5 py-1 bg-[#86efac] hover:bg-[#6ee7b7] text-slate-950 border-2 border-slate-900 rounded font-black text-[10px] uppercase shadow-[2px_2px_0px_0px_#000] flex items-center gap-1 cursor-pointer"
+                        title="School bought product - Notify Super Admin to credit commission"
+                      >
+                        <span>🎉</span>
+                        <span>School Bought!</span>
+                      </button>
+                    ) : null}
                   </div>
 
                   {lead.status === 'Lost' && lead.rejectionReason && (
@@ -396,7 +477,8 @@ export default function AffiliateDashboard() {
                   <tr>
                     <th className="p-3">School / Client</th>
                     <th className="p-3">Product</th>
-                    <th className="p-3">Status</th>
+                    <th className="p-3 whitespace-nowrap text-center">Status</th>
+                    <th className="p-3 text-right whitespace-nowrap">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y-2 divide-slate-100 font-medium">
@@ -411,11 +493,17 @@ export default function AffiliateDashboard() {
                           </div>
                         )}
                       </td>
-                      <td className="p-3 font-bold text-slate-800">{lead.product}</td>
-                      <td className="p-3">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border border-slate-900 ${
+                      <td className="p-3 font-bold text-slate-800 max-w-xs sm:max-w-sm">
+                        <span className="line-clamp-2" title={lead.product}>
+                          {lead.product}
+                        </span>
+                      </td>
+                      <td className="p-3 whitespace-nowrap text-center">
+                        <span className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-black uppercase border border-slate-900 whitespace-nowrap shadow-[1px_1px_0px_0px_#000] ${
                           lead.status === 'Deal Won'
                             ? 'bg-[#86efac] text-slate-900'
+                            : lead.status === 'Deal Confirmed'
+                            ? 'bg-amber-200 text-amber-950 border-amber-600'
                             : lead.status === 'Lost'
                             ? 'bg-rose-200 text-slate-900'
                             : lead.status === 'Demo Scheduled'
@@ -424,6 +512,39 @@ export default function AffiliateDashboard() {
                         }`}>
                           {lead.status}
                         </span>
+                      </td>
+                      <td className="p-3 text-right">
+                        {lead.status === 'Deal Won' ? (
+                          <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded text-[10px] font-black uppercase">
+                            ✓ Won
+                          </span>
+                        ) : lead.status === 'Deal Confirmed' ? (
+                          <button
+                            onClick={() => {
+                              setSelectedLeadForPurchase(lead)
+                              setIsPurchaseModalOpen(true)
+                            }}
+                            className="px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-600 rounded font-black text-[10px] uppercase flex items-center gap-1 cursor-pointer ml-auto"
+                            title="Purchase reported to Admin. Click to review or edit."
+                          >
+                            <span>⏳</span>
+                            <span>Reported</span>
+                          </button>
+                        ) : lead.status !== 'Lost' ? (
+                          <button
+                            onClick={() => {
+                              setSelectedLeadForPurchase(lead)
+                              setIsPurchaseModalOpen(true)
+                            }}
+                            className="px-2.5 py-1 bg-[#86efac] hover:bg-[#6ee7b7] text-slate-950 border-2 border-slate-900 rounded font-black text-[10px] uppercase shadow-[2px_2px_0px_0px_#000] hover:translate-y-[-1px] transition-all cursor-pointer inline-flex items-center gap-1 whitespace-nowrap ml-auto"
+                            title="School bought product - Notify Super Admin to credit commission"
+                          >
+                            <span>🎉</span>
+                            <span>School Bought!</span>
+                          </button>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 font-bold uppercase">—</span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -462,6 +583,19 @@ export default function AffiliateDashboard() {
         onClose={handleDismissCongrats}
         partnerName={data?.profile?.name || user?.name || 'Partner'}
         payout={data?.latestPaidPayout || null}
+      />
+
+      {/* Report Purchase Modal */}
+      <ReportPurchaseModal
+        isOpen={isPurchaseModalOpen}
+        onClose={() => {
+          setIsPurchaseModalOpen(false)
+          setSelectedLeadForPurchase(null)
+        }}
+        lead={selectedLeadForPurchase}
+        token={token}
+        allowedProducts={allowedProducts}
+        onSuccess={fetchDashboard}
       />
 
     </div>

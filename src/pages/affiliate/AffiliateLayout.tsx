@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { usePortalTheme, PortalThemeSwitcher } from '../../contexts/PortalThemeContext'
 import { showSuccessToast } from '../../components/ui/Toast'
 import logoImg from '../../assets/logoooo.png'
+import AffiliateAnnouncementBell from '../../components/affiliate/AffiliateAnnouncementBell'
 
 export default function AffiliateLayout() {
   const { user, isAuthenticated, isLoading, logout } = useAuth()
@@ -294,6 +295,7 @@ export default function AffiliateLayout() {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
+              <AffiliateAnnouncementBell />
               <PortalThemeSwitcher />
               <button
                 onClick={handleLogout}

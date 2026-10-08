@@ -6,6 +6,8 @@ import axios from 'axios'
 import { showSuccessToast, showErrorToast } from '../../components/ui/Toast'
 import { API_BASE } from './types'
 import logoImg from '../../assets/logoooo.png'
+import AdminNotificationBell from '../../components/admin/AdminNotificationBell'
+import BroadcastAnnouncementModal from '../../components/admin/BroadcastAnnouncementModal'
 
 export default function AdminLayout() {
   const { user, token, isAuthenticated, isLoading, logout } = useAuth()
@@ -13,6 +15,7 @@ export default function AdminLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isBroadcastModalOpen, setIsBroadcastModalOpen] = useState(false)
 
   // Global floating <w> logos toggle state
   const [floatingLogosEnabled, setFloatingLogosEnabled] = useState<boolean>(() => {
@@ -340,6 +343,20 @@ export default function AdminLayout() {
 
             {/* Quick Actions in Navbar */}
             <div className="flex items-center gap-2">
+              {/* Broadcast Announcement to Affiliates Trigger */}
+              <button
+                onClick={() => setIsBroadcastModalOpen(true)}
+                title="Broadcast Announcement / Message to Affiliates"
+                className="relative p-2 bg-[#fde047] hover:bg-[#facc15] border-2 border-slate-900 rounded-lg text-sm font-black shadow-[2px_2px_0px_0px_#000] hover:translate-y-[1px] transition-all cursor-pointer flex items-center justify-center shrink-0"
+              >
+                <span className="text-base leading-none">📢</span>
+                <span className="hidden sm:inline-block ml-1.5 text-xs font-black uppercase text-slate-950">
+                  Broadcast
+                </span>
+              </button>
+
+              <AdminNotificationBell />
+
               <PortalThemeSwitcher />
 
               <Link
@@ -365,6 +382,13 @@ export default function AdminLayout() {
           </main>
         </div>
       </div>
+
+      {/* Broadcast Announcement Modal */}
+      <BroadcastAnnouncementModal
+        isOpen={isBroadcastModalOpen}
+        onClose={() => setIsBroadcastModalOpen(false)}
+        token={token}
+      />
     </div>
   )
 }
