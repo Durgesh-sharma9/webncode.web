@@ -12,11 +12,18 @@ const quickLinks = [
   { to: '/contact', label: 'Contact' },
 ]
 
+const legalLinks = [
+  { to: '/privacy-policy', label: 'Privacy Policy' },
+  { to: '/terms', label: 'Terms of Service' },
+  { to: '/cancellation-refund', label: 'Refund & Cancellation' },
+  { to: '/shipping-delivery', label: 'Shipping & Delivery' },
+]
+
 export default function Footer() {
   return (
     <footer className="border-t-4 border-slate-900 bg-[#ebebeb] text-slate-900">
       <div className="container-wide px-5 py-16 md:px-8 lg:px-12">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
           
           {/* Company Bio */}
           <div className="lg:col-span-1 space-y-4">
@@ -45,13 +52,32 @@ export default function Footer() {
             </ul>
           </div>
 
+          {/* Legal & Compliance */}
+          <div>
+            <h4 className="mb-5 text-xs font-black uppercase tracking-wider font-mono text-slate-900 border-b-2 border-slate-900 pb-1 inline-block">
+              Legal & Compliance
+            </h4>
+            <ul className="space-y-3">
+              {legalLinks.map((link) => (
+                <li key={link.to}>
+                  <Link
+                    to={link.to}
+                    className="text-sm font-black uppercase font-mono text-slate-700 hover:text-slate-900 hover:underline inline-block"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* Products List */}
           <div>
             <h4 className="mb-5 text-xs font-black uppercase tracking-wider font-mono text-slate-900 border-b-2 border-slate-900 pb-1 inline-block">
               Products
             </h4>
             <ul className="space-y-3">
-              {products.slice(0, 6).map((product) => (
+              {products.slice(0, 5).map((product) => (
                 <li key={product.id}>
                   <Link
                     to={`/products/${product.slug}`}
@@ -72,11 +98,11 @@ export default function Footer() {
             <ul className="space-y-3 text-sm font-bold uppercase tracking-wide text-slate-700">
               <li>
                 <a
-  href={`mailto:${company.email}`}
-  className="text-sm font-semibold normal-case text-slate-800 hover:text-slate-900 hover:underline transition-all break-all"
->
-  {company.email}
-</a>
+                  href={`mailto:${company.email}`}
+                  className="text-sm font-semibold normal-case text-slate-800 hover:text-slate-900 hover:underline transition-all break-all"
+                >
+                  {company.email}
+                </a>
               </li>
               <li>
                 <a href={`tel:${company.phone.replace(/\s/g, '')}`} className="hover:text-slate-900 hover:underline transition-all">
@@ -114,10 +140,20 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar Custom Grid lines */}
-        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t-2 border-slate-900 pt-8 sm:flex-row">
-          <p className="text-xs font-black uppercase font-mono text-slate-600">
-            © {new Date().getFullYear()} {company.name}. All rights reserved.
-          </p>
+        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t-2 border-slate-900 pt-8 sm:flex-row">
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-xs font-black uppercase font-mono text-slate-600">
+            <span>© {new Date().getFullYear()} {company.name}. All rights reserved.</span>
+            <span className="hidden sm:inline">•</span>
+            <div className="flex items-center gap-3">
+              <Link to="/privacy-policy" className="hover:text-slate-950 underline">Privacy</Link>
+              <span>•</span>
+              <Link to="/terms" className="hover:text-slate-950 underline">Terms</Link>
+              <span>•</span>
+              <Link to="/cancellation-refund" className="hover:text-slate-950 underline">Refund</Link>
+              <span>•</span>
+              <Link to="/shipping-delivery" className="hover:text-slate-950 underline">Delivery</Link>
+            </div>
+          </div>
           <p className="text-xs font-black uppercase font-mono border-2 border-slate-900 bg-white px-3 py-1 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] text-slate-900">
             BUILDING SOFTWARE THAT POWERS GROWTH.
           </p>

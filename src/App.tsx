@@ -13,6 +13,10 @@ import Careers from './pages/Careers'
 import Updates from './pages/Updates'
 import Contact from './pages/Contact'
 import Login from './pages/Login'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfService from './pages/TermsOfService'
+import RefundPolicy from './pages/RefundPolicy'
+import ShippingPolicy from './pages/ShippingPolicy'
 
 // Admin Portal Pages
 import AdminLayout from './pages/admin/AdminLayout'
@@ -51,6 +55,16 @@ export default function App() {
             <Route path="careers" element={<Careers />} />
             <Route path="updates" element={<Updates />} />
             <Route path="contact" element={<Contact />} />
+            
+            {/* Legal & Compliance Pages */}
+            <Route path="privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="privacy" element={<Navigate to="/privacy-policy" replace />} />
+            <Route path="terms" element={<TermsOfService />} />
+            <Route path="terms-and-conditions" element={<Navigate to="/terms" replace />} />
+            <Route path="cancellation-refund" element={<RefundPolicy />} />
+            <Route path="refund-policy" element={<Navigate to="/cancellation-refund" replace />} />
+            <Route path="shipping-delivery" element={<ShippingPolicy />} />
+            <Route path="shipping-policy" element={<Navigate to="/shipping-delivery" replace />} />
           </Route>
 
           {/* Dedicated Login Route */}
