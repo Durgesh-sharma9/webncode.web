@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { company } from '../data/company'
 
 export default function PrivacyPolicy() {
-  const lastUpdated = 'October 8, 2026'
+  const lastUpdated = 'October 13, 2026'
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-slate-900 relative selection:bg-[#ff9e7d] pb-24 font-sans">
@@ -29,6 +29,9 @@ export default function PrivacyPolicy() {
               </span>
               <span className="rounded border border-slate-900 bg-[#93c5fd] px-2.5 py-0.5 text-[10px] font-black uppercase font-mono">
                 IT ACT 2000 & DPDP ACT 2023
+              </span>
+              <span className="rounded border border-slate-900 bg-[#fde047] px-2.5 py-0.5 text-[10px] font-black uppercase font-mono">
+                GOOGLE PLAY DEVELOPER POLICY COMPLIANT
               </span>
             </div>
 
@@ -86,9 +89,9 @@ export default function PrivacyPolicy() {
                 Single Unified Policy for All Web n Code Applications
               </h2>
               <p className="text-xs sm:text-sm text-slate-700 mt-1">
-                All applications developed by <strong>Web n code Technologies</strong> (including <strong>Syllabus Tracker</strong>,{' '}
+                All applications developed by <strong>Web n code Technologies</strong> (including <strong>EventSync</strong>, <strong>Syllabus Tracker</strong>,{' '}
                 <strong>CampusCRM</strong>, <strong>TimeTablePro</strong>, <strong>TestMaster</strong>, and <strong>School ERP Pro</strong>) are hosted under the umbrella domain{' '}
-                <code className="bg-white px-1.5 py-0.5 rounded border border-slate-900 font-bold font-mono">webncode.in</code> and share the unified Google Cloud Project consent parameters. This policy covers all apps and user accounts across our ecosystem.
+                <code className="bg-white px-1.5 py-0.5 rounded border border-slate-900 font-bold font-mono">webncode.in</code> and share unified data protection and consent standards. This policy covers all web and mobile apps across our ecosystem.
               </p>
             </div>
           </div>
@@ -103,9 +106,13 @@ export default function PrivacyPolicy() {
             </h2>
             <p>
               Welcome to <strong>Web n code Technologies</strong> (&ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;). We operate the primary domain{' '}
-              <strong>webncode.in</strong> (as well as <strong>webncode.com</strong>) and our dedicated suite of web applications and SaaS tools, including:
+              <strong>webncode.in</strong> (as well as <strong>webncode.com</strong>) and our dedicated suite of web and mobile applications, including:
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-xs pt-1">
+              <div className="p-2.5 bg-slate-50 border border-slate-900 rounded flex items-center gap-2">
+                <span className="text-base">🎪</span>
+                <span><strong>EventSync</strong> (School Event & Stage Tracking Mobile App)</span>
+              </div>
               <div className="p-2.5 bg-slate-50 border border-slate-900 rounded flex items-center gap-2">
                 <span className="text-base">📚</span>
                 <span><strong>Syllabus Tracker</strong> (Curriculum & Lesson Manager)</span>
@@ -128,10 +135,10 @@ export default function PrivacyPolicy() {
               </div>
             </div>
             <p>
-              This Privacy Policy describes how your personal information and third-party account data (specifically Google user data) are collected, accessed, stored, utilized, and protected when you visit our website, use any of our web applications, or interact with our services.
+              This Privacy Policy describes how your personal information, device permissions, and third-party account data are collected, accessed, stored, utilized, and protected when you visit our website, install our Android applications from Google Play Store, or interact with our services.
             </p>
             <p>
-              This document complies with India&apos;s <strong>Information Technology Act, 2000</strong>, the <strong>Digital Personal Data Protection Act, 2023 (DPDP Act)</strong>, and the <strong>Google API Services User Data Policy</strong> (including Limited Use requirements).
+              This document complies with India&apos;s <strong>Information Technology Act, 2000</strong>, the <strong>Digital Personal Data Protection Act, 2023 (DPDP Act)</strong>, the <strong>Google API Services User Data Policy</strong>, and the <strong>Google Play Developer Distribution Agreement & Policies</strong>.
             </p>
           </section>
 
@@ -145,12 +152,36 @@ export default function PrivacyPolicy() {
             </p>
 
             <div className="space-y-4 pl-2 sm:pl-4 border-l-4 border-slate-900">
+              {/* EventSync Mobile Application Data */}
+              <div className="p-4 bg-emerald-50/70 border-2 border-slate-900 rounded-xl space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">📱</span>
+                  <h3 className="font-black text-slate-900 uppercase font-mono text-sm sm:text-base">
+                    A. EventSync Mobile App (Camera Permission, Ads & Cloud Sync)
+                  </h3>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-700">
+                  For users of the <strong>EventSync</strong> Android application (School Event & Stage Tracking):
+                </p>
+                <ul className="list-disc pl-5 space-y-1.5 text-slate-700 text-xs sm:text-sm">
+                  <li>
+                    <strong>Camera Permission (android.permission.CAMERA):</strong> Used exclusively to scan participant QR codes, event badges, and entry tickets in real time. Processing occurs on-device; we do <em>not</em> take, record, retain, or transmit any photos, selfies, or video footage.
+                  </li>
+                  <li>
+                    <strong>Google AdMob Advertising Disclosures:</strong> EventSync uses Google AdMob to serve in-app advertisements (banner and interstitial ads). AdMob may collect and process pseudonymous identifiers such as the Google Advertising ID (AAID) and device information to deliver contextual and personalized ads in accordance with Google&apos;s Advertising Privacy Policies. Users can reset or opt out of personalized ads at any time in Android System Settings &gt; Google &gt; Ads.
+                  </li>
+                  <li>
+                    <strong>Google Firebase (Firestore & Auth):</strong> Event details, stage queues, and participant status are securely synchronized using Google Cloud Firebase.
+                  </li>
+                </ul>
+              </div>
+
               {/* Google Account Information */}
               <div className="p-4 bg-sky-50/60 border-2 border-slate-900 rounded-xl space-y-2">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">🔑</span>
                   <h3 className="font-black text-slate-900 uppercase font-mono text-sm sm:text-base">
-                    A. Google Account Information (OAuth 2.0 Sign-In)
+                    B. Google Account Information (OAuth 2.0 Sign-In)
                   </h3>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-700">
@@ -169,7 +200,7 @@ export default function PrivacyPolicy() {
                 <div className="flex items-center gap-2">
                   <span className="text-lg">📂</span>
                   <h3 className="font-black text-slate-900 uppercase font-mono text-sm sm:text-base">
-                    B. Google Drive Data (Specifically for Syllabus Tracker)
+                    C. Google Drive Data (Specifically for Syllabus Tracker)
                   </h3>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-700">
@@ -188,7 +219,7 @@ export default function PrivacyPolicy() {
               {/* Institutional & Client Data */}
               <div>
                 <h3 className="font-black text-slate-900 uppercase font-mono text-sm">
-                  C. School & Organization Data
+                  D. School & Organization Data
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-700 mt-1">
                   For institutional subscriptions (School ERP, CampusCRM, TimeTablePro, TestMaster), schools provide authorized administrator names, official school email addresses, teacher schedules, exam schedules, and billing information.
@@ -198,7 +229,7 @@ export default function PrivacyPolicy() {
               {/* Technical Data */}
               <div>
                 <h3 className="font-black text-slate-900 uppercase font-mono text-sm">
-                  D. Technical & Usage Log Data
+                  E. Technical & Usage Log Data
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-700 mt-1">
                   Standard technical logs including browser type, operating system, IP address, and request timestamps are collected solely for performance monitoring, bug troubleshooting, and threat mitigation.
@@ -212,7 +243,7 @@ export default function PrivacyPolicy() {
             <div className="flex items-center gap-2">
               <span className="text-xl">🛡️</span>
               <h2 className="text-base sm:text-lg font-black uppercase font-mono text-slate-900">
-                3. Google API Services User Data Policy Compliance (Limited Use Disclosure)
+                3. Google API Services & Developer Policies Compliance
               </h2>
             </div>
             <p className="text-xs sm:text-sm font-bold text-slate-900">
@@ -225,16 +256,16 @@ export default function PrivacyPolicy() {
               >
                 Google API Services User Data Policy
               </a>
-              , including the Limited Use requirements.
+              , including the Limited Use requirements, as well as the Google Play Developer Policies.
             </p>
             <div className="space-y-2 text-xs sm:text-sm text-slate-800 pt-1">
               <p>In accordance with Google&apos;s Limited Use restrictions:</p>
               <ul className="list-disc pl-5 space-y-1.5 text-slate-700">
                 <li>
-                  <strong>No Third-Party Sharing:</strong> We do NOT sell, rent, license, or share user personal data or Google Drive files with any third parties, brokers, or data aggregators.
+                  <strong>No Third-Party Sale:</strong> We do NOT sell, rent, license, or trade user personal data or Google Drive files with any third parties, brokers, or data aggregators.
                 </li>
                 <li>
-                  <strong>No Advertising Use:</strong> Data received through Google APIs is never used for serving advertisements, retargeting, or promotional marketing.
+                  <strong>No Advertising Misuse:</strong> Data received through Google APIs is never used for serving advertisements or promotional targeting. In mobile apps where ads are served (such as EventSync via Google AdMob), ads are served strictly according to Google AdMob developer policies.
                 </li>
                 <li>
                   <strong>No AI/ML Model Training:</strong> We do NOT use Google user data or Google Drive files to train, retrain, or improve generalized artificial intelligence (AI) or machine learning (ML) models.
@@ -254,13 +285,13 @@ export default function PrivacyPolicy() {
             <p>We process your data strictly to deliver educational tools and seamless software workflows:</p>
             <ul className="list-disc pl-5 space-y-2 text-xs sm:text-sm text-slate-700">
               <li>
-                <strong>To provide, maintain, and secure our applications:</strong> Powering Syllabus Tracker, CampusCRM, TimeTablePro, TestMaster, and our School ERP platform.
+                <strong>To provide, maintain, and secure our applications:</strong> Powering EventSync, Syllabus Tracker, CampusCRM, TimeTablePro, TestMaster, and our School ERP platform.
               </li>
               <li>
-                <strong>To sync and manage educational documents:</strong> Syncing lesson plans and syllabus documentation directly within your connected cloud storage.
+                <strong>To sync and manage event and educational documents:</strong> Syncing real-time stages, lesson plans, and syllabus documentation directly within your connected cloud storage.
               </li>
               <li>
-                <strong>Identity Authentication:</strong> Validating your identity via Google OAuth to prevent unauthorized account takeovers.
+                <strong>Identity Authentication:</strong> Validating your identity via Google OAuth or Firebase Auth to prevent unauthorized account takeovers.
               </li>
               <li>
                 <strong>Customer Assistance:</strong> Resolving technical inquiries and maintaining uptime for classroom schedules and student modules.
@@ -293,7 +324,7 @@ export default function PrivacyPolicy() {
                   🎯 Principle of Least Privilege
                 </span>
                 <p className="text-xs text-slate-600">
-                  Application access scopes are strictly narrowed to the minimum permissions needed to perform core functionality (e.g. per-file Drive access).
+                  Application access scopes are strictly narrowed to the minimum permissions needed to perform core functionality (e.g. per-file Drive access, on-device QR scanning).
                 </p>
               </div>
             </div>
@@ -346,6 +377,8 @@ export default function PrivacyPolicy() {
             </p>
             <ul className="list-disc pl-5 space-y-1 text-xs sm:text-sm text-slate-700">
               <li><strong>Cloudflare & Secure VPS:</strong> For SSL termination, DDoS protection, and cloud application hosting.</li>
+              <li><strong>Google Firebase & Firestore:</strong> For real-time cloud database storage, synchronization, and secure backend operations.</li>
+              <li><strong>Google AdMob:</strong> For delivering compliant banner and interstitial ads in our mobile applications.</li>
               <li><strong>MongoDB Atlas:</strong> Encrypted-at-rest database storage for tenant configurations.</li>
               <li><strong>Payment Processors (Razorpay):</strong> PCI-DSS compliant gateways for processing subscription invoices.</li>
             </ul>
