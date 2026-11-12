@@ -206,7 +206,7 @@ export const OfferLetterDocument = forwardRef<HTMLDivElement, OfferLetterDocumen
             <span className="text-[#334155]">+91 8947919195</span> |{' '}
             <span className="font-bold text-[#0f172a]">www.webncode.in</span>
           </p>
-          <p className="text-[#64748b]">Mahapura, Ajmer Road, Jaipur, Rajasthan 302026, India</p>
+          <p className="text-[#64748b]">Jaipur, Rajasthan, India</p>
         </div>
       </div>
     )

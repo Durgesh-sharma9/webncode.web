@@ -384,7 +384,7 @@ export default function InternModal({ isOpen, onClose, onSuccess, intern }: Inte
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Mahapura, Ajmer Road, Jaipur, Rajasthan 302026, India"
+                  placeholder="e.g. Jaipur, Rajasthan, India"
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   className="w-full px-3 py-2 text-sm border-2 border-slate-900 rounded-lg focus:outline-none focus:bg-sky-50 font-medium"
