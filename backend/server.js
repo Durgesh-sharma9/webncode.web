@@ -9,6 +9,7 @@ const projectRoutes = require('./routes/projectRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const developerRoutes = require('./routes/developerRoutes');
 const updateRoutes = require('./routes/updateRoutes');
+const internRoutes = require('./routes/internRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const affiliateRoutes = require('./routes/affiliateRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
@@ -63,6 +64,9 @@ app.use('/api/developers', developerRoutes);
 
 // Mount updates routes at /api/updates
 app.use('/api/updates', updateRoutes);
+
+// Mount interns & certificates routes at /api/interns
+app.use('/api/interns', internRoutes);
 
 // Mount categories routes at /api/categories
 app.use('/api/categories', categoryRoutes);

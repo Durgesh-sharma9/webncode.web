@@ -17,10 +17,12 @@ import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 import RefundPolicy from './pages/RefundPolicy'
 import ShippingPolicy from './pages/ShippingPolicy'
+import VerifyCertificate from './pages/VerifyCertificate'
 
 // Admin Portal Pages
 import AdminLayout from './pages/admin/AdminLayout'
 import LeadsTab from './pages/admin/LeadsTab'
+import InternsTab from './pages/admin/InternsTab'
 import CareersTab from './pages/admin/CareersTab'
 import AffiliatesTab from './pages/admin/AffiliatesTab'
 import DevelopersTab from './pages/admin/DevelopersTab'
@@ -72,6 +74,12 @@ export default function App() {
             <Route path="shipping-delivery" element={<ShippingPolicy />} />
             <Route path="shipping-policy" element={<Navigate to="/shipping-delivery" replace />} />
             <Route path="shipping.html" element={<ShippingPolicy />} />
+            
+            {/* Public Certificate Verification Routes */}
+            <Route path="verify-certificate/:ref" element={<VerifyCertificate />} />
+            <Route path="verify-certificate" element={<VerifyCertificate />} />
+            <Route path="verify/:ref" element={<VerifyCertificate />} />
+            <Route path="verify" element={<VerifyCertificate />} />
           </Route>
 
           {/* Dedicated Login Route */}
@@ -82,6 +90,7 @@ export default function App() {
           <Route path="admin" element={<AdminLayout />}>
             <Route index element={<Navigate to="leads" replace />} />
             <Route path="leads" element={<LeadsTab />} />
+            <Route path="interns" element={<InternsTab />} />
             <Route path="careers" element={<CareersTab />} />
             <Route path="affiliates" element={<AffiliatesTab />} />
             <Route path="affiliates/analytics" element={<AffiliateAnalyticsTab />} />

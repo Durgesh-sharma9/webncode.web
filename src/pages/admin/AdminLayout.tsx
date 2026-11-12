@@ -35,6 +35,7 @@ export default function AdminLayout() {
   // Navigation Items
   const navItems = [
     { to: '/admin/leads', label: 'Client Leads', icon: '📬' },
+    { to: '/admin/interns', label: 'Interns & Certificates', icon: '🎓' },
     { to: '/admin/careers', label: 'Careers & Resumes', icon: '💼' },
     { to: '/admin/affiliates', label: 'Affiliates & Partners', icon: '🤝' },
     { to: '/admin/analytics', label: 'Affiliates Analytics', icon: '📊' },

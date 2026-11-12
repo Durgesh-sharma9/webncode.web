@@ -297,6 +297,35 @@ export const calculateProductsPrice = (products: string[], plansList?: ProductPl
   return products.reduce((sum, p) => sum + getProductPrice(p, plansList), 0)
 }
 
+export interface InternItem {
+  _id: string
+  name: string
+  email: string
+  phone?: string
+  college: string
+  course: string
+  domain: string
+  department: string
+  mode: 'offline' | 'online' | 'hybrid'
+  stipend: string
+  location: string
+  duration: string
+  startDate: string
+  endDate: string
+  offerLetterRef: string
+  offerLetterDate: string
+  acceptanceDueDate: string
+  offerLetterSentAt?: string | null
+  certificateRef: string
+  certificateIssueDate: string
+  certificateStatus: 'draft' | 'approved' | 'revoked'
+  certificateEvaluation: string
+  certificateSentAt?: string | null
+  notes?: string
+  createdAt?: string
+  updatedAt?: string
+}
+
 export interface AffiliateCouponItem {
   _id: string
   code: string

@@ -268,6 +268,7 @@
           <div class="app-box">⏰ <strong>TimeTablePro</strong> (Automated School Timetable Planner)</div>
           <div class="app-box">📝 <strong>TestMaster</strong> (Exams & Question Paper Generator)</div>
           <div class="app-box" style="grid-column: 1 / -1;">🎒 <strong>School ERP Pro</strong> (Integrated Campus Management Suite)</div>
+          <div class="app-box" style="grid-column: 1 / -1;">🎪 <strong>EventSync</strong> (School Event, Stage Queue & Live Performance Tracking Mobile App)</div>
         </div>
         <p>
           This Privacy Policy explains how user data is collected, accessed, processed, and protected when you use our websites, sign in with your Google account, or use any of our web tools.
@@ -310,6 +311,33 @@
           <p style="font-size: 13px; font-weight: bold; margin-top: 6px;">
             ⚠️ Notice: Syllabus Tracker does NOT scan, browse, index, or access any other personal files, folders, or photos in your Google Drive.
           </p>
+        </div>
+
+        <!-- EventSync Mobile App Disclosures -->
+        <div class="box-green">
+          <h3>🎪 C. EventSync Mobile Application (Google Play Developer Compliance)</h3>
+          <p>
+            For users of our Android mobile application <strong>EventSync</strong> (Package: <code>eventsync.app</code>), the following disclosures apply in accordance with Google Play Developer Program Policies:
+          </p>
+          <ul style="margin-top: 8px;">
+            <li>
+              <strong>Camera Permission (<code>android.permission.CAMERA</code>):</strong>
+              Requested on demand solely when authorized school coordinators or teachers use the in-app QR code scanner to verify student admission, stage queue tokens, or event participant passes.
+              <br><em style="color: #065f46; font-weight: bold;">✓ We strictly DO NOT record, store, capture, or transmit personal photos, video footage, or facial biometric data from your device camera.</em>
+            </li>
+            <li>
+              <strong>Google Mobile Ads SDK (AdMob):</strong>
+              EventSync displays banner advertisements to public spectators and guest users. The Google AdMob SDK may collect and process pseudonymous device identifiers (such as the Google Advertising ID / AAID) and interaction statistics strictly to deliver and measure advertisements in compliance with Google's Advertising Policies. Subscribed institutions have all advertisements completely disabled.
+            </li>
+            <li>
+              <strong>Real-time Cloud Database (Firebase Firestore):</strong>
+              Stage event schedules, queue tracking, and coordinator announcements are synchronized securely through Google Cloud Firestore using TLS 1.3 / HTTPS encryption in transit. Data is strictly tenant-isolated per school.
+            </li>
+            <li>
+              <strong>No Hazardous Background Permissions:</strong>
+              EventSync does NOT access background location, device contacts, call logs, SMS, or broad external file storage.
+            </li>
+          </ul>
         </div>
 
         <div style="margin-top: 14px;">
@@ -371,11 +399,28 @@
           </p>
         </div>
 
-        <div style="margin-top: 14px;">
-          <h3>Data Retention & Account Deletion</h3>
+        <div id="deletion" style="margin-top: 18px; scroll-margin-top: 40px;">
+          <h3 id="account-deletion">🗑️ Data Retention & Account Deletion Policy (Google Play Compliance)</h3>
           <p>
-            We retain account details only for as long as your account is active. You may request permanent deletion of your account and all associated data at any time by emailing us at <a href="mailto:webncodetechnologies@gmail.com">webncodetechnologies@gmail.com</a>.
+            At Web n code Technologies, we believe in user autonomy over personal data. We retain your account data only for as long as your account is active or needed to provide services.
           </p>
+          <div class="box-green" style="margin-top: 10px;">
+            <p><strong>How to Request Account & Data Deletion:</strong></p>
+            <ul style="margin-top: 6px;">
+              <li><strong>In-App Deletion:</strong> Open the EventSync app &rarr; navigate to <em>Settings / Profile</em> &rarr; tap <em>"Delete Account"</em> to initiate immediate self-service account removal.</li>
+              <li><strong>Direct Web / Email Request:</strong> If you are unable to access the app or have uninstalled it, send an email to <a href="mailto:webncodetechnologies@gmail.com">webncodetechnologies@gmail.com</a> with the subject <em>"EventSync Account & Data Deletion Request"</em> from your registered email address.</li>
+            </ul>
+            <p style="margin-top: 10px;"><strong>What Data is Deleted:</strong></p>
+            <ul style="margin-top: 6px;">
+              <li>Your personal profile credentials (name, email address, contact number).</li>
+              <li>All school or event coordinator affiliations and administrative privileges.</li>
+              <li>Participant lists, stage queue assignments, and event attendance check-in timestamps.</li>
+            </ul>
+            <p style="margin-top: 10px;"><strong>Retention Timeline & Exceptions:</strong></p>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+              Upon receiving a verified deletion request, all personal data is permanently deleted from our active Firebase Firestore databases within <strong>30 days</strong>. Anonymized performance metrics or accounting invoices required for tax and regulatory compliance are retained strictly for the legally required period and are never used for any other purpose.
+            </p>
+          </div>
         </div>
       </section>
 
