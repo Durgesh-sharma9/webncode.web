@@ -5,9 +5,9 @@ const nodemailer = require('nodemailer');
  * Creates and returns configured Nodemailer SMTP transporter
  */
 const createTransporter = () => {
-  const host = process.env.SMTP_HOST || 'mail.webncode.in';
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
   const port = Number(process.env.SMTP_PORT) || 465;
-  const user = process.env.SMTP_USER || process.env.EMAIL_USER || 'business@webncode.in';
+  const user = process.env.SMTP_USER || process.env.EMAIL_USER || 'webncodetechnologies@gmail.com';
   const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
 
   return nodemailer.createTransport({
@@ -29,7 +29,7 @@ const createTransporter = () => {
  */
 const getFromAddress = () => {
   const name = process.env.EMAIL_FROM_NAME || 'Web n Code Technologies';
-  const user = process.env.SMTP_USER || process.env.EMAIL_USER || 'business@webncode.in';
+  const user = process.env.SMTP_USER || process.env.EMAIL_USER || 'webncodetechnologies@gmail.com';
   return `"${name}" <${user}>`;
 };
 
