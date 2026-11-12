@@ -96,7 +96,7 @@ export default function VerifyCertificate() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-slate-900 font-sans py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#fafafa] text-slate-900 font-sans pt-28 pb-16 sm:pt-32 sm:pb-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Clean Website-matching Hero Banner */}
         <div className="text-center space-y-3">
