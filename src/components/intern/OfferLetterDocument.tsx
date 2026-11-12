@@ -98,13 +98,26 @@ export const OfferLetterDocument = forwardRef<HTMLDivElement, OfferLetterDocumen
           {/* Main Body */}
           <div className="mt-3 space-y-3 leading-relaxed text-[#334155] text-[13px]" style={{ letterSpacing: '0.02px' }}>
             <p>
-              This is to inform you that <strong className="text-[#0f172a]">{intern.name}</strong>, a student of{' '}
-              <strong className="text-[#0f172a]">{intern.course || '4th Year 7th Sem (B. TECH CS-AI)'}</strong> at{' '}
-              <strong className="text-[#0f172a]">{intern.college || 'Arya college, Jaipur'}</strong>, has been offered an{' '}
-              <span className="capitalize">{intern.mode || 'offline'}</span> summer internship at{' '}
-              <strong className="text-[#0f172a]">Web n Code Technologies, Jaipur</strong>, for the period from{' '}
-              <strong className="text-[#0f172a]">{intern.duration || `${intern.startDate} to ${intern.endDate}`}</strong>.
-              This summer internship will provide you with valuable hands-on experience and exposure to industry best
+              This is to inform you that <strong className="text-[#0f172a]">{intern.name}</strong>
+              {intern.course && intern.course.trim() ? (
+                <>
+                  , a student of <strong className="text-[#0f172a]">{intern.course}</strong>
+                </>
+              ) : null}
+              {intern.college && intern.college.trim() ? (
+                <>
+                  {' '}at <strong className="text-[#0f172a]">{intern.college}</strong>
+                </>
+              ) : null}
+              , has been offered an <span className="capitalize">{intern.mode || 'offline'}</span> summer internship at{' '}
+              <strong className="text-[#0f172a]">Web n Code Technologies, Jaipur</strong>
+              {intern.duration || (intern.startDate && intern.endDate) ? (
+                <>
+                  , for the period from{' '}
+                  <strong className="text-[#0f172a]">{intern.duration || `${intern.startDate} to ${intern.endDate}`}</strong>
+                </>
+              ) : null}
+              . This summer internship will provide you with valuable hands-on experience and exposure to industry best
               practices, enhancing your technical and professional skills.
             </p>
 
@@ -120,26 +133,36 @@ export const OfferLetterDocument = forwardRef<HTMLDivElement, OfferLetterDocumen
               Summer Internship Details:
             </h3>
             <ul className="space-y-1.5 text-[13px] text-[#334155] pl-4 list-disc marker:text-[#0284c7]">
-              <li>
-                <strong className="text-[#0f172a]">Position:&nbsp;</strong>
-                <span>{intern.domain || 'Full Stack Development'}</span>
-              </li>
-              <li>
-                <strong className="text-[#0f172a]">Department:&nbsp;</strong>
-                <span>{intern.department || 'Development'}</span>
-              </li>
-              <li>
-                <strong className="text-[#0f172a]">Duration:&nbsp;</strong>
-                <span>{intern.duration || `${intern.startDate} to ${intern.endDate}`}</span>
-              </li>
-              <li>
-                <strong className="text-[#0f172a]">Stipend:&nbsp;</strong>
-                <span>{intern.stipend || '₹15000/month'}</span>
-              </li>
-              <li>
-                <strong className="text-[#0f172a]">Location:&nbsp;</strong>
-                <span>{intern.location || 'Madhapur, Ajmer Road, Jaipur, Rajasthan 302026, India'}</span>
-              </li>
+              {intern.domain && intern.domain.trim() ? (
+                <li>
+                  <strong className="text-[#0f172a]">Position:&nbsp;</strong>
+                  <span>{intern.domain}</span>
+                </li>
+              ) : null}
+              {intern.department && intern.department.trim() ? (
+                <li>
+                  <strong className="text-[#0f172a]">Department:&nbsp;</strong>
+                  <span>{intern.department}</span>
+                </li>
+              ) : null}
+              {intern.duration || (intern.startDate && intern.endDate) ? (
+                <li>
+                  <strong className="text-[#0f172a]">Duration:&nbsp;</strong>
+                  <span>{intern.duration || `${intern.startDate} to ${intern.endDate}`}</span>
+                </li>
+              ) : null}
+              {intern.stipend && intern.stipend.trim() ? (
+                <li>
+                  <strong className="text-[#0f172a]">Stipend:&nbsp;</strong>
+                  <span>{intern.stipend}</span>
+                </li>
+              ) : null}
+              {intern.location && intern.location.trim() ? (
+                <li>
+                  <strong className="text-[#0f172a]">Location:&nbsp;</strong>
+                  <span>{intern.location}</span>
+                </li>
+              ) : null}
             </ul>
           </div>
 

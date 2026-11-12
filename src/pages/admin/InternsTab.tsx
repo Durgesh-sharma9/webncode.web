@@ -241,7 +241,7 @@ export default function InternsTab() {
                         {intern.domain}
                       </span>
                       <p className="text-[11px] text-slate-500 capitalize mt-1">
-                        {intern.mode} • {intern.stipend}
+                        {intern.mode}{intern.stipend && intern.stipend.trim() ? ` • ${intern.stipend}` : ''}
                       </p>
                     </td>
 

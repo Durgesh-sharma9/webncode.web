@@ -325,7 +325,7 @@ exports.sendOfferLetterEmail = async (req, res) => {
           <div style="background: #f8fafc; border-left: 4px solid #0284c7; padding: 16px 20px; margin: 20px 0; border-radius: 4px;">
             <p style="margin: 0 0 8px 0; font-size: 13px;"><strong>Position:</strong> ${intern.domain}</p>
             <p style="margin: 0 0 8px 0; font-size: 13px;"><strong>Duration:</strong> ${intern.duration}</p>
-            <p style="margin: 0 0 8px 0; font-size: 13px;"><strong>Stipend:</strong> ${intern.stipend}</p>
+            ${intern.stipend && intern.stipend.trim() ? `<p style="margin: 0 0 8px 0; font-size: 13px;"><strong>Stipend:</strong> ${intern.stipend}</p>` : ''}
             <p style="margin: 0; font-size: 13px;"><strong>Reference No:</strong> ${intern.offerLetterRef}</p>
           </div>
 
